@@ -1,5 +1,11 @@
 import React, { useState, useRef } from 'react';
 
+// 确保TypeScript识别浏览器API
+declare const speechSynthesis: SpeechSynthesis;
+declare const MediaRecorder: any;
+declare const webkitSpeechRecognition: any;
+declare const SpeechRecognition: any;
+
 interface InteractivePageProps {
   onComplete: () => void;
   childName: string;
@@ -13,7 +19,7 @@ interface GameState {
   isCompleted: boolean;
 }
 
-const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete }) => {
+const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName }) => {
   // 游戏状态管理
   const [currentGame, setCurrentGame] = useState<GameState>({
     type: 'storytelling',
@@ -27,6 +33,11 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete }) => {
   const [animalCount, setAnimalCount] = useState(0);
   const [drawingTime, setDrawingTime] = useState(60);
   const [animalClickTime, setAnimalClickTime] = useState(10);
+  const [isPlayingVoice, setIsPlayingVoice] = useState(false);
+  
+  // 录音功能相关状态
+  const [recognitionActive, setRecognitionActive] = useState(false);
+  const [recognition, setRecognition] = useState<any>(null);
   
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawingIntervalRef = useRef<number | null>(null);
@@ -36,7 +47,7 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete }) => {
   const getTeacherMessage = () => {
     switch (currentGame.type) {
       case 'storytelling':
-        return "小兔子遇到了谁呢？用一句话告诉我！";
+        return `${childName}，小兔子遇到了谁呢？用一句话告诉我！`;
       case 'pattern':
         return "你能找出规律，选出正确的颜色吗？";
       case 'drawing':
@@ -45,6 +56,85 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete }) => {
         return `在${animalClickTime}秒内，尽可能多地点击小动物！`;
       default:
         return "准备好了吗？让我们开始吧！";
+    }
+  };
+  
+  // 初始化语音识别
+  React.useEffect(() => {
+    // 正确检测并访问SpeechRecognition API
+    const browserWindow = window as any;
+    const Recognition = browserWindow.webkitSpeechRecognition || browserWindow.SpeechRecognition;
+    
+    if (Recognition) {
+      const newRecognition = new Recognition();
+      newRecognition.continuous = false;
+      newRecognition.interimResults = true;
+      newRecognition.lang = 'zh-CN';
+      
+      newRecognition.onresult = (event: any) => {
+        const transcript = Array.from(event.results)
+          .map((result: any) => result[0])
+          .map((result: any) => result.transcript)
+          .join('');
+        
+        setStoryInput(transcript);
+      };
+      
+      newRecognition.onstart = () => {
+        setRecognitionActive(true);
+      };
+      
+      newRecognition.onend = () => {
+        setRecognitionActive(false);
+        // 自动提交如果有内容
+        if (storyInput.trim()) {
+          setTimeout(() => {
+            handleStorySubmit();
+          }, 1000);
+        }
+      };
+      
+      setRecognition(newRecognition);
+    }
+  }, [storyInput]);
+  
+  // 开始语音识别
+  const startVoiceRecognition = () => {
+    if (recognition) {
+      try {
+        recognition.start();
+      } catch (error) {
+        console.error('语音识别启动失败:', error);
+      }
+    }
+  };
+  
+  // 停止语音识别
+  const stopVoiceRecognition = () => {
+    if (recognition) {
+      recognition.stop();
+    }
+  };
+  
+  // 语音播放功能
+  const playVoiceStory = () => {
+    if ('speechSynthesis' in window) {
+      const speech = new SpeechSynthesisUtterance();
+      speech.text = `从前，有一只小兔子...${childName}，小兔子遇到了谁呢？`;
+      speech.lang = 'zh-CN';
+      speech.volume = 1;
+      speech.rate = 1;
+      speech.pitch = 1;
+      
+      speech.onstart = () => {
+        setIsPlayingVoice(true);
+      };
+      
+      speech.onend = () => {
+        setIsPlayingVoice(false);
+      };
+      
+      speechSynthesis.speak(speech);
     }
   };
   
@@ -150,7 +240,27 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete }) => {
       case 'storytelling':
         return (
           <div className="storytelling-game">
-            <p className="story-prompt">从前，有一只小兔子...</p>
+            <div className="story-header">
+              <p className="story-prompt">从前，有一只小兔子...</p>
+              <div className="voice-controls">
+                <button 
+                  className={`voice-button ${isPlayingVoice ? 'playing' : ''}`}
+                  onClick={playVoiceStory}
+                  disabled={isPlayingVoice || recognitionActive}
+                  title="听故事开始"
+                >
+                  {isPlayingVoice ? '🔊 播放中...' : '🔊 听故事'}
+                </button>
+                <button 
+                  className={`record-button ${recognitionActive ? 'recording' : ''}`}
+                  onClick={recognitionActive ? stopVoiceRecognition : startVoiceRecognition}
+                  disabled={isPlayingVoice}
+                  title={recognitionActive ? "停止录音" : "开始录音"}
+                >
+                  {recognitionActive ? '🎤 录音中...' : '🎤 开始录音'}
+                </button>
+              </div>
+            </div>
             <input
               type="text"
               className="story-input"
