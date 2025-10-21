@@ -1,0 +1,70 @@
+/* 基础全局样式重置 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f8f9fa;
+  color: #333;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+/* 确保图片和媒体响应式 */
+img, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 确保表单元素使用正确的字体 */
+input, button, select, textarea {
+  font-family: inherit;
+}
+
+/* 移除链接的默认样式 */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* 确保按钮和输入框的焦点样式一致 */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #2196f3;
+  outline-offset: 2px;
+}
+
+/* 确保滚动条样式一致 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
