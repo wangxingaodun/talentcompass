@@ -1,8 +1,29 @@
 export type Dimension = 'expression' | 'logic' | 'creativity' | 'imagination' | 'reaction';
 
+// 扩展的绘画元数据接口
+export interface DrawingMetrics {
+  totalMs: number;
+  colorsUsed: number;
+  shapesUsed: number;
+  strokeCount: number;
+  toolVariety: number;
+  usedColors: string[];
+  shapeBreakdown: { pencil: number; circle: number; rect: number };
+  imageDataUrl: string;
+}
+
+// 想象力评估结果接口
+export interface ImaginationAssessment {
+  score: number; // 0-100
+  level: 'excellent' | 'good' | 'needs_improvement';
+  reasons: string[];
+  suggestions: string[];
+  confidence: number; // 0-1
+}
+
 export interface GameStageResult {
   dimension: Dimension;
-  metrics: Record<string, number>;
+  metrics: Record<string, number> | DrawingMetrics;
 }
 
 export interface GameStageProps {

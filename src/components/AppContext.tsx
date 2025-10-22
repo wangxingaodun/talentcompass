@@ -1,5 +1,7 @@
 import React, { createContext, useState, useContext } from 'react';
 import type { ReactNode } from 'react';
+import type { DrawingMetrics, ImaginationAssessment } from './games/types';
+import { evaluateImaginationWithLLM, convertAssessmentToMetrics } from './imaginationEvaluator';
 
 // 定义应用状态类型
 interface AppState {
@@ -24,10 +26,11 @@ interface AppState {
   metrics: {
     expression: { charCount: number; uniqueCharCount: number; latencyMs: number };
     logic: { correct: number; attempts: number; avgLatencyMs: number };
-    creativity: { activeMs: number; colorsUsed: number; shapesUsed: number };
+    creativity: DrawingMetrics | { activeMs: number; colorsUsed: number; shapesUsed: number };
     imagination: { charCount: number; noveltyScore: number; consistencyScore: number; latencyMs: number };
     reaction: { hits: number; mistakes: number; avgLatencyMs: number; totalMs: number };
   };
+  imaginationAssessment?: ImaginationAssessment;
 }
 
 // 定义Context类型
@@ -36,8 +39,8 @@ interface AppContextType {
   setCurrentPage: (page: 'welcome' | 'interactive' | 'report') => void;
   setChildName: (name: string) => void;
   setAgeBand: (age: '4-6' | '7-8' | '9-10') => void;
-  recordMetric: (key: keyof AppState['metrics'], data: Partial<AppState['metrics'][keyof AppState['metrics']]>) => void;
-  generateReportData: () => void;
+  recordMetric: (key: keyof AppState['metrics'], data: any) => void;
+  generateReportData: () => Promise<void>;
 }
 
 // 创建Context
@@ -100,20 +103,17 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }));
   };
 
-  // 生成报告数据（根据测试指标进行简单归一化计算）
-  const generateReportData = () => {
-    const { metrics, ageBand } = state;
+  // 生成报告数据
+  const generateReportData = async () => {
+    const { metrics } = state;
+    const ageFactor = state.ageBand === '4-6' ? 1.2 : state.ageBand === '7-8' ? 1.0 : 0.9;
+    const clamp10 = (val: number) => Math.max(0, Math.min(10, val));
 
-    // 简化的年龄系数（低幼更宽容）
-    const ageFactor = ageBand === '4-6' ? 0.9 : ageBand === '7-8' ? 1.0 : 1.1;
-
-    const clamp10 = (n: number) => Math.max(0, Math.min(10, n));
-
-    // 表达：字数与独特字符占比 + 速度
-    const exprLenScore = clamp10((metrics.expression.charCount / 20) * 6);
-    const exprVarScore = clamp10((metrics.expression.uniqueCharCount / Math.max(1, metrics.expression.charCount)) * 4 * 10);
-    const exprSpeedScore = clamp10(10 - metrics.expression.latencyMs / 5000 * 3);
-    const expression = clamp10((exprLenScore * 0.4 + exprVarScore * 0.3 + exprSpeedScore * 0.3) * ageFactor);
+    // 表达：字符数 + 独特性 + 速度
+    const exprCharScore = clamp10((metrics.expression.charCount / 50) * 10 * 0.5 * ageFactor);
+    const exprUniqueScore = clamp10((metrics.expression.uniqueCharCount / 20) * 10 * 0.3);
+    const exprSpeedScore = clamp10(10 - metrics.expression.latencyMs / 3000 * 2);
+    const expression = clamp10(exprCharScore + exprUniqueScore + exprSpeedScore * 0.2);
 
     // 逻辑：正确率 + 速度
     const logicAcc = metrics.logic.attempts > 0 ? metrics.logic.correct / metrics.logic.attempts : 0;
@@ -122,10 +122,38 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const logicStabilityScore = clamp10(logicAcc * 10 * 0.2);
     const logic = clamp10(logicAccScore + logicSpeedScore * 0.2 + logicStabilityScore);
 
-    // 创造：有效绘制时间 + 多样性（占位）
-    const creatTimeScore = clamp10((metrics.creativity.activeMs / 60000) * 10 * 0.6 * ageFactor);
-    const creatDiversityScore = clamp10((metrics.creativity.colorsUsed + metrics.creativity.shapesUsed) / 6 * 10 * 0.4);
-    const creativity = clamp10(creatTimeScore + creatDiversityScore);
+    // 创造：根据数据类型处理
+    let creativity: number;
+    if ('imageDataUrl' in metrics.creativity) {
+      // 新的DrawingMetrics格式，使用想象力评估
+      try {
+        const assessment = await evaluateImaginationWithLLM(
+          metrics.creativity.imageDataUrl,
+          metrics.creativity,
+          state.ageBand
+        );
+        
+        // 保存评估结果
+        setState(prev => ({
+          ...prev,
+          imaginationAssessment: assessment
+        }));
+        
+        // 将评估分数转换为创造力分数
+        creativity = clamp10((assessment.score / 100) * 10 * ageFactor);
+      } catch (error) {
+        console.error('想象力评估失败:', error);
+        // 使用基础算法作为兜底
+        const timeScore = clamp10((metrics.creativity.totalMs / 10000) * 10 * 0.6 * ageFactor);
+        const diversityScore = clamp10((metrics.creativity.colorsUsed + metrics.creativity.toolVariety) / 6 * 10 * 0.4);
+        creativity = clamp10(timeScore + diversityScore);
+      }
+    } else {
+      // 旧的格式，使用原有逻辑
+      const creatTimeScore = clamp10((metrics.creativity.activeMs / 10000) * 10 * 0.6 * ageFactor);
+      const creatDiversityScore = clamp10((metrics.creativity.colorsUsed + metrics.creativity.shapesUsed) / 6 * 10 * 0.4);
+      creativity = clamp10(creatTimeScore + creatDiversityScore);
+    }
 
     // 想象：新颖度 + 一致性 + 速度
     const imagNoveltyScore = clamp10(metrics.imagination.noveltyScore * 0.7);
@@ -186,7 +214,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       ];
     } else if (talentType === 'storyteller') {
       tips = [
-        '玩“如果……会怎样？”的家庭游戏，培养幻想与表达',
+        '玩"如果……会怎样？"的家庭游戏，培养幻想与表达',
         '鼓励孩子为作品或玩具起名字并讲故事',
         '一起阅读富有想象力的绘本，扩展联想边界'
       ];

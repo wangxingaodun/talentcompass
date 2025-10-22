@@ -1,4 +1,5 @@
 import React from 'react';
+import type { ImaginationAssessment } from './games/types';
 
 interface ReportPageProps {
   childName: string;
@@ -17,6 +18,7 @@ interface ReportPageProps {
     name: string;
     url: string;
   }[];
+  imaginationAssessment?: ImaginationAssessment;
 }
 
 const ReportPage: React.FC<ReportPageProps> = ({
@@ -26,7 +28,8 @@ const ReportPage: React.FC<ReportPageProps> = ({
   talentType,
   talentDescription,
   tips,
-  resources
+  resources,
+  imaginationAssessment
 }) => {
   // 生成五维雷达图的路径
   const generateRadarPath = () => {
@@ -175,6 +178,57 @@ const ReportPage: React.FC<ReportPageProps> = ({
           </div>
           <p className="chart-note">每个维度满分10分，数值越高，兴趣倾向越强。</p>
         </div>
+        
+        {/* 想象力评估详情 */}
+        {imaginationAssessment && (
+          <div className="imagination-assessment-section">
+            <h2>🎨 创意绘画分析</h2>
+            <div className="assessment-content">
+              <div className="assessment-score">
+                <div className="score-circle">
+                  <div className="score-value">{imaginationAssessment.score}</div>
+                  <div className="score-label">分</div>
+                </div>
+                <div className="score-level">
+                  <span className={`level-badge level-${imaginationAssessment.level}`}>
+                    {imaginationAssessment.level === 'excellent' ? '优秀' : 
+                     imaginationAssessment.level === 'good' ? '良好' : '待提升'}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="assessment-details">
+                <div className="assessment-reasons">
+                  <h3>✨ 亮点表现</h3>
+                  <ul>
+                    {imaginationAssessment.reasons.map((reason, index) => (
+                      <li key={index}>{reason}</li>
+                    ))}
+                  </ul>
+                </div>
+                
+                {imaginationAssessment.suggestions && imaginationAssessment.suggestions.length > 0 && (
+                  <div className="assessment-suggestions">
+                    <h3>🚀 提升建议</h3>
+                    <ul>
+                      {imaginationAssessment.suggestions.map((suggestion, index) => (
+                        <li key={index}>{suggestion}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+            
+            <div className="assessment-note">
+              <p>
+                <strong>评估说明：</strong>
+                这个分析基于{childName}的绘画作品，从原创性、多样性、叙事性、构图、色彩和投入度等维度进行专业评估。
+                每个孩子都有独特的创意表达方式，这个评估旨在帮助发现和培养孩子的艺术潜能。
+              </p>
+            </div>
+          </div>
+        )}
         
         {/* 小贴士 */}
         <div className="tips-section">

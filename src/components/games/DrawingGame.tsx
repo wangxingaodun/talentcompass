@@ -1,5 +1,5 @@
 import React from 'react';
-import type { GameStageProps, GameStageResult } from './types';
+import type { GameStageProps, GameStageResult, DrawingMetrics } from './types';
 
 const DrawingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onComplete }) => {
   const [timeLeft, setTimeLeft] = React.useState(60);
@@ -11,7 +11,9 @@ const DrawingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onComplet
   const lastPosRef = React.useRef<{ x: number; y: number } | null>(null);
   const intervalRef = React.useRef<number | null>(null);
   const usedColorsRef = React.useRef<Set<string>>(new Set());
-  const shapesCountRef = React.useRef<number>(0);
+  const shapesCountRef = React.useRef<{ pencil: number; circle: number; rect: number }>({ pencil: 0, circle: 0, rect: 0 });
+  const strokeCountRef = React.useRef<number>(0);
+  const startTimeRef = React.useRef<number>(Date.now());
 
   // 初始化提示
   React.useEffect(() => {
@@ -40,19 +42,30 @@ const DrawingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onComplet
 
   // 计时器（统一由本组件控制）
   React.useEffect(() => {
-    setTimeLeft(60);
+    setTimeLeft(10);
+    startTimeRef.current = Date.now();
     if (intervalRef.current) window.clearInterval(intervalRef.current);
     intervalRef.current = window.setInterval(() => {
       setTimeLeft((t) => {
         if (t <= 1) {
           if (intervalRef.current) window.clearInterval(intervalRef.current);
+          
+          // 导出画布图像
+          const canvas = canvasRef.current;
+          const imageDataUrl = canvas ? canvas.toDataURL('image/webp', 0.9) : '';
+          
           const result: GameStageResult = {
             dimension: 'creativity',
             metrics: {
-              activeMs: 60000,
+              totalMs: Date.now() - startTimeRef.current,
               colorsUsed: usedColorsRef.current.size,
-              shapesUsed: shapesCountRef.current,
-            },
+              shapesUsed: shapesCountRef.current.pencil + shapesCountRef.current.circle + shapesCountRef.current.rect,
+              strokeCount: strokeCountRef.current,
+              toolVariety: Object.values(shapesCountRef.current).filter(count => count > 0).length,
+              usedColors: Array.from(usedColorsRef.current),
+              shapeBreakdown: { ...shapesCountRef.current },
+              imageDataUrl,
+            } as DrawingMetrics,
           };
           onComplete(result);
           return 0;
@@ -90,18 +103,21 @@ const DrawingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onComplet
       ctx.beginPath();
       ctx.strokeStyle = color;
       ctx.moveTo(pos.x, pos.y);
-      shapesCountRef.current += 1; // 每次按下算一次“笔画”形状
+      shapesCountRef.current.pencil += 1; // 每次按下算一次"笔画"形状
+      strokeCountRef.current += 1;
     } else if (tool === 'circle') {
       ctx.beginPath();
       ctx.fillStyle = color;
       ctx.arc(pos.x, pos.y, 20, 0, Math.PI * 2);
       ctx.fill();
-      shapesCountRef.current += 1;
+      shapesCountRef.current.circle += 1;
+      strokeCountRef.current += 1;
     } else if (tool === 'rect') {
       ctx.beginPath();
       ctx.fillStyle = color;
       ctx.fillRect(pos.x - 20, pos.y - 20, 40, 40);
-      shapesCountRef.current += 1;
+      shapesCountRef.current.rect += 1;
+      strokeCountRef.current += 1;
     }
   };
 
