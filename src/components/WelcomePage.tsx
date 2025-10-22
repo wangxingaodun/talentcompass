@@ -1,15 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useAppContext } from './AppContext';
 
 interface WelcomePageProps {
   onStartTest: () => void;
 }
 
 const WelcomePage: React.FC<WelcomePageProps> = ({ onStartTest }) => {
+  const { setChildName, setAgeBand } = useAppContext();
+  const [localName, setLocalName] = useState('');
+  const [localAgeBand, setLocalAgeBand] = useState<'4-6' | '7-8' | '9-10' | ''>('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = () => {
+    if (!localName.trim() || !localAgeBand) {
+      setError('请填写昵称并选择年龄段');
+      return;
+    }
+    setError('');
+    setChildName(localName.trim());
+    setAgeBand(localAgeBand);
+    onStartTest();
+  };
+
   return (
     <div className="welcome-page">
       <div className="welcome-content">
         <h1 className="welcome-title">发现孩子的天赋火花！免费趣味小测试</h1>
-        <p className="welcome-subtitle">15分钟，AI小老师陪孩子玩4个游戏，生成专属兴趣报告</p>
+        <p className="welcome-subtitle">15–20分钟，AI小老师陪孩子玩5个小游戏，生成专属兴趣报告</p>
         
         <div className="welcome-illustration">
           {/* 卡通孩子与AI老师互动的场景 - 使用占位图 */}
@@ -24,8 +41,37 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStartTest }) => {
             </svg>
           </div>
         </div>
+
+        <div className="welcome-form" style={{ marginTop: 20 }}>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+            <label>
+              昵称：
+              <input
+                type="text"
+                placeholder="给孩子起个昵称"
+                value={localName}
+                onChange={(e) => setLocalName(e.target.value)}
+                style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #ddd', width: 200 }}
+              />
+            </label>
+            <label>
+              年龄段：
+              <select
+                value={localAgeBand}
+                onChange={(e) => setLocalAgeBand(e.target.value as '4-6' | '7-8' | '9-10' | '')}
+                style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #ddd' }}
+              >
+                <option value="">请选择</option>
+                <option value="4-6">4–6岁</option>
+                <option value="7-8">7–8岁</option>
+                <option value="9-10">9–10岁</option>
+              </select>
+            </label>
+          </div>
+          {error && <p style={{ color: '#d32f2f', marginTop: 8 }}>{error}</p>}
+        </div>
         
-        <button className="start-test-button" onClick={onStartTest}>
+        <button className="start-test-button" onClick={handleSubmit} style={{ marginTop: 16 }}>
           开始测试
         </button>
         

@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useAppContext } from './AppContext';
 
 // 确保TypeScript识别浏览器API
 declare const speechSynthesis: SpeechSynthesis;
@@ -12,7 +13,7 @@ interface InteractivePageProps {
 }
 
 // 定义游戏类型和当前游戏状态
-type GameType = 'storytelling' | 'pattern' | 'drawing' | 'animalClick';
+type GameType = 'storytelling' | 'pattern' | 'drawing' | 'animalClick' | 'imagination';
 interface GameState {
   type: GameType;
   currentStep: number;
@@ -20,6 +21,7 @@ interface GameState {
 }
 
 const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName }) => {
+  const { recordMetric } = useAppContext();
   // 游戏状态管理
   const [currentGame, setCurrentGame] = useState<GameState>({
     type: 'storytelling',
@@ -29,10 +31,10 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
   const [storyInput, setStoryInput] = useState('');
   const [patternAnswer, setPatternAnswer] = useState<string | null>(null);
   const [patternResult, setPatternResult] = useState<'correct' | 'incorrect' | null>(null);
-  // 可以在后续版本中使用这个状态来存储绘画名称
   const [animalCount, setAnimalCount] = useState(0);
   const [drawingTime, setDrawingTime] = useState(60);
   const [animalClickTime, setAnimalClickTime] = useState(10);
+  const [imaginationInput, setImaginationInput] = useState('');
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
   
   // 录音功能相关状态
@@ -42,6 +44,10 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawingIntervalRef = useRef<number | null>(null);
   const animalIntervalRef = useRef<number | null>(null);
+  
+  const [storyStartTime, setStoryStartTime] = useState<number>(Date.now());
+  const [patternStartTime, setPatternStartTime] = useState<number>(0);
+  const [imaginationStartTime, setImaginationStartTime] = useState<number>(0);
   
   // 获取当前游戏的提示信息
   const getTeacherMessage = () => {
@@ -54,6 +60,8 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
         return "发挥你的想象力，画出你喜欢的东西吧！";
       case 'animalClick':
         return `在${animalClickTime}秒内，尽可能多地点击小动物！`;
+      case 'imagination':
+        return "把‘云+鞋’组合起来，会发生什么有趣的事情呢？";
       default:
         return "准备好了吗？让我们开始吧！";
     }
@@ -138,15 +146,33 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
     }
   };
   
+  // 进入不同关卡时记录起始时间
+  React.useEffect(() => {
+    if (currentGame.type === 'storytelling') {
+      setStoryStartTime(Date.now());
+    } else if (currentGame.type === 'pattern') {
+      setPatternStartTime(Date.now());
+    } else if (currentGame.type === 'imagination') {
+      setImaginationStartTime(Date.now());
+    }
+  }, [currentGame.type]);
+  
   // 提交故事接龙
   const handleStorySubmit = () => {
     if (storyInput.trim()) {
+      // 记录表达指标
+      const text = storyInput.trim();
+      const charCount = text.length;
+      const uniqueCharCount = new Set(text.split('')).size;
+      const latencyMs = Date.now() - storyStartTime;
+      recordMetric('expression', { charCount, uniqueCharCount, latencyMs });
+
       setCurrentGame(prev => ({ ...prev, isCompleted: true }));
       // 延迟跳转到下一个游戏
       setTimeout(() => {
         setCurrentGame({ type: 'pattern', currentStep: 2, isCompleted: false });
         setStoryInput('');
-      }, 1500);
+      }, 1200);
     }
   };
   
@@ -156,7 +182,10 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
     // 模拟正确答案判断（实际应用中应该有真实的答案验证）
     const isCorrect = color === 'blue';
     setPatternResult(isCorrect ? 'correct' : 'incorrect');
-    
+
+    const latencyMs = Date.now() - patternStartTime;
+    recordMetric('logic', { correct: isCorrect ? 1 : 0, attempts: 1, avgLatencyMs: latencyMs });
+
     if (isCorrect) {
       setCurrentGame(prev => ({ ...prev, isCompleted: true }));
       // 延迟跳转到下一个游戏
@@ -165,7 +194,7 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
         setPatternAnswer(null);
         setPatternResult(null);
         startDrawingTimer();
-      }, 2000);
+      }, 1600);
     }
   };
   
@@ -175,7 +204,7 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
     if (drawingIntervalRef.current) {
       clearInterval(drawingIntervalRef.current);
     }
-    
+
     drawingIntervalRef.current = setInterval(() => {
       setDrawingTime(prevTime => {
         if (prevTime <= 1) {
@@ -183,6 +212,8 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
             clearInterval(drawingIntervalRef.current);
           }
           setCurrentGame(prev => ({ ...prev, isCompleted: true }));
+          // 记录创造指标（占位：有效绘制时间）
+          recordMetric('creativity', { activeMs: 60000, colorsUsed: 0, shapesUsed: 0 });
           // 显示绘画名称输入框
           setTimeout(() => {
             setCurrentGame({ type: 'animalClick', currentStep: 4, isCompleted: false });
@@ -204,24 +235,22 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
       clearInterval(animalIntervalRef.current);
     }
     
+    const start = Date.now();
+    
     animalIntervalRef.current = setInterval(() => {
       setAnimalClickTime(prevTime => {
         if (prevTime <= 1) {
           if (animalIntervalRef.current) {
             clearInterval(animalIntervalRef.current);
           }
-          // 判断是否达到目标（10秒内点中5个）
-          if (animalCount >= 5) {
-            setCurrentGame(prev => ({ ...prev, isCompleted: true }));
-            // 延迟跳转到报告页
-            setTimeout(() => {
-              onComplete();
-            }, 1500);
-          } else {
-            // 重新开始此游戏
-            setAnimalCount(0);
-            setAnimalClickTime(10);
-          }
+          const totalMs = Date.now() - start;
+          const avgLatencyMs = animalCount > 0 ? Math.floor(totalMs / animalCount) : 0;
+          // 记录反应指标
+          recordMetric('reaction', { hits: animalCount, mistakes: 0, avgLatencyMs, totalMs });
+          // 跳转到第5关
+          setTimeout(() => {
+            setCurrentGame({ type: 'imagination', currentStep: 5, isCompleted: false });
+          }, 1200);
           return 0;
         }
         return prevTime - 1;
@@ -232,6 +261,23 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
   // 处理动物点击
   const handleAnimalClick = () => {
     setAnimalCount(prevCount => prevCount + 1);
+  };
+  
+  // 提交想象关卡
+  const handleImaginationSubmit = () => {
+    const text = imaginationInput.trim();
+    if (!text) return;
+    const charCount = text.length;
+    const uniqueCharCount = new Set(text.split('')).size;
+    const noveltyScore = Math.min(10, (uniqueCharCount / Math.max(1, charCount)) * 10);
+    const consistencyScore = Math.min(10, Math.max(3, text.includes('因为') ? 8 : 6));
+    const latencyMs = Date.now() - imaginationStartTime;
+    recordMetric('imagination', { charCount, noveltyScore, consistencyScore, latencyMs });
+
+    setCurrentGame(prev => ({ ...prev, isCompleted: true }));
+    setTimeout(() => {
+      onComplete();
+    }, 1200);
   };
   
   // 渲染当前游戏
@@ -348,6 +394,27 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
               <p>已点击：{animalCount}/5 个小动物</p>
               <p>剩余时间：{animalClickTime}秒</p>
             </div>
+          </div>
+        );
+        
+      case 'imagination':
+        return (
+          <div className="storytelling-game">
+            <p className="story-prompt">把“云+鞋”组合起来，会发生什么？</p>
+            <input
+              type="text"
+              className="story-input"
+              value={imaginationInput}
+              onChange={(e) => setImaginationInput(e.target.value)}
+              placeholder="试着描述一个有趣的结果..."
+            />
+            <button 
+              className="submit-button"
+              onClick={handleImaginationSubmit}
+              disabled={!imaginationInput.trim()}
+            >
+              提交
+            </button>
           </div>
         );
         

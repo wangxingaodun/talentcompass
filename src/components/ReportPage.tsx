@@ -7,6 +7,7 @@ interface ReportPageProps {
     expression: number;
     logic: number;
     creativity: number;
+    imagination: number;
     reaction: number;
   };
   talentType: string;
@@ -27,25 +28,28 @@ const ReportPage: React.FC<ReportPageProps> = ({
   tips,
   resources
 }) => {
-  // 生成雷达图的路径
+  // 生成五维雷达图的路径
   const generateRadarPath = () => {
     const centerX = 150;
     const centerY = 150;
     const radius = 100;
-    
-    // 计算四个维度的坐标
-    const points = [
-      { x: centerX + radius * (scores.expression / 10), y: centerY }, // 表达
-      { x: centerX + radius * Math.cos(Math.PI/4) * (scores.logic / 10), y: centerY - radius * Math.sin(Math.PI/4) * (scores.logic / 10) }, // 逻辑
-      { x: centerX, y: centerY - radius * (scores.creativity / 10) }, // 创造
-      { x: centerX - radius * Math.cos(Math.PI/4) * (scores.reaction / 10), y: centerY - radius * Math.sin(Math.PI/4) * (scores.reaction / 10) } // 反应
+    const dims = [
+      scores.expression,
+      scores.logic,
+      scores.creativity,
+      scores.imagination,
+      scores.reaction,
     ];
-    
-    // 生成路径
-    const path = `M ${points[0].x},${points[0].y} L ${points[1].x},${points[1].y} L ${points[2].x},${points[2].y} L ${points[3].x},${points[3].y} Z`;
+    // 五个角度（度）：0, 72, 144, 216, 288
+    const angles = [0, 72, 144, 216, 288].map(a => (a * Math.PI) / 180);
+    const points = angles.map((angle, i) => ({
+      x: centerX + radius * Math.cos(angle) * (dims[i] / 10),
+      y: centerY - radius * Math.sin(angle) * (dims[i] / 10),
+    }));
+    const path = `M ${points[0].x},${points[0].y} ` + points.slice(1).map(p => `L ${p.x},${p.y}`).join(' ') + ' Z';
     return path;
   };
-  
+
   // 获取天赋类型对应的卡通形象
   const getTalentImage = () => {
     switch (talentType.toLowerCase()) {
@@ -93,6 +97,17 @@ const ReportPage: React.FC<ReportPageProps> = ({
             <circle cx="90" cy="100" r="5" fill="#2F4F4F" />
             <path d="M65 120 Q75 130 85 120" stroke="#2F4F4F" strokeWidth="3" fill="none" />
             <path d="M40 70 L70 40 L100 70 L70 100 Z" fill="#A0522D" />
+          </svg>
+        );
+      case 'storyteller':
+        return (
+          <svg width="150" height="150" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="75" cy="50" r="30" fill="#87CEFA" />
+            <rect x="45" y="80" width="60" height="40" rx="10" fill="#FFA500" />
+            <circle cx="60" cy="100" r="5" fill="#2F4F4F" />
+            <circle cx="90" cy="100" r="5" fill="#2F4F4F" />
+            <path d="M55 120 Q75 135 95 120" stroke="#2F4F4F" strokeWidth="3" fill="none" />
+            <path d="M30 70 Q75 40 120 70" stroke="#FFD700" strokeWidth="3" fill="none" />
           </svg>
         );
       default:
@@ -143,19 +158,19 @@ const ReportPage: React.FC<ReportPageProps> = ({
           <h2>兴趣能量图</h2>
           <div className="radar-chart">
             <svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-              {/* 背景网格 */}
-              <path d="M 150 150 L 250 150 L 211.8 88.2 L 150 50 L 88.2 88.2 L 150 150" stroke="#E0E0E0" strokeWidth="2" fill="none" />
-              <path d="M 150 150 L 200 150 L 180.9 116.1 L 150 100 L 119.1 116.1 L 150 150" stroke="#E0E0E0" strokeWidth="2" fill="none" />
-              <path d="M 150 150 L 175 150 L 165.4 133 L 150 125 L 134.6 133 L 150 150" stroke="#E0E0E0" strokeWidth="2" fill="none" />
+              {/* 简单五边形网格 */}
+              <path d="M 250 150 L 181.4 90.5 L 118.6 109.5 L 118.6 190.5 L 181.4 209.5 Z" stroke="#E0E0E0" strokeWidth="2" fill="none" />
+              <path d="M 225 150 L 190.0 116.2 L 150.0 125.0 L 150.0 175.0 L 190.0 183.8 Z" stroke="#E0E0E0" strokeWidth="2" fill="none" />
               
               {/* 数据区域 */}
               <path d={generateRadarPath()} fill="rgba(33, 150, 243, 0.3)" stroke="#2196F3" strokeWidth="3" />
               
               {/* 维度标签 */}
               <text x="270" y="155" textAnchor="middle" fill="#2F4F4F" fontSize="14">表达</text>
-              <text x="221.8" y="70" textAnchor="middle" fill="#2F4F4F" fontSize="14">逻辑</text>
-              <text x="150" y="30" textAnchor="middle" fill="#2F4F4F" fontSize="14">创造</text>
-              <text x="78.2" y="70" textAnchor="middle" fill="#2F4F4F" fontSize="14">反应</text>
+              <text x="215" y="75" textAnchor="middle" fill="#2F4F4F" fontSize="14">逻辑</text>
+              <text x="95" y="75" textAnchor="middle" fill="#2F4F4F" fontSize="14">创造</text>
+              <text x="35" y="155" textAnchor="middle" fill="#2F4F4F" fontSize="14">想象</text>
+              <text x="150" y="265" textAnchor="middle" fill="#2F4F4F" fontSize="14">反应</text>
             </svg>
           </div>
           <p className="chart-note">每个维度满分10分，数值越高，兴趣倾向越强。</p>
