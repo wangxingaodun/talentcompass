@@ -1,5 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { useAppContext } from './AppContext';
+import StorytellingGame from './games/StorytellingGame';
+import PatternGame from './games/PatternGame';
+import DrawingGame from './games/DrawingGame';
+import AnimalClickGame from './games/AnimalClickGame';
+import ImaginationGame from './games/ImaginationGame';
+import type { GameStageResult } from './games/types';
 
 // 确保TypeScript识别浏览器API
 declare const speechSynthesis: SpeechSynthesis;
@@ -36,6 +42,7 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
   const [animalClickTime, setAnimalClickTime] = useState(10);
   const [imaginationInput, setImaginationInput] = useState('');
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
+  const [prompt, setPrompt] = useState('准备好了吗？让我们开始吧！');
   
   // 录音功能相关状态
   const [recognitionActive, setRecognitionActive] = useState(false);
@@ -280,144 +287,53 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
     }, 1200);
   };
   
-  // 渲染当前游戏
+  // 渲染当前游戏（组件化）
   const renderCurrentGame = () => {
+    const handleStageComplete = (result: GameStageResult) => {
+      recordMetric(result.dimension as any, result.metrics);
+      // 关卡流转
+      switch (currentGame.type) {
+        case 'storytelling':
+          setCurrentGame({ type: 'pattern', currentStep: 2, isCompleted: false });
+          break;
+        case 'pattern':
+          setCurrentGame({ type: 'drawing', currentStep: 3, isCompleted: false });
+          break;
+        case 'drawing':
+          setCurrentGame({ type: 'animalClick', currentStep: 4, isCompleted: false });
+          break;
+        case 'animalClick':
+          setCurrentGame({ type: 'imagination', currentStep: 5, isCompleted: false });
+          break;
+        case 'imagination':
+          onComplete();
+          break;
+        default:
+          break;
+      }
+    };
+
     switch (currentGame.type) {
       case 'storytelling':
         return (
-          <div className="storytelling-game">
-            <div className="story-header">
-              <p className="story-prompt">从前，有一只小兔子...</p>
-              <div className="voice-controls">
-                <button 
-                  className={`voice-button ${isPlayingVoice ? 'playing' : ''}`}
-                  onClick={playVoiceStory}
-                  disabled={isPlayingVoice || recognitionActive}
-                  title="听故事开始"
-                >
-                  {isPlayingVoice ? '🔊 播放中...' : '🔊 听故事'}
-                </button>
-                <button 
-                  className={`record-button ${recognitionActive ? 'recording' : ''}`}
-                  onClick={recognitionActive ? stopVoiceRecognition : startVoiceRecognition}
-                  disabled={isPlayingVoice}
-                  title={recognitionActive ? "停止录音" : "开始录音"}
-                >
-                  {recognitionActive ? '🎤 录音中...' : '🎤 开始录音'}
-                </button>
-              </div>
-            </div>
-            <input
-              type="text"
-              className="story-input"
-              value={storyInput}
-              onChange={(e) => setStoryInput(e.target.value)}
-              placeholder="请继续讲述这个故事..."
-            />
-            <button 
-              className="submit-button"
-              onClick={handleStorySubmit}
-              disabled={!storyInput.trim()}
-            >
-              提交
-            </button>
-          </div>
+          <StorytellingGame childName={childName} setPrompt={setPrompt} onComplete={handleStageComplete} />
         );
-        
       case 'pattern':
         return (
-          <div className="pattern-game">
-            <div className="pattern-grid">
-              <div className="pattern-cell red"></div>
-              <div className="pattern-cell blue"></div>
-              <div className="pattern-cell red"></div>
-              <div className="pattern-cell blue"></div>
-              <div className="pattern-cell question">?</div>
-            </div>
-            <div className="pattern-options">
-              <button 
-                className={`color-option red ${patternAnswer === 'red' ? 'selected' : ''}`}
-                onClick={() => handlePatternSelect('red')}
-                disabled={patternResult !== null}
-              ></button>
-              <button 
-                className={`color-option blue ${patternAnswer === 'blue' ? 'selected' : ''}`}
-                onClick={() => handlePatternSelect('blue')}
-                disabled={patternResult !== null}
-              ></button>
-              <button 
-                className={`color-option yellow ${patternAnswer === 'yellow' ? 'selected' : ''}`}
-                onClick={() => handlePatternSelect('yellow')}
-                disabled={patternResult !== null}
-              ></button>
-            </div>
-            {patternResult === 'correct' && <p className="pattern-feedback correct">太棒了！</p>}
-            {patternResult === 'incorrect' && <p className="pattern-feedback incorrect">再试一次！</p>}
-          </div>
+          <PatternGame childName={childName} setPrompt={setPrompt} onComplete={handleStageComplete} />
         );
-        
       case 'drawing':
         return (
-          <div className="drawing-game">
-            <div className="drawing-toolbar">
-              <button className="tool-button">✏️ 铅笔</button>
-              <button className="tool-button">⭕ 圆形</button>
-              <button className="tool-button">⬜ 方形</button>
-              <div className="color-palette">
-                <button className="color-swatch red"></button>
-                <button className="color-swatch blue"></button>
-                <button className="color-swatch yellow"></button>
-              </div>
-            </div>
-            <div className="drawing-canvas-container">
-              <canvas 
-                ref={canvasRef}
-                className="drawing-canvas"
-                width={400}
-                height={300}
-              ></canvas>
-            </div>
-            <div className="drawing-timer">剩余时间：{drawingTime}秒</div>
-          </div>
+          <DrawingGame childName={childName} setPrompt={setPrompt} onComplete={handleStageComplete} />
         );
-        
       case 'animalClick':
         return (
-          <div className="animal-click-game">
-            <div className="animal-field">
-              {/* 随机生成的动物元素 - 这里简单模拟 */}
-              <div className="animal-item" onClick={handleAnimalClick}></div>
-              <div className="animal-item" onClick={handleAnimalClick}></div>
-              <div className="animal-item" onClick={handleAnimalClick}></div>
-            </div>
-            <div className="animal-stats">
-              <p>已点击：{animalCount}/5 个小动物</p>
-              <p>剩余时间：{animalClickTime}秒</p>
-            </div>
-          </div>
+          <AnimalClickGame childName={childName} setPrompt={setPrompt} onComplete={handleStageComplete} />
         );
-        
       case 'imagination':
         return (
-          <div className="storytelling-game">
-            <p className="story-prompt">把“云+鞋”组合起来，会发生什么？</p>
-            <input
-              type="text"
-              className="story-input"
-              value={imaginationInput}
-              onChange={(e) => setImaginationInput(e.target.value)}
-              placeholder="试着描述一个有趣的结果..."
-            />
-            <button 
-              className="submit-button"
-              onClick={handleImaginationSubmit}
-              disabled={!imaginationInput.trim()}
-            >
-              提交
-            </button>
-          </div>
+          <ImaginationGame childName={childName} setPrompt={setPrompt} onComplete={handleStageComplete} />
         );
-        
       default:
         return null;
     }
@@ -454,7 +370,7 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
           </svg>
         </div>
         <div className="teacher-dialogue">
-          <p>{getTeacherMessage()}</p>
+          <p>{prompt}</p>
         </div>
       </div>
     </div>
