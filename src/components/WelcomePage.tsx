@@ -42,33 +42,39 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStartTest }) => {
           </div>
         </div>
 
-        <div className="welcome-form" style={{ marginTop: 20 }}>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-            <label>
-              昵称：
+        <div className="welcome-form">
+          <div className="form-row">
+            <div className="form-group">
+              <label className="form-label">
+                <span className="label-icon">👶</span>
+                昵称
+              </label>
               <input
                 type="text"
                 placeholder="给孩子起个昵称"
                 value={localName}
                 onChange={(e) => setLocalName(e.target.value)}
-                style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #ddd', width: 200 }}
+                className="form-input"
               />
-            </label>
-            <label>
-              年龄段：
+            </div>
+            <div className="form-group">
+              <label className="form-label">
+                <span className="label-icon">🎂</span>
+                年龄段
+              </label>
               <select
                 value={localAgeBand}
                 onChange={(e) => setLocalAgeBand(e.target.value as '4-6' | '7-8' | '9-10' | '')}
-                style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #ddd' }}
+                className="form-select"
               >
                 <option value="">请选择</option>
                 <option value="4-6">4–6岁</option>
                 <option value="7-8">7–8岁</option>
                 <option value="9-10">9–10岁</option>
               </select>
-            </label>
+            </div>
           </div>
-          {error && <p style={{ color: '#d32f2f', marginTop: 8 }}>{error}</p>}
+          {error && <div className="form-error">{error}</div>}
         </div>
         
         <button className="start-test-button" onClick={handleSubmit} style={{ marginTop: 16 }}>
