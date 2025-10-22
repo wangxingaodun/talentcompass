@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useAppContext } from './AppContext';
+import SmartTeacher from './SmartTeacher';
 import StorytellingGame from './games/StorytellingGame';
 import PatternGame from './games/PatternGame';
 import DrawingGame from './games/DrawingGame';
@@ -38,11 +39,16 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
   const [patternAnswer, setPatternAnswer] = useState<string | null>(null);
   const [patternResult, setPatternResult] = useState<'correct' | 'incorrect' | null>(null);
   const [animalCount, setAnimalCount] = useState(0);
-  const [drawingTime, setDrawingTime] = useState(60);
+  // 移除绘画本地计时，统一由 DrawingGame 控制
+  // const [drawingTime, setDrawingTime] = useState(60);
   const [animalClickTime, setAnimalClickTime] = useState(10);
   const [imaginationInput, setImaginationInput] = useState('');
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
   const [prompt, setPrompt] = useState('准备好了吗？让我们开始吧！');
+  
+  // AI小老师相关状态
+  const [gameProgress, setGameProgress] = useState(0);
+  const [lastPerformance, setLastPerformance] = useState<'excellent' | 'good' | 'needs_improvement' | undefined>(undefined);
   
   // 录音功能相关状态
   const [recognitionActive, setRecognitionActive] = useState(false);
@@ -186,52 +192,45 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
   // 选择图形密码答案
   const handlePatternSelect = (color: string) => {
     setPatternAnswer(color);
-    // 模拟正确答案判断（实际应用中应该有真实的答案验证）
     const isCorrect = color === 'blue';
     setPatternResult(isCorrect ? 'correct' : 'incorrect');
-
     const latencyMs = Date.now() - patternStartTime;
     recordMetric('logic', { correct: isCorrect ? 1 : 0, attempts: 1, avgLatencyMs: latencyMs });
-
     if (isCorrect) {
       setCurrentGame(prev => ({ ...prev, isCompleted: true }));
-      // 延迟跳转到下一个游戏
       setTimeout(() => {
         setCurrentGame({ type: 'drawing', currentStep: 3, isCompleted: false });
         setPatternAnswer(null);
         setPatternResult(null);
-        startDrawingTimer();
+        // 移除 startDrawingTimer，改由 DrawingGame 内部完成倒计时与完成回调
       }, 1600);
     }
   };
   
-  // 开始绘画计时器
-  const startDrawingTimer = () => {
-    setDrawingTime(60);
-    if (drawingIntervalRef.current) {
-      clearInterval(drawingIntervalRef.current);
-    }
-
-    drawingIntervalRef.current = setInterval(() => {
-      setDrawingTime(prevTime => {
-        if (prevTime <= 1) {
-          if (drawingIntervalRef.current) {
-            clearInterval(drawingIntervalRef.current);
-          }
-          setCurrentGame(prev => ({ ...prev, isCompleted: true }));
-          // 记录创造指标（占位：有效绘制时间）
-          recordMetric('creativity', { activeMs: 60000, colorsUsed: 0, shapesUsed: 0 });
-          // 显示绘画名称输入框
-          setTimeout(() => {
-            setCurrentGame({ type: 'animalClick', currentStep: 4, isCompleted: false });
-            startAnimalClickGame();
-          }, 1000);
-          return 0;
-        }
-        return prevTime - 1;
-      });
-    }, 1000);
-  };
+  // 开始绘画计时器（已废弃）
+  // const startDrawingTimer = () => {
+  //   setDrawingTime(60);
+  //   if (drawingIntervalRef.current) {
+  //     clearInterval(drawingIntervalRef.current);
+  //   }
+  //   drawingIntervalRef.current = setInterval(() => {
+  //     setDrawingTime(prevTime => {
+  //       if (prevTime <= 1) {
+  //         if (drawingIntervalRef.current) {
+  //           clearInterval(drawingIntervalRef.current);
+  //         }
+  //         setCurrentGame(prev => ({ ...prev, isCompleted: true }));
+  //         recordMetric('creativity', { activeMs: 60000, colorsUsed: 0, shapesUsed: 0 });
+  //         setTimeout(() => {
+  //           setCurrentGame({ type: 'animalClick', currentStep: 4, isCompleted: false });
+  //           startAnimalClickGame();
+  //         }, 1000);
+  //         return 0;
+  //       }
+  //       return prevTime - 1;
+  //     });
+  //   }, 1000);
+  // };
   
   // 开始小动物点击游戏
   const startAnimalClickGame = () => {
@@ -291,26 +290,90 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
   const renderCurrentGame = () => {
     const handleStageComplete = (result: GameStageResult) => {
       recordMetric(result.dimension as any, result.metrics);
-      // 关卡流转
-      switch (currentGame.type) {
-        case 'storytelling':
-          setCurrentGame({ type: 'pattern', currentStep: 2, isCompleted: false });
-          break;
-        case 'pattern':
-          setCurrentGame({ type: 'drawing', currentStep: 3, isCompleted: false });
-          break;
-        case 'drawing':
-          setCurrentGame({ type: 'animalClick', currentStep: 4, isCompleted: false });
-          break;
-        case 'animalClick':
-          setCurrentGame({ type: 'imagination', currentStep: 5, isCompleted: false });
-          break;
-        case 'imagination':
-          onComplete();
-          break;
-        default:
-          break;
-      }
+      
+      // AI小老师智能评估表现
+      const evaluatePerformance = (metrics: any): 'excellent' | 'good' | 'needs_improvement' => {
+        // 根据不同维度的指标进行智能评估
+        switch (result.dimension) {
+          case 'expression':
+            const charCount = metrics.charCount || 0;
+            const uniqueCharCount = metrics.uniqueCharCount || 0;
+            if (charCount > 50 && uniqueCharCount > 20) return 'excellent';
+            if (charCount > 20 && uniqueCharCount > 10) return 'good';
+            return 'needs_improvement';
+          
+          case 'logic':
+            const correct = metrics.correct || 0;
+            const latency = metrics.avgLatencyMs || 10000;
+            if (correct && latency < 5000) return 'excellent';
+            if (correct && latency < 10000) return 'good';
+            return 'needs_improvement';
+          
+          case 'creativity':
+            const colorsUsed = metrics.colorsUsed || 0;
+            const shapesUsed = metrics.shapesUsed || 0;
+            if (colorsUsed > 3 && shapesUsed > 2) return 'excellent';
+            if (colorsUsed > 1 && shapesUsed > 1) return 'good';
+            return 'needs_improvement';
+          
+          case 'reaction':
+            const hits = metrics.hits || 0;
+            const avgLatency = metrics.avgLatencyMs || 2000;
+            if (hits > 8 && avgLatency < 800) return 'excellent';
+            if (hits > 5 && avgLatency < 1200) return 'good';
+            return 'needs_improvement';
+          
+          case 'imagination':
+            const noveltyScore = metrics.noveltyScore || 0;
+            const consistencyScore = metrics.consistencyScore || 0;
+            if (noveltyScore > 7 && consistencyScore > 7) return 'excellent';
+            if (noveltyScore > 5 && consistencyScore > 5) return 'good';
+            return 'needs_improvement';
+          
+          default:
+            return 'good';
+        }
+      };
+      
+      // 设置表现反馈
+      const performance = evaluatePerformance(result.metrics);
+      setLastPerformance(performance);
+      
+      // 更新游戏进度
+      const progressMap = {
+        'storytelling': 20,
+        'pattern': 40,
+        'drawing': 60,
+        'animalClick': 80,
+        'imagination': 100
+      };
+      setGameProgress(progressMap[currentGame.type]);
+      
+      // 延迟关卡流转，给AI小老师时间反馈
+      setTimeout(() => {
+        setLastPerformance(undefined); // 清除表现状态
+        
+        // 关卡流转
+        switch (currentGame.type) {
+          case 'storytelling':
+            setCurrentGame({ type: 'pattern', currentStep: 2, isCompleted: false });
+            break;
+          case 'pattern':
+            setCurrentGame({ type: 'drawing', currentStep: 3, isCompleted: false });
+            break;
+          case 'drawing':
+            setCurrentGame({ type: 'animalClick', currentStep: 4, isCompleted: false });
+            break;
+          case 'animalClick':
+            setCurrentGame({ type: 'imagination', currentStep: 5, isCompleted: false });
+            break;
+          case 'imagination':
+            onComplete();
+            break;
+          default:
+            break;
+        }
+      }, 3000); // 给AI小老师3秒时间进行反馈
     };
 
     switch (currentGame.type) {
@@ -352,25 +415,28 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
   }, []);
   
   return (
-    <div className="interactive-page">
-      <div className="game-area">
-        {renderCurrentGame()}
-      </div>
-      <div className="teacher-area">
-        <div className="teacher-character">
-          {/* 虚拟老师形象 - 使用占位图 */}
-          <svg width="150" height="180" viewBox="0 0 150 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="75" cy="60" r="40" fill="#FFA07A" />
-            <path d="M40 140 Q75 80 110 140" stroke="#2F4F4F" strokeWidth="6" fill="none" />
-            <path d="M45 140 L35 180" stroke="#2F4F4F" strokeWidth="4" />
-            <path d="M105 140 L115 180" stroke="#2F4F4F" strokeWidth="4" />
-            <circle cx="60" cy="50" r="5" fill="#2F4F4F" />
-            <circle cx="90" cy="50" r="5" fill="#2F4F4F" />
-            <path d="M60 70 Q75 80 90 70" stroke="#2F4F4F" strokeWidth="3" fill="none" />
-          </svg>
+    <div className="page-shell">
+      <div className="page-grid">
+        {/* 游戏区域 */}
+        <div className="panel padded gradient-border">
+          <div className="fade-switch">
+            {renderCurrentGame()}
+          </div>
         </div>
-        <div className="teacher-dialogue">
-          <p>{prompt}</p>
+        
+        {/* AI小老师区域 */}
+        <div>
+          <SmartTeacher
+            childName={childName}
+            currentDimension={currentGame.type === 'storytelling' ? 'expression' : 
+                            currentGame.type === 'pattern' ? 'logic' :
+                            currentGame.type === 'drawing' ? 'creativity' :
+                            currentGame.type === 'animalClick' ? 'reaction' : 'imagination'}
+            prompt={prompt}
+            onPromptChange={setPrompt}
+            gameProgress={gameProgress}
+            lastPerformance={lastPerformance}
+          />
         </div>
       </div>
     </div>

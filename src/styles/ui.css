@@ -1,0 +1,182 @@
+/* Design Tokens */
+:root {
+  --bg-grad-start: #eef4ff;
+  --bg-grad-end: #f5ecff;
+  --panel-bg: rgba(255, 255, 255, 0.75);
+  --panel-border: rgba(255, 255, 255, 0.6);
+  --panel-shadow: 0 10px 25px rgba(27, 35, 73, 0.12);
+  --accent-start: #5b8dfb;
+  --accent-end: #9b6df8;
+  --text-primary: #2a2a2a;
+  --text-secondary: #5c6370;
+}
+
+/* Page Shell */
+.page-shell {
+  min-height: 100vh;
+  padding: 24px;
+  background: linear-gradient(135deg, var(--bg-grad-start), var(--bg-grad-end));
+}
+.page-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+@media (min-width: 1024px) {
+  .page-grid { grid-template-columns: 2fr 1fr; }
+}
+
+/* Panels & Glass */
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  box-shadow: var(--panel-shadow);
+  backdrop-filter: blur(12px);
+}
+.panel.padded { padding: 24px; }
+
+/* Gradient Accent Border */
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--accent-start), var(--accent-end));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+}
+
+/* Smart Teacher Card */
+.teacher-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.teacher-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 30% 30%, #fff 0%, #ffd4a3 50%, #ff9c69 100%);
+  box-shadow: 0 8px 20px rgba(255, 156, 105, 0.35);
+  border: 3px solid #fff;
+}
+.teacher-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+  border-radius: 999px;
+  padding: 6px 10px;
+  box-shadow: 0 6px 16px rgba(91, 141, 251, 0.35);
+}
+
+/* Prompt Bubble */
+.prompt-bubble {
+  position: relative;
+  background: #fff;
+  border: 1px solid #eff2f7;
+  border-radius: 16px;
+  padding: 16px;
+  color: var(--text-primary);
+  box-shadow: 0 6px 14px rgba(27, 35, 73, 0.08);
+}
+.prompt-bubble::after {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 18px;
+  width: 0; height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 10px solid #fff;
+}
+.typing {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typing 0.8s steps(40, end);
+}
+@keyframes typing { from { width: 0 } to { width: 100% } }
+
+/* Progress Bar */
+.progress {
+  margin-top: 10px;
+}
+.progress-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.progress-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: #e7ebf3;
+}
+.progress-fill {
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+  transition: width 400ms ease-in-out;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+.voice-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(90deg, #4a74f9, #7b5df6);
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(74, 116, 249, 0.35);
+}
+.voice-button:hover { filter: brightness(1.05); }
+
+/* Fade Switch for game area */
+.fade-switch {
+  position: relative;
+}
+.fade-enter { animation: fadeIn 350ms ease forwards; }
+.fade-exit { animation: fadeOut 250ms ease forwards; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: translateY(0) } }
+@keyframes fadeOut { from { opacity: 1 } to { opacity: 0 } }
+
+/* Confetti */
+.confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.confetti > span {
+  position: absolute;
+  width: 8px; height: 12px;
+  background: var(--accent-start);
+  opacity: 0.9;
+  transform: translateY(-20px);
+  animation: drop 1200ms ease forwards;
+}
+.confetti > span:nth-child(odd) { background: var(--accent-end); }
+@keyframes drop { to { transform: translateY(180px) rotate(30deg); opacity: 0 } }
