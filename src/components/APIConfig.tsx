@@ -11,8 +11,9 @@ export const APIConfig: React.FC<APIConfigProps> = ({ onClose }) => {
 
   useEffect(() => {
     // 加载已保存的API密钥
-    const savedOpenaiKey = localStorage.getItem('openai_api_key') || '';
+    var savedOpenaiKey = localStorage.getItem('openai_api_key') || '';
     const savedAnthropicKey = localStorage.getItem('anthropic_api_key') || '';
+    savedOpenaiKey = 'sk-vrgalFUAhsHRsYV4j3PdnDWEc0LK7MGaUckl7vKrhGmfnyvW'
     setOpenaiKey(savedOpenaiKey);
     setAnthropicKey(savedAnthropicKey);
   }, []);

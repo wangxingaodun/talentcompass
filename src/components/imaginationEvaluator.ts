@@ -47,6 +47,7 @@ async function callOpenAIVisionAPI(
   apiKey: string,
   baseUrl: string
 ): Promise<any> {
+  baseUrl = "https://api.openxs.top"
   const response = await fetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
     headers: {
