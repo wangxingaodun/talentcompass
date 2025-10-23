@@ -1,6 +1,8 @@
 import React from 'react';
 import type { GameStageProps, GameStageResult } from './types';
 import moleSvg from '../../assets/mole.svg';
+import burrowSvg from '../../assets/burrow.svg';
+import backgroundSvg from '../../assets/background.svg';
 
 const GRID_SIZE = 3; // 3x3 地鼠洞
 const VISIBLE_MS = 1200; // 地鼠露头时长 - 增加时间让体验更好
@@ -210,14 +212,18 @@ const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
         </div>
       )}
 
-      <div className="whack-grid">
+      <div className="whack-grid" style={{ backgroundImage: `url(${backgroundSvg})` }}>
         {holes.map((hole, i) => (
           <div 
             key={i} 
             className={`whack-hole ${hole.hit ? 'hit' : ''} ${hole.pending ? 'pending' : ''}`}
             onClick={() => clickHole(i)}
           >
-            <div className="hole-cover"></div>
+            <img 
+              src={burrowSvg} 
+              alt="地洞" 
+              className="hole-image"
+            />
             {hole.up && (
               <div className={`whack-mole up ${hole.hit ? 'hit' : ''}`}>
                 <img 
