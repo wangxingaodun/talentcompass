@@ -36,7 +36,9 @@
   box-shadow: var(--panel-shadow);
   backdrop-filter: blur(12px);
 }
-.panel.padded { padding: 24px; }
+.panel.padded { 
+  padding: 24px;
+}
 
 /* Gradient Accent Border */
 .gradient-border {
@@ -235,22 +237,305 @@
 .confetti > span:nth-child(odd) { background: var(--accent-end); }
 @keyframes drop { to { transform: translateY(180px) rotate(30deg); opacity: 0 } }
 
-/* Whack-a-Mole Game */
-.whack-grid { position: relative; }
-.whack-hole { transition: transform 120ms ease; }
-.whack-hole:active { transform: scale(0.98); }
+/* Whack-a-Mole Game - 卡通绿色主题 */
+.whack-game {
+  width: 100%;
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #a5d6a7 0%, #81c784 100%);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(76, 175, 80, 0.3);
+}
+
+.whack-header {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.game-countdown {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  text-align: center;
+  background: linear-gradient(135deg, #fff9c4 0%, #fff59d 100%);
+  padding: 50px 70px;
+  border-radius: 30px;
+  border: 6px solid #fdd835;
+  box-shadow: 0 12px 48px rgba(253, 216, 53, 0.5), inset 0 2px 0 rgba(255, 255, 255, 0.8);
+}
+
+.countdown-number {
+  font-size: 100px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #f57c00, #ff6f00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  animation: scaleUp 1s ease, bounce 0.5s ease infinite alternate;
+}
+
+.countdown-text {
+  font-size: 28px;
+  color: #f57c00;
+  font-weight: 700;
+  margin-top: 10px;
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+@keyframes scaleUp {
+  0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+  60% { transform: scale(1.15) rotate(5deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes bounce {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-10px); }
+}
+
+.whack-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  padding: 30px;
+  background: 
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 3px,
+      rgba(56, 142, 60, 0.3) 3px,
+      rgba(56, 142, 60, 0.3) 6px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 3px,
+      rgba(56, 142, 60, 0.3) 3px,
+      rgba(56, 142, 60, 0.3) 6px
+    ),
+    radial-gradient(ellipse at 30% 40%, rgba(139, 195, 74, 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 60%, rgba(139, 195, 74, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(104, 159, 56, 0.4) 0%, transparent 40%),
+    linear-gradient(135deg, #81c784 0%, #66bb6a 50%, #4caf50 100%);
+  border-radius: 24px;
+  margin-bottom: 20px;
+  box-shadow: 
+    inset 0 4px 8px rgba(0, 0, 0, 0.1), 
+    inset 0 -2px 4px rgba(255, 255, 255, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 8px 24px rgba(76, 175, 80, 0.2);
+  border: 4px solid #4caf50;
+  position: relative;
+  overflow: hidden;
+}
+
+.whack-grid::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 15% 25%, rgba(255, 255, 255, 0.15) 0%, transparent 8%),
+    radial-gradient(circle at 85% 35%, rgba(255, 255, 255, 0.12) 0%, transparent 10%),
+    radial-gradient(circle at 45% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 12%),
+    radial-gradient(circle at 75% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 9%);
+  pointer-events: none;
+}
+
+.whack-hole {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  background: 
+    radial-gradient(circle at 50% 45%, #2c1810 0%, #1a0d08 50%, #0d0604 100%);
+  border-radius: 50%;
+  border: 6px solid #6d4c41;
+  box-shadow: 
+    inset 0 8px 16px rgba(0, 0, 0, 0.95),
+    inset 0 -8px 12px rgba(62, 39, 35, 0.4),
+    inset 0 0 20px rgba(0, 0, 0, 0.8),
+    0 8px 16px rgba(0, 0, 0, 0.5),
+    0 4px 8px rgba(0, 0, 0, 0.3),
+    0 0 0 4px #5d4037,
+    0 0 0 7px #8d6e63;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 150ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.whack-hole::before {
+  content: '';
+  position: absolute;
+  top: -15%;
+  left: -15%;
+  right: -15%;
+  height: 40%;
+  background: 
+    radial-gradient(ellipse at 50% 0%, rgba(139, 69, 19, 0.5) 0%, transparent 60%),
+    radial-gradient(ellipse at 30% 20%, rgba(160, 82, 45, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 25%, rgba(160, 82, 45, 0.25) 0%, transparent 50%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.whack-hole::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  height: 25%;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.6) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.whack-hole:hover {
+  transform: scale(1.08);
+  box-shadow: 
+    inset 0 12px 20px rgba(0, 0, 0, 0.9),
+    inset 0 -4px 8px rgba(139, 69, 19, 0.3),
+    0 8px 16px rgba(76, 175, 80, 0.5),
+    0 0 0 3px #8d6e63,
+    0 0 20px rgba(255, 235, 59, 0.3);
+}
+
+.whack-hole:active {
+  transform: scale(0.92);
+}
+
+.whack-hole.pending {
+  animation: holePending 0.4s ease;
+}
+
+.whack-hole.hit {
+  animation: holeShake 0.4s ease;
+}
+
+@keyframes holePending {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.1) translateY(-3px); }
+  30% { transform: scale(0.95) translateY(2px); }
+  50% { transform: scale(1.08) translateY(-2px); }
+  70% { transform: scale(0.98) translateY(1px); }
+  85% { transform: scale(1.03); }
+}
+
+@keyframes holeShake {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  15% { transform: translateX(-8px) rotate(-5deg); }
+  30% { transform: translateX(8px) rotate(5deg); }
+  45% { transform: translateX(-6px) rotate(-3deg); }
+  60% { transform: translateX(6px) rotate(3deg); }
+  75% { transform: translateX(-3px) rotate(-1deg); }
+  90% { transform: translateX(3px) rotate(1deg); }
+}
+
+.hole-cover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 25%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+  pointer-events: none;
+}
+
 .whack-mole {
   position: absolute;
   left: 50%;
+  bottom: -100%;
   transform: translateX(-50%);
-  bottom: -60px;
+  width: 85%;
+  height: 85%;
   opacity: 0;
-  transition: transform 220ms ease, opacity 220ms ease, bottom 220ms ease;
+  transition: bottom 250ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 250ms ease;
+  pointer-events: none;
+  z-index: 2;
 }
+
 .whack-mole.up {
-  bottom: 10px;
-  transform: translateX(-50%);
+  bottom: 15%;
   opacity: 1;
+  pointer-events: auto;
 }
-.whack-mole.hit { animation: moleHit 260ms ease forwards; }
-@keyframes moleHit { 0% { transform: translateX(-50%) translateY(-30px) scale(1); opacity: 1 } 60% { transform: translateX(-50%) translateY(-40px) scale(1.1); opacity: 0.8 } 100% { transform: translateX(-50%) translateY(10px) scale(0.6); opacity: 0 } }
+
+.whack-mole.hit {
+  animation: moleHit 400ms cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+.mole-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 8px rgba(255, 235, 59, 0.3));
+  animation: wiggle 0.6s ease-in-out infinite alternate, popBounce 0.3s ease-out;
+}
+
+.whack-mole.hit .mole-image {
+  animation: moleImageHit 400ms cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+@keyframes wiggle {
+  0% { transform: rotate(-5deg) scale(1); }
+  50% { transform: rotate(0deg) scale(1.05); }
+  100% { transform: rotate(5deg) scale(1); }
+}
+
+@keyframes popBounce {
+  0% { transform: scale(0.3) rotate(-15deg); opacity: 0; }
+  60% { transform: scale(1.15) rotate(5deg); }
+  80% { transform: scale(0.95) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes moleHit {
+  0% { 
+    transform: translateX(-50%) translateY(0) scale(1) rotate(0deg);
+    opacity: 1; 
+  }
+  30% { 
+    transform: translateX(-50%) translateY(-25px) scale(1.3) rotate(-15deg);
+  }
+  60% {
+    transform: translateX(-50%) translateY(-35px) scale(1.1) rotate(10deg);
+  }
+  100% { 
+    transform: translateX(-50%) translateY(-60px) scale(0.3) rotate(-20deg);
+    opacity: 0; 
+  }
+}
+
+@keyframes moleImageHit {
+  0% { transform: rotate(0deg) scale(1); filter: brightness(1); }
+  20% { transform: rotate(15deg) scale(1.2); filter: brightness(1.3); }
+  40% { transform: rotate(-12deg) scale(1.15); filter: brightness(1.2); }
+  60% { transform: rotate(8deg) scale(1.1); filter: brightness(1.1); }
+  80% { transform: rotate(-5deg) scale(0.9); filter: brightness(0.9); }
+  100% { transform: rotate(0deg) scale(0.5); filter: brightness(0.7); }
+}
+
+.game-instructions {
+  text-align: center;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  margin-top: 16px;
+}
+
+.game-instructions p {
+  margin: 0;
+  font-size: 16px;
+  color: #666;
+  font-weight: 500;
+}

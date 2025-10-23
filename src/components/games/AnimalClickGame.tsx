@@ -26,7 +26,6 @@ const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
 
   React.useEffect(() => {
     setPrompt(`${childName ? childName + '，' : ''}准备好！在限定时间内打更多的地鼠！`);
-    startRef.current = Date.now();
     
     // 开始倒计时
     countdownRef.current = window.setInterval(() => {
@@ -34,6 +33,7 @@ const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
         if (c <= 1) {
           if (countdownRef.current) window.clearInterval(countdownRef.current);
           setGameStarted(true);
+          startRef.current = Date.now(); // 游戏开始时设置开始时间
           return 0;
         }
         return c - 1;
@@ -54,20 +54,24 @@ const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
       metrics: { hits, mistakes, avgLatencyMs, totalMs }
     };
     onComplete(result);
-  }, [onComplete, hits, mistakes]);
+  }, [onComplete]);
+
+  // 游戏完成处理逻辑引用
+  const handleGameCompleteRef = React.useRef(handleGameComplete);
+  React.useEffect(() => {
+    handleGameCompleteRef.current = handleGameComplete;
+  }, [handleGameComplete]);
 
   // 倒计时控制
   React.useEffect(() => {
     if (!gameStarted) return;
     
-    setTimeLeft(GAME_DURATION);
-    if (timerRef.current) window.clearInterval(timerRef.current);
     timerRef.current = window.setInterval(() => {
       setTimeLeft((t) => {
         if (t <= 1) {
           if (timerRef.current) window.clearInterval(timerRef.current);
           if (spawnRef.current) window.clearInterval(spawnRef.current);
-          handleGameComplete();
+          handleGameCompleteRef.current();
           return 0;
         }
         return t - 1;
@@ -76,7 +80,7 @@ const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
     return () => {
       if (timerRef.current) window.clearInterval(timerRef.current);
     };
-  }, [gameStarted, handleGameComplete]);
+  }, [gameStarted]);
 
   // 地鼠刷新逻辑
   React.useEffect(() => {
@@ -214,23 +218,15 @@ const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
             onClick={() => clickHole(i)}
           >
             <div className="hole-cover"></div>
-            <div 
-              className={`whack-mole ${hole.up ? 'up' : ''} ${hole.hit && hole.up ? 'hit' : ''}`}
-            >
-              {/* 使用SVG地鼠形象 */}
-              <img 
-                src={moleSvg} 
-                alt="地鼠" 
-                className={`mole-image ${hole.hit ? 'hit' : ''}`} 
-                style={{ 
-                  width: '100%', 
-                  height: '100%', 
-                  objectFit: 'contain', 
-                  transition: hole.hit ? 'all 0.3s ease' : 'none', 
-                  transform: hole.hit ? 'scale(1.2) rotate(10deg)' : 'none'
-                }}
-              />
-            </div>
+            {hole.up && (
+              <div className={`whack-mole up ${hole.hit ? 'hit' : ''}`}>
+                <img 
+                  src={moleSvg} 
+                  alt="地鼠" 
+                  className="mole-image"
+                />
+              </div>
+            )}
           </div>
         ))}
       </div>
