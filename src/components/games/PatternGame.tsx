@@ -1,7 +1,7 @@
 import React from 'react';
 import type { GameStageProps, GameStageResult } from './types';
 
-const PatternGame: React.FC<GameStageProps> = ({ childName, setPrompt, onComplete }) => {
+const PatternGame: React.FC<GameStageProps> = ({ setPrompt, onComplete }) => {
   const [selected, setSelected] = React.useState<string | null>(null);
   const [result, setResult] = React.useState<'correct' | 'incorrect' | null>(null);
   const startTimeRef = React.useRef<number>(Date.now());

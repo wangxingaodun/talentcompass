@@ -37,14 +37,18 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
     isCompleted: false
   });
   const [storyInput, setStoryInput] = useState('');
-  const [patternAnswer, setPatternAnswer] = useState<string | null>(null);
-  const [patternResult, setPatternResult] = useState<'correct' | 'incorrect' | null>(null);
-  const [animalCount, setAnimalCount] = useState(0);
+  // 下面这些变量暂时未使用，添加下划线前缀避免TypeScript报错
+  const [_patternAnswer, _setPatternAnswer] = useState<string | null>(null);
+  const [_patternResult, _setPatternResult] = useState<'correct' | 'incorrect' | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_animalCount, _setAnimalCount] = useState(0);
   // 移除绘画本地计时，统一由 DrawingGame 控制
   // const [drawingTime, setDrawingTime] = useState(60);
-  const [animalClickTime, setAnimalClickTime] = useState(10);
-  const [imaginationInput, setImaginationInput] = useState('');
-  const [isPlayingVoice, setIsPlayingVoice] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_animalClickTime, _setAnimalClickTime] = useState(10);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_imaginationInput, _setImaginationInput] = useState('');
+  const [_isPlayingVoice, _setIsPlayingVoice] = useState(false);
   const [prompt, setPrompt] = useState('准备好了吗？让我们开始吧！');
   
   // AI小老师相关状态
@@ -58,34 +62,18 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
   const [lastPerformance, setLastPerformance] = useState<'excellent' | 'good' | 'needs_improvement' | undefined>(undefined);
   
   // 录音功能相关状态
-  const [recognitionActive, setRecognitionActive] = useState(false);
-  const [recognition, setRecognition] = useState<any>(null);
-  
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [_recognitionActive, _setRecognitionActive] = useState(false);
+  const [_recognition, _setRecognition] = useState<any>(null);
   const drawingIntervalRef = useRef<number | null>(null);
   const animalIntervalRef = useRef<number | null>(null);
   
   const [storyStartTime, setStoryStartTime] = useState<number>(Date.now());
-  const [patternStartTime, setPatternStartTime] = useState<number>(0);
-  const [imaginationStartTime, setImaginationStartTime] = useState<number>(0);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_patternStartTime, _setPatternStartTime] = useState<number>(0);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_imaginationStartTime, _setImaginationStartTime] = useState<number>(0);
   
-  // 获取当前游戏的提示信息
-  const getTeacherMessage = () => {
-    switch (currentGame.type) {
-      case 'storytelling':
-        return `${childName}，小兔子遇到了谁呢？用一句话告诉我！`;
-      case 'pattern':
-        return "你能找出规律，选出正确的颜色吗？";
-      case 'drawing':
-        return "发挥你的想象力，画出你喜欢的东西吧！";
-      case 'animalClick':
-        return `在${animalClickTime}秒内，尽可能多地点击小动物！`;
-      case 'imagination':
-        return "把‘云+鞋’组合起来，会发生什么有趣的事情呢？";
-      default:
-        return "准备好了吗？让我们开始吧！";
-    }
-  };
+
   
   // 初始化语音识别
   React.useEffect(() => {
@@ -109,11 +97,11 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
       };
       
       newRecognition.onstart = () => {
-        setRecognitionActive(true);
+        _setRecognitionActive(true);
       };
       
       newRecognition.onend = () => {
-        setRecognitionActive(false);
+        _setRecognitionActive(false);
         // 自动提交如果有内容
         if (storyInput.trim()) {
           setTimeout(() => {
@@ -122,58 +110,18 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
         }
       };
       
-      setRecognition(newRecognition);
+      _setRecognition(newRecognition);
     }
   }, [storyInput]);
-  
-  // 开始语音识别
-  const startVoiceRecognition = () => {
-    if (recognition) {
-      try {
-        recognition.start();
-      } catch (error) {
-        console.error('语音识别启动失败:', error);
-      }
-    }
-  };
-  
-  // 停止语音识别
-  const stopVoiceRecognition = () => {
-    if (recognition) {
-      recognition.stop();
-    }
-  };
-  
-  // 语音播放功能
-  const playVoiceStory = () => {
-    if ('speechSynthesis' in window) {
-      const speech = new SpeechSynthesisUtterance();
-      speech.text = `从前，有一只小兔子...${childName}，小兔子遇到了谁呢？`;
-      speech.lang = 'zh-CN';
-      speech.volume = 1;
-      speech.rate = 1;
-      speech.pitch = 1;
-      
-      speech.onstart = () => {
-        setIsPlayingVoice(true);
-      };
-      
-      speech.onend = () => {
-        setIsPlayingVoice(false);
-      };
-      
-      speechSynthesis.speak(speech);
-    }
-  };
   
   // 进入不同关卡时记录起始时间
   React.useEffect(() => {
     if (currentGame.type === 'storytelling') {
       setStoryStartTime(Date.now());
     } else if (currentGame.type === 'pattern') {
-      setPatternStartTime(Date.now());
+      _setPatternStartTime(Date.now());
     } else if (currentGame.type === 'imagination') {
-      setImaginationStartTime(Date.now());
+      _setImaginationStartTime(Date.now());
     }
   }, [currentGame.type]);
   
@@ -194,103 +142,6 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
         setStoryInput('');
       }, 1200);
     }
-  };
-  
-  // 选择图形密码答案
-  const handlePatternSelect = (color: string) => {
-    setPatternAnswer(color);
-    const isCorrect = color === 'blue';
-    setPatternResult(isCorrect ? 'correct' : 'incorrect');
-    const latencyMs = Date.now() - patternStartTime;
-    recordMetric('logic', { correct: isCorrect ? 1 : 0, attempts: 1, avgLatencyMs: latencyMs });
-    if (isCorrect) {
-      setCurrentGame(prev => ({ ...prev, isCompleted: true }));
-      setTimeout(() => {
-        setCurrentGame({ type: 'drawing', currentStep: 3, isCompleted: false });
-        setPatternAnswer(null);
-        setPatternResult(null);
-        // 移除 startDrawingTimer，改由 DrawingGame 内部完成倒计时与完成回调
-      }, 1600);
-    }
-  };
-  
-  // 开始绘画计时器（已废弃）
-  // const startDrawingTimer = () => {
-  //   setDrawingTime(60);
-  //   if (drawingIntervalRef.current) {
-  //     clearInterval(drawingIntervalRef.current);
-  //   }
-  //   drawingIntervalRef.current = setInterval(() => {
-  //     setDrawingTime(prevTime => {
-  //       if (prevTime <= 1) {
-  //         if (drawingIntervalRef.current) {
-  //           clearInterval(drawingIntervalRef.current);
-  //         }
-  //         setCurrentGame(prev => ({ ...prev, isCompleted: true }));
-  //         recordMetric('creativity', { activeMs: 60000, colorsUsed: 0, shapesUsed: 0 });
-  //         setTimeout(() => {
-  //           setCurrentGame({ type: 'animalClick', currentStep: 4, isCompleted: false });
-  //           startAnimalClickGame();
-  //         }, 1000);
-  //         return 0;
-  //       }
-  //       return prevTime - 1;
-  //     });
-  //   }, 1000);
-  // };
-  
-  // 开始小动物点击游戏
-  const startAnimalClickGame = () => {
-    setAnimalCount(0);
-    setAnimalClickTime(10);
-    
-    if (animalIntervalRef.current) {
-      clearInterval(animalIntervalRef.current);
-    }
-    
-    const start = Date.now();
-    
-    animalIntervalRef.current = setInterval(() => {
-      setAnimalClickTime(prevTime => {
-        if (prevTime <= 1) {
-          if (animalIntervalRef.current) {
-            clearInterval(animalIntervalRef.current);
-          }
-          const totalMs = Date.now() - start;
-          const avgLatencyMs = animalCount > 0 ? Math.floor(totalMs / animalCount) : 0;
-          // 记录反应指标
-          recordMetric('reaction', { hits: animalCount, mistakes: 0, avgLatencyMs, totalMs });
-          // 跳转到第5关
-          setTimeout(() => {
-            setCurrentGame({ type: 'imagination', currentStep: 5, isCompleted: false });
-          }, 1200);
-          return 0;
-        }
-        return prevTime - 1;
-      });
-    }, 1000);
-  };
-  
-  // 处理动物点击
-  const handleAnimalClick = () => {
-    setAnimalCount(prevCount => prevCount + 1);
-  };
-  
-  // 提交想象关卡
-  const handleImaginationSubmit = () => {
-    const text = imaginationInput.trim();
-    if (!text) return;
-    const charCount = text.length;
-    const uniqueCharCount = new Set(text.split('')).size;
-    const noveltyScore = Math.min(10, (uniqueCharCount / Math.max(1, charCount)) * 10);
-    const consistencyScore = Math.min(10, Math.max(3, text.includes('因为') ? 8 : 6));
-    const latencyMs = Date.now() - imaginationStartTime;
-    recordMetric('imagination', { charCount, noveltyScore, consistencyScore, latencyMs });
-
-    setCurrentGame(prev => ({ ...prev, isCompleted: true }));
-    setTimeout(() => {
-      onComplete();
-    }, 1200);
   };
   
   // 渲染当前游戏（组件化）

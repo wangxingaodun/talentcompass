@@ -28,7 +28,7 @@ const SmartTeacher: React.FC<SmartTeacherProps> = ({
   const lastEncouragementRef = useRef<string>('');
   // 自动语音播放控制：定义于上方，避免重复声明
   // 根据维度获取智能化提示
-  const getSmartPrompt = (dimension: Dimension, progress: number): string => {
+  const getSmartPrompt = (dimension: Dimension): string => {
     const prompts = {
       expression: [
         `${childName}，让我们一起编个有趣的故事吧！🌟`,
@@ -104,7 +104,7 @@ const SmartTeacher: React.FC<SmartTeacherProps> = ({
       // 标记在下一次提示文本变化时自动播报
       autoSpeakOnNextPrompt.current = true;
       setTimeout(() => {
-        const smartPrompt = getSmartPrompt(currentDimension, gameProgress);
+        const smartPrompt = getSmartPrompt(currentDimension);
         onPromptChange(smartPrompt);
         setMood('gentle');
       }, 800);

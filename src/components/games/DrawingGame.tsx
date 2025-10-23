@@ -134,7 +134,7 @@ const DrawingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onComplet
     lastPosRef.current = pos;
   };
 
-  const endDraw = (e?: MouseEvent | TouchEvent) => {
+  const endDraw = () => {
     const ctx = ctxRef.current; if (!ctx) return;
     if (isDrawingRef.current) {
       ctx.closePath();
@@ -149,10 +149,10 @@ const DrawingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onComplet
     if (!canvas) return;
     const mdown = (ev: MouseEvent) => startDraw(ev);
     const mmove = (ev: MouseEvent) => moveDraw(ev);
-    const mup = (ev: MouseEvent) => endDraw(ev);
+    const mup = () => endDraw();
     const tstart = (ev: TouchEvent) => startDraw(ev);
     const tmove = (ev: TouchEvent) => moveDraw(ev);
-    const tend = (ev: TouchEvent) => endDraw(ev);
+    const tend = () => endDraw();
     canvas.addEventListener('mousedown', mdown);
     canvas.addEventListener('mousemove', mmove);
     canvas.addEventListener('mouseup', mup);
