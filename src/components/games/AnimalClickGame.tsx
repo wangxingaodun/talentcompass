@@ -45,6 +45,17 @@ const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
     };
   }, [childName, setPrompt]);
 
+  // 游戏完成处理逻辑
+  const handleGameComplete = React.useCallback(() => {
+    const totalMs = Date.now() - startRef.current;
+    const avgLatencyMs = hits > 0 ? Math.floor(latencySumRef.current / hits) : 0;
+    const result: GameStageResult = {
+      dimension: 'reaction',
+      metrics: { hits, mistakes, avgLatencyMs, totalMs }
+    };
+    onComplete(result);
+  }, [onComplete, hits, mistakes]);
+
   // 倒计时控制
   React.useEffect(() => {
     if (!gameStarted) return;
@@ -56,13 +67,7 @@ const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
         if (t <= 1) {
           if (timerRef.current) window.clearInterval(timerRef.current);
           if (spawnRef.current) window.clearInterval(spawnRef.current);
-          const totalMs = Date.now() - startRef.current;
-          const avgLatencyMs = hits > 0 ? Math.floor(latencySumRef.current / hits) : 0;
-          const result: GameStageResult = {
-            dimension: 'reaction',
-            metrics: { hits, mistakes, avgLatencyMs, totalMs }
-          };
-          onComplete(result);
+          handleGameComplete();
           return 0;
         }
         return t - 1;
@@ -71,7 +76,7 @@ const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
     return () => {
       if (timerRef.current) window.clearInterval(timerRef.current);
     };
-  }, [onComplete, gameStarted]);
+  }, [gameStarted, handleGameComplete]);
 
   // 地鼠刷新逻辑
   React.useEffect(() => {

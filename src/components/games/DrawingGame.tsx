@@ -1,8 +1,10 @@
 import React from 'react';
 import type { GameStageProps, GameStageResult, DrawingMetrics } from './types';
 
+const DRAWING_DURATION = 10; // 绘画游戏时长（秒）
+
 const DrawingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onComplete }) => {
-  const [timeLeft, setTimeLeft] = React.useState(60);
+  const [timeLeft, setTimeLeft] = React.useState(DRAWING_DURATION);
   const [tool, setTool] = React.useState<'pencil' | 'circle' | 'rect'>('pencil');
   const [color, setColor] = React.useState<string>('#3498db');
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
@@ -40,43 +42,69 @@ const DrawingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onComplet
     ctxRef.current = ctx;
   }, []);
 
+  // 使用useCallback确保onComplete函数引用稳定
+  const handleGameComplete = React.useCallback(() => {
+    // 导出画布图像
+    const canvas = canvasRef.current;
+    const imageDataUrl = canvas ? canvas.toDataURL('image/webp', 0.9) : '';
+    
+    const result: GameStageResult = {
+      dimension: 'creativity',
+      metrics: {
+        totalMs: Date.now() - startTimeRef.current,
+        colorsUsed: usedColorsRef.current.size,
+        shapesUsed: shapesCountRef.current.pencil + shapesCountRef.current.circle + shapesCountRef.current.rect,
+        strokeCount: strokeCountRef.current,
+        toolVariety: Object.values(shapesCountRef.current).filter(count => count > 0).length,
+        usedColors: Array.from(usedColorsRef.current),
+        shapeBreakdown: { ...shapesCountRef.current },
+        imageDataUrl,
+      } as DrawingMetrics,
+    };
+    onComplete(result);
+  }, [onComplete]);
+
   // 计时器（统一由本组件控制）
   React.useEffect(() => {
-    setTimeLeft(10);
+    // 重置游戏状态
+    setTimeLeft(DRAWING_DURATION);
     startTimeRef.current = Date.now();
-    if (intervalRef.current) window.clearInterval(intervalRef.current);
+    usedColorsRef.current.clear();
+    shapesCountRef.current = { pencil: 0, circle: 0, rect: 0 };
+    strokeCountRef.current = 0;
+    
+    // 清理之前的计时器
+    if (intervalRef.current) {
+      window.clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    
+    // 启动新的计时器
     intervalRef.current = window.setInterval(() => {
       setTimeLeft((t) => {
         if (t <= 1) {
-          if (intervalRef.current) window.clearInterval(intervalRef.current);
+          // 清理计时器
+          if (intervalRef.current) {
+            window.clearInterval(intervalRef.current);
+            intervalRef.current = null;
+          }
           
-          // 导出画布图像
-          const canvas = canvasRef.current;
-          const imageDataUrl = canvas ? canvas.toDataURL('image/webp', 0.9) : '';
-          
-          const result: GameStageResult = {
-            dimension: 'creativity',
-            metrics: {
-              totalMs: Date.now() - startTimeRef.current,
-              colorsUsed: usedColorsRef.current.size,
-              shapesUsed: shapesCountRef.current.pencil + shapesCountRef.current.circle + shapesCountRef.current.rect,
-              strokeCount: strokeCountRef.current,
-              toolVariety: Object.values(shapesCountRef.current).filter(count => count > 0).length,
-              usedColors: Array.from(usedColorsRef.current),
-              shapeBreakdown: { ...shapesCountRef.current },
-              imageDataUrl,
-            } as DrawingMetrics,
-          };
-          onComplete(result);
+          // 调用游戏完成处理
+          handleGameComplete();
           return 0;
         }
         return t - 1;
       });
     }, 1000);
+    
+    // 清理函数
     return () => {
-      if (intervalRef.current) window.clearInterval(intervalRef.current);
+      if (intervalRef.current) {
+        window.clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
     };
-  }, [onComplete]);
+  }, []); // 移除依赖，确保只执行一次
 
   // 绘制工具
   const getPos = (e: MouseEvent | TouchEvent) => {
