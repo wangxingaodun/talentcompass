@@ -299,9 +299,16 @@ export async function evaluateImaginationWithLLM(
     }
 
     console.log('多模态评估分数：', result.score)
+    console.log('完整的API评估结果:', result);
 
     // 验证返回结果的格式
     if (typeof result.score !== 'number' || !result.level || !Array.isArray(result.reasons)) {
+      console.error('API返回格式验证失败:', {
+        scoreType: typeof result.score,
+        hasLevel: !!result.level,
+        reasonsIsArray: Array.isArray(result.reasons),
+        result
+      });
       throw new Error('API返回格式不正确');
     }
 
@@ -313,13 +320,21 @@ export async function evaluateImaginationWithLLM(
       confidence: Math.max(0, Math.min(1, result.confidence || 0.8)),
     };
   } catch (error) {
-    console.warn('多模态API评估失败，使用本地兜底算法:', error);
+    console.error('多模态评估失败，使用兜底算法:', error);
+    console.log('错误详情:', {
+      errorMessage: error instanceof Error ? error.message : String(error),
+      errorStack: error instanceof Error ? error.stack : undefined,
+      config,
+      metricsUsed: metrics
+    });
     return heuristicImaginationEvaluation(metrics);
   }
 }
 
 // 本地兜底评分算法
 export function heuristicImaginationEvaluation(metrics: DrawingMetrics): ImaginationAssessment {
+  console.log('使用本地兜底算法进行评估，绘画数据:', metrics);
+  
   const rubric: EvaluationRubric = {
     originality: 3, // 基础分
     diversity: 0,
@@ -381,6 +396,12 @@ export function heuristicImaginationEvaluation(metrics: DrawingMetrics): Imagina
   // 计算总分 (0-100)
   const totalScore = Object.values(rubric).reduce((sum, score) => sum + score, 0);
   const normalizedScore = Math.round((totalScore / 30) * 100); // 30是满分(6维度×5分)
+  
+  console.log('本地算法评分详情:', {
+    rubric,
+    totalScore,
+    normalizedScore
+  });
 
   // 确定等级
   let level: 'excellent' | 'good' | 'needs_improvement';
