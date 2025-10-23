@@ -134,16 +134,7 @@ const ReportPage: React.FC<ReportPageProps> = ({
         {/* 报告封面 */}
         <div className="report-cover">
           <h1 className="report-title">{childName} 的天赋探索报告</h1>
-          <p className="report-subtitle">由AI小星老师生成 · {testDate}</p>
-          <div className="report-cover-image">
-            {/* 游戏截图占位 */}
-            <div className="game-screenshots">
-              <div className="screenshot-item"></div>
-              <div className="screenshot-item"></div>
-              <div className="screenshot-item"></div>
-              <div className="screenshot-item"></div>
-            </div>
-          </div>
+          <p className="report-subtitle">由高小吉老师生成 · {testDate}</p>
         </div>
         
         {/* 天赋类型 */}
@@ -182,107 +173,7 @@ const ReportPage: React.FC<ReportPageProps> = ({
           <p className="chart-note">每个维度满分10分，数值越高，兴趣倾向越强。</p>
         </div>
         
-        {/* 游戏数据详情 */}
-        <div className="game-metrics-section">
-          <h2>🎮 游戏表现数据</h2>
-          <div className="metrics-grid">
-            {/* 表达力 - 故事接龙 */}
-            <div className="metric-card">
-              <div className="metric-header">
-                <span className="metric-icon">💬</span>
-                <h3>故事接龙</h3>
-              </div>
-              <div className="metric-stats">
-                <div className="stat-item">
-                  <span className="stat-label">输入字数</span>
-                  <span className="stat-value">{metrics.expression.charCount}</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-label">独特字符</span>
-                  <span className="stat-value">{metrics.expression.uniqueCharCount}</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-label">完成时间</span>
-                  <span className="stat-value">{(metrics.expression.latencyMs / 1000).toFixed(1)}秒</span>
-                </div>
-              </div>
-            </div>
-            
-            {/* 逻辑力 - 找规律 */}
-            <div className="metric-card">
-              <div className="metric-header">
-                <span className="metric-icon">🧩</span>
-                <h3>找规律</h3>
-              </div>
-              <div className="metric-stats">
-                <div className="stat-item">
-                  <span className="stat-label">正确次数</span>
-                  <span className="stat-value">{metrics.logic.correct}</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-label">尝试次数</span>
-                  <span className="stat-value">{metrics.logic.attempts}</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-label">平均反应</span>
-                  <span className="stat-value">{(metrics.logic.avgLatencyMs / 1000).toFixed(1)}秒</span>
-                </div>
-              </div>
-            </div>
-            
-            {/* 反应力 - 打地鼠 */}
-            <div className="metric-card">
-              <div className="metric-header">
-                <span className="metric-icon">🎯</span>
-                <h3>打地鼠</h3>
-              </div>
-              <div className="metric-stats">
-                <div className="stat-item highlight">
-                  <span className="stat-label">命中次数</span>
-                  <span className="stat-value">{metrics.reaction.hits}</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-label">失误次数</span>
-                  <span className="stat-value">{metrics.reaction.mistakes}</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-label">平均反应</span>
-                  <span className="stat-value">{metrics.reaction.avgLatencyMs}毫秒</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-label">游戏时长</span>
-                  <span className="stat-value">{(metrics.reaction.totalMs / 1000).toFixed(1)}秒</span>
-                </div>
-              </div>
-            </div>
-            
-            {/* 想象力 */}
-            <div className="metric-card">
-              <div className="metric-header">
-                <span className="metric-icon">✨</span>
-                <h3>想象力测试</h3>
-              </div>
-              <div className="metric-stats">
-                <div className="stat-item">
-                  <span className="stat-label">故事字数</span>
-                  <span className="stat-value">{metrics.imagination.charCount}</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-label">新颖度</span>
-                  <span className="stat-value">{metrics.imagination.noveltyScore.toFixed(1)}</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-label">一致性</span>
-                  <span className="stat-value">{metrics.imagination.consistencyScore.toFixed(1)}</span>
-                </div>
-                <div className="stat-item">
-                  <span className="stat-label">反应时间</span>
-                  <span className="stat-value">{(metrics.imagination.latencyMs / 1000).toFixed(1)}秒</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+
         
         {/* 想象力评估详情 */}
         {imaginationAssessment && (

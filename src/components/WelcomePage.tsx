@@ -26,7 +26,7 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStartTest }) => {
     <div className="welcome-page">
       <div className="welcome-content">
         <h1 className="welcome-title">发现孩子的天赋火花！免费趣味小测试</h1>
-        <p className="welcome-subtitle">15–20分钟，AI小老师陪孩子玩5个小游戏，生成专属兴趣报告</p>
+        <p className="welcome-subtitle">15–20分钟，高小吉老师陪孩子玩5个小游戏，生成专属兴趣报告</p>
         
 
 
