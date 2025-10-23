@@ -33,6 +33,7 @@ const ReportPage: React.FC<ReportPageProps> = ({
   imaginationAssessment
 }) => {
   const { state } = useAppContext();
+  const metrics = state.metrics;
   // 生成五维雷达图的路径
   const generateRadarPath = () => {
     const centerX = 150;
@@ -179,6 +180,104 @@ const ReportPage: React.FC<ReportPageProps> = ({
             </svg>
           </div>
           <p className="chart-note">每个维度满分10分，数值越高，兴趣倾向越强。</p>
+        </div>
+        
+        {/* 游戏数据详情 */}
+        <div className="game-metrics-section">
+          <h2>🎮 游戏表现数据</h2>
+          <div className="metrics-grid">
+            {/* 表达力 - 故事接龙 */}
+            <div className="metric-card">
+              <div className="metric-header">
+                <span className="metric-icon">💬</span>
+                <h3>故事接龙</h3>
+              </div>
+              <div className="metric-stats">
+                <div className="stat-item">
+                  <span className="stat-label">输入字数</span>
+                  <span className="stat-value">{metrics.expression.charCount}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">独特字符</span>
+                  <span className="stat-value">{metrics.expression.uniqueCharCount}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">完成时间</span>
+                  <span className="stat-value">{(metrics.expression.latencyMs / 1000).toFixed(1)}秒</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* 逻辑力 - 找规律 */}
+            <div className="metric-card">
+              <div className="metric-header">
+                <span className="metric-icon">🧩</span>
+                <h3>找规律</h3>
+              </div>
+              <div className="metric-stats">
+                <div className="stat-item">
+                  <span className="stat-label">正确次数</span>
+                  <span className="stat-value">{metrics.logic.correct}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">尝试次数</span>
+                  <span className="stat-value">{metrics.logic.attempts}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">平均反应</span>
+                  <span className="stat-value">{(metrics.logic.avgLatencyMs / 1000).toFixed(1)}秒</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* 反应力 - 打地鼠 */}
+            <div className="metric-card">
+              <div className="metric-header">
+                <span className="metric-icon">🎯</span>
+                <h3>打地鼠</h3>
+              </div>
+              <div className="metric-stats">
+                <div className="stat-item highlight">
+                  <span className="stat-label">命中次数</span>
+                  <span className="stat-value">{metrics.reaction.hits}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">失误次数</span>
+                  <span className="stat-value">{metrics.reaction.mistakes}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">平均反应</span>
+                  <span className="stat-value">{metrics.reaction.avgLatencyMs}毫秒</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">游戏时长</span>
+                  <span className="stat-value">{(metrics.reaction.totalMs / 1000).toFixed(1)}秒</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* 想象力 */}
+            <div className="metric-card">
+              <div className="metric-header">
+                <span className="metric-icon">✨</span>
+                <h3>想象力测试</h3>
+              </div>
+              <div className="metric-stats">
+                <div className="stat-item">
+                  <span className="stat-label">故事字数</span>
+                  <span className="stat-value">{metrics.imagination.charCount}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">新颖度</span>
+                  <span className="stat-value">{metrics.imagination.noveltyScore.toFixed(1)}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">一致性</span>
+                  <span className="stat-value">{metrics.imagination.consistencyScore.toFixed(1)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         
         {/* 想象力评估详情 */}
