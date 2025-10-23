@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import { useAppContext } from './AppContext';
-import GameProgressBar from './GameProgressBar';
 import SmartTeacher from './SmartTeacher';
 import StorytellingGame from './games/StorytellingGame';
 import PatternGame from './games/PatternGame';
@@ -274,11 +273,6 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
   
   return (
     <div className="page-shell">
-      <GameProgressBar 
-        currentPage={state.currentPage}
-        currentGameType={state.currentGameType}
-        isGameCompleted={state.isCurrentGameCompleted}
-      />
       <div className="page-grid">
         {/* 游戏区域 */}
         <div className="panel padded gradient-border">
@@ -288,7 +282,7 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
         </div>
         
         {/* AI小老师区域 */}
-        <div>
+        <div className="panel padded gradient-border">
           <SmartTeacher
             childName={childName}
             currentDimension={currentGame.type === 'storytelling' ? 'expression' : 

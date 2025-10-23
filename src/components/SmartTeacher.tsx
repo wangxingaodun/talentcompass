@@ -144,7 +144,7 @@ const SmartTeacher: React.FC<SmartTeacherProps> = ({
   };
 
   return (
-    <div className="panel padded gradient-border">
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
       {/* AI小老师头像区域 */}
       <div className="teacher-card">
         <TeacherAvatar 
