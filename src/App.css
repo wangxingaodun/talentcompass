@@ -2128,12 +2128,14 @@ body {
 .whack-game {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
   background: linear-gradient(135deg, #F0F8FF 0%, #FFF8F0 100%);
-  padding: 32px;
+  padding: 20px;
   border-radius: 20px;
   border: 3px solid var(--border-light);
   position: relative;
+  max-height: calc(100vh - 200px);
+  min-height: 500px;
 }
 
 .whack-game::before {
@@ -2151,9 +2153,10 @@ body {
   align-items: center;
   background: white;
   border-radius: 16px;
-  padding: 16px 24px;
+  padding: 12px 20px;
   box-shadow: var(--shadow-light);
   border: 2px solid var(--border-light);
+  flex-shrink: 0;
 }
 
 .teacher-meta {
@@ -2199,13 +2202,14 @@ body {
 .whack-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  padding: 20px;
+  gap: 12px;
+  padding: 16px;
   background: #8BC34A; /* 草地背景 */
   border-radius: 16px;
   box-shadow: var(--shadow-light);
   border: 2px solid var(--border-light);
-  min-height: 400px;
+  flex: 1;
+  max-height: 280px;
 }
 
 /* 草地纹理 */
@@ -2564,15 +2568,16 @@ body {
 /* 游戏说明 */
 .game-instructions {
   background: linear-gradient(135deg, #FFF8E1 0%, #FFF59D 100%);
-  padding: 20px;
+  padding: 12px 16px;
   border-radius: 16px;
   border-left: 6px solid var(--accent-orange);
   text-align: center;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
 }
 
 .game-instructions p {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--text-dark);
   margin: 0;
