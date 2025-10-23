@@ -180,12 +180,21 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const imagSpeedScore = clamp10(10 - metrics.imagination.latencyMs / 5000 * 0.1);
     const imagination = clamp10((imagNoveltyScore + imagConsistencyScore + imagSpeedScore) * ageFactor);
 
-    // 反应：命中率 + 速度 + 稳定
-    const reacHitRate = metrics.reaction.totalMs > 0 ? metrics.reaction.hits / (metrics.reaction.totalMs / 1000) : 0; // 每秒命中数
-    const reacHitScore = clamp10(reacHitRate * 2 * 0.5 * ageFactor);
-    const reacSpeedScore = clamp10(10 - metrics.reaction.avgLatencyMs / 500 * 3);
-    const reacMistakePenalty = clamp10(Math.max(0, 10 - metrics.reaction.mistakes * 2));
-    const reaction = clamp10(reacHitScore + reacSpeedScore * 0.3 + reacMistakePenalty * 0.2);
+    // 反应：命中数量 + 反应速度 + 准确率综合评分
+    // 1. 命中数量得分（占50%）- 命中越多分数越高
+    const hitCountScore = clamp10(Math.min(metrics.reaction.hits / 15 * 10, 10)); // 15次命中为满分
+    
+    // 2. 反应速度得分（占30%）- 平均反应时间越短分数越高
+    const avgReactionTime = metrics.reaction.avgLatencyMs;
+    const speedScore = clamp10(Math.max(0, 10 - avgReactionTime / 150)); // 150ms以下为满分，每增加150ms减1分
+    
+    // 3. 准确率得分（占20%）- 准确率越高分数越高
+    const totalAttempts = metrics.reaction.hits + metrics.reaction.mistakes;
+    const accuracy = totalAttempts > 0 ? metrics.reaction.hits / totalAttempts : 0;
+    const accuracyScore = clamp10(accuracy * 10);
+    
+    // 综合计算反应力得分
+    const reaction = clamp10((hitCountScore * 0.5 + speedScore * 0.3 + accuracyScore * 0.2) * ageFactor);
 
     const newScores = { expression, logic, creativity, imagination, reaction };
 
