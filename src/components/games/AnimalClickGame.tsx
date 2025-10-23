@@ -132,6 +132,9 @@ const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
           window.setTimeout(() => {
             setHoles(hs => hs.map((h, i) => i === idx ? { ...h, up: false } : h));
             if (activeIndexRef.current === idx) {
+              // 地鼠自动消失，说明玩家没有打中，记录失误
+              setMistakes(m => m + 1);
+              setConsecutiveHits(0); // 重置连续命中次数
               activeIndexRef.current = null;
               appearStartRef.current = null;
             }
