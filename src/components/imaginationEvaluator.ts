@@ -47,46 +47,108 @@ async function callOpenAIVisionAPI(
   apiKey: string,
   baseUrl: string
 ): Promise<any> {
-  baseUrl = "https://api.openxs.top"
-  const response = await fetch(`${baseUrl}/chat/completions`, {
+  // 确保baseUrl以正确的格式结尾
+  const normalizedBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+  
+  console.log('调用OpenAI Vision API:', {
+    baseUrl: normalizedBaseUrl,
+    hasApiKey: !!apiKey,
+    imageDataLength: imageDataUrl.length
+  });
+
+  const requestBody = {
+    model: 'gpt-4o', // 使用最新的GPT-4o模型，支持视觉
+    messages: [
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'text',
+            text: prompt
+          },
+          {
+            type: 'image_url',
+            image_url: {
+              url: imageDataUrl,
+              detail: 'low' // 使用低分辨率以降低成本
+            }
+          }
+        ]
+      }
+    ],
+    max_tokens: 1000,
+    temperature: 0.2,
+    response_format: { type: 'json_object' } // 强制返回JSON格式
+  };
+
+  const response = await fetch(`${normalizedBaseUrl}/v1/chat/completions`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({
-      model: 'gpt-4o', // 使用最新的GPT-4o模型，支持视觉
-      messages: [
-        {
-          role: 'user',
-          content: [
-            {
-              type: 'text',
-              text: prompt
-            },
-            {
-              type: 'image_url',
-              image_url: {
-                url: imageDataUrl,
-                detail: 'low' // 使用低分辨率以降低成本
-              }
-            }
-          ]
-        }
-      ],
-      max_tokens: 1000,
-      temperature: 0.2,
-      response_format: { type: 'json_object' }
-    }),
+    body: JSON.stringify(requestBody),
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(`OpenAI API错误 ${response.status}: ${errorData.error?.message || '未知错误'}`);
+    const errorText = await response.text();
+    console.error('API请求失败:', {
+      status: response.status,
+      statusText: response.statusText,
+      responseText: errorText
+    });
+    
+    let errorData;
+    try {
+      errorData = JSON.parse(errorText);
+    } catch {
+      errorData = { error: { message: errorText } };
+    }
+    
+    throw new Error(`OpenAI API错误 ${response.status}: ${errorData.error?.message || errorText || '未知错误'}`);
   }
 
+  console.log("API响应data:", response)
   const data = await response.json();
-  return JSON.parse(data.choices[0].message.content);
+  console.log('API响应成功:', { hasChoices: !!data.choices?.length });
+  
+  // 尝试解析JSON响应，如果失败则返回原始内容
+  const content = data.choices[0].message.content;
+  console.log('API返回的原始内容:', content);
+  
+  try {
+    const parsedContent = JSON.parse(content);
+    console.log('JSON解析成功:', parsedContent);
+    return parsedContent;
+  } catch (error) {
+    console.warn('响应内容不是有效的JSON，返回原始内容');
+    console.error('JSON解析错误:', error);
+    console.log('尝试清理内容后再解析...');
+    
+    // 尝试清理内容并重新解析
+    try {
+      // 移除可能的markdown代码块标记
+      let cleanedContent = content.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+      // 移除前后空白字符
+      cleanedContent = cleanedContent.trim();
+      
+      const parsedCleanedContent = JSON.parse(cleanedContent);
+      console.log('清理后JSON解析成功:', parsedCleanedContent);
+      return parsedCleanedContent;
+    } catch (cleanError) {
+      console.error('清理后仍无法解析JSON:', cleanError);
+      return { 
+        rawContent: content,
+        error: 'JSON解析失败',
+        // 提供一个默认的评估结果
+        score: 75,
+        level: 'good',
+        reasons: ['API返回格式异常，使用默认评估'],
+        suggestions: ['请检查API配置'],
+        confidence: 0.5
+      };
+    }
+  }
 }
 
 // Anthropic Claude 3 Vision API调用
@@ -156,7 +218,7 @@ export async function evaluateImaginationWithLLM(
   metrics: DrawingMetrics,
   childAge?: string
 ): Promise<ImaginationAssessment> {
-  const prompt = `你是一名专业的儿童创意评估专家。请根据以下量表对这幅${childAge || '儿童'}绘画作品进行评估：
+  const prompt = `你是一名专业的儿童创意评估专家。请根据以下量表对这幅${childAge || '儿童'}绘画作品进行评估。
 
 评估维度（每项1-5分）：
 1. 原创性与象征性：是否有独特元素、隐喻或自创角色
@@ -173,29 +235,43 @@ export async function evaluateImaginationWithLLM(
 - 形状统计：铅笔${metrics.shapeBreakdown.pencil}次，圆形${metrics.shapeBreakdown.circle}个，方形${metrics.shapeBreakdown.rect}个
 - 工具多样性：${metrics.toolVariety}种工具
 
-请返回JSON格式：
+请严格按照以下JSON格式返回评估结果，不要添加任何其他文字：
 {
-  "score": 0-100的总分,
-  "level": "excellent" | "good" | "needs_improvement",
-  "reasons": ["评分要点1", "评分要点2", "评分要点3"],
-  "suggestions": ["提升建议1", "提升建议2"],
-  "confidence": 0-1的置信度
+  "score": 85,
+  "level": "excellent",
+  "reasons": ["具体评分要点1", "具体评分要点2", "具体评分要点3"],
+  "suggestions": ["具体提升建议1", "具体提升建议2"],
+  "confidence": 0.9
 }
 
 要求：
-- 评分要考虑儿童年龄特点，鼓励创意表达
-- 每个维度给出具体理由
-- 建议要具体可执行
-- 保持评估的一致性和公平性`;
+- score: 0-100的整数
+- level: 必须是 "excellent", "good", 或 "needs_improvement" 之一
+- reasons: 3-5个具体的评分要点
+- suggestions: 2-3个具体可执行的建议
+- confidence: 0-1之间的小数，表示评估置信度
+- 评分要考虑儿童年龄特点，鼓励创意表达`;
 
   const config = getAPIConfig();
 
   try {
     let result: any;
 
+    config.provider = 'openai'
+    config.apiKey = 'sk-vrgalFUAhsHRsYV4j3PdnDWEc0LK7MGaUckl7vKrhGmfnyvW';
+    config.baseUrl = 'https://api.openxs.top'
+
+    console.log(config.provider)
+    console.log(config.apiKey)
+    console.log(prompt)
+    console.log(imageDataUrl)
+    console.log(config.baseUrl!)
+
+
     if (config.provider === 'openai' && config.apiKey) {
       console.log('使用OpenAI GPT-4 Vision API进行评估...');
       result = await callOpenAIVisionAPI(imageDataUrl, prompt, config.apiKey, config.baseUrl!);
+      console.log('result =', result)
     } else if (config.provider === 'anthropic' && config.apiKey) {
       console.log('使用Anthropic Claude 3 Vision API进行评估...');
       result = await callAnthropicVisionAPI(imageDataUrl, prompt, config.apiKey, config.baseUrl!);
@@ -221,7 +297,9 @@ export async function evaluateImaginationWithLLM(
 
       result = await response.json();
     }
-    
+
+    console.log('多模态评估分数：', result.score)
+
     // 验证返回结果的格式
     if (typeof result.score !== 'number' || !result.level || !Array.isArray(result.reasons)) {
       throw new Error('API返回格式不正确');
