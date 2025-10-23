@@ -103,13 +103,36 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   };
 
   const recordMetric: AppContextType['recordMetric'] = (key, data) => {
-    setState(prev => ({
-      ...prev,
-      metrics: {
-        ...prev.metrics,
-        [key]: { ...prev.metrics[key], ...(data as any) }
+    setState(prev => {
+      // 对于逻辑维度，需要累加correct和attempts，而不是覆盖
+      if (key === 'logic') {
+        const currentLogic = prev.metrics.logic;
+        const newLogic = {
+          correct: currentLogic.correct + (data.correct || 0),
+          attempts: currentLogic.attempts + (data.attempts || 0),
+          // avgLatencyMs使用加权平均
+          avgLatencyMs: currentLogic.attempts > 0 
+            ? (currentLogic.avgLatencyMs * currentLogic.attempts + (data.avgLatencyMs || 0) * (data.attempts || 0)) / (currentLogic.attempts + (data.attempts || 0))
+            : (data.avgLatencyMs || 0)
+        };
+        return {
+          ...prev,
+          metrics: {
+            ...prev.metrics,
+            logic: newLogic
+          }
+        };
       }
-    }));
+      
+      // 其他维度使用原有的覆盖逻辑
+      return {
+        ...prev,
+        metrics: {
+          ...prev.metrics,
+          [key]: { ...prev.metrics[key], ...(data as any) }
+        }
+      };
+    });
   };
 
   // 设置当前游戏类型
