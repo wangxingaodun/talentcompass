@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext } from 'react';
 import type { ReactNode } from 'react';
 import type { DrawingMetrics, ImaginationAssessment } from './games/types';
-import { evaluateImaginationWithLLM, convertAssessmentToMetrics } from './imaginationEvaluator';
+import { evaluateImaginationWithLLM } from './imaginationEvaluator';
 
 // 定义应用状态类型
 interface AppState {
