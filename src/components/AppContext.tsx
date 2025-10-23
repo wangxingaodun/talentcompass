@@ -31,6 +31,9 @@ interface AppState {
     reaction: { hits: number; mistakes: number; avgLatencyMs: number; totalMs: number };
   };
   imaginationAssessment?: ImaginationAssessment;
+  // 游戏进度相关状态
+  currentGameType?: 'storytelling' | 'pattern' | 'drawing' | 'animalClick' | 'imagination';
+  isCurrentGameCompleted: boolean;
 }
 
 // 定义Context类型
@@ -41,6 +44,9 @@ interface AppContextType {
   setAgeBand: (age: '4-6' | '7-8' | '9-10') => void;
   recordMetric: (key: keyof AppState['metrics'], data: any) => void;
   generateReportData: () => Promise<void>;
+  // 游戏进度管理方法
+  setCurrentGameType: (gameType: 'storytelling' | 'pattern' | 'drawing' | 'animalClick' | 'imagination' | undefined) => void;
+  setGameCompleted: (completed: boolean) => void;
 }
 
 // 创建Context
@@ -76,7 +82,10 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       creativity: { activeMs: 0, colorsUsed: 0, shapesUsed: 0 },
       imagination: { charCount: 0, noveltyScore: 0, consistencyScore: 0, latencyMs: 0 },
       reaction: { hits: 0, mistakes: 0, avgLatencyMs: 0, totalMs: 10000 }
-    }
+    },
+    // 游戏进度相关状态初始值
+    currentGameType: undefined,
+    isCurrentGameCompleted: false
   });
 
   // 设置当前页面
@@ -101,6 +110,16 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         [key]: { ...prev.metrics[key], ...(data as any) }
       }
     }));
+  };
+
+  // 设置当前游戏类型
+  const setCurrentGameType = (gameType: 'storytelling' | 'pattern' | 'drawing' | 'animalClick' | 'imagination' | undefined) => {
+    setState(prev => ({ ...prev, currentGameType: gameType }));
+  };
+
+  // 设置游戏完成状态
+  const setGameCompleted = (completed: boolean) => {
+    setState(prev => ({ ...prev, isCurrentGameCompleted: completed }));
   };
 
   // 生成报告数据
@@ -251,7 +270,9 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setChildName,
     setAgeBand,
     recordMetric,
-    generateReportData
+    generateReportData,
+    setCurrentGameType,
+    setGameCompleted
   };
 
   return (

@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useAppContext } from './AppContext';
+import GameProgressBar from './GameProgressBar';
 import SmartTeacher from './SmartTeacher';
 import StorytellingGame from './games/StorytellingGame';
 import PatternGame from './games/PatternGame';
@@ -28,7 +29,7 @@ interface GameState {
 }
 
 const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName }) => {
-  const { recordMetric } = useAppContext();
+  const { state, recordMetric, setCurrentGameType, setGameCompleted } = useAppContext();
   // 游戏状态管理
   const [currentGame, setCurrentGame] = useState<GameState>({
     type: 'storytelling',
@@ -48,6 +49,12 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
   
   // AI小老师相关状态
   const [gameProgress, setGameProgress] = useState(0);
+
+  // 同步游戏状态到AppContext
+  React.useEffect(() => {
+    setCurrentGameType(currentGame.type);
+    setGameCompleted(currentGame.isCompleted);
+  }, [currentGame, setCurrentGameType, setGameCompleted]);
   const [lastPerformance, setLastPerformance] = useState<'excellent' | 'good' | 'needs_improvement' | undefined>(undefined);
   
   // 录音功能相关状态
@@ -416,6 +423,11 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
   
   return (
     <div className="page-shell">
+      <GameProgressBar 
+        currentPage={state.currentPage}
+        currentGameType={state.currentGameType}
+        isGameCompleted={state.isCurrentGameCompleted}
+      />
       <div className="page-grid">
         {/* 游戏区域 */}
         <div className="panel padded gradient-border">

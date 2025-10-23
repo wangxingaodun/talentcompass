@@ -26,17 +26,21 @@ const StorytellingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCo
   };
 
   return (
-    <div style={{ padding: 16 }}>
-      <p>请用一句话讲一讲：小兔子遇到了谁？</p>
+    <div className="storytelling-game">
+      <p className="story-prompt">请用一句话讲一讲：小兔子遇到了谁？</p>
       <textarea
+        className="story-input"
         value={input}
         onChange={(e) => setInput(e.target.value)}
         placeholder="例如：小兔子遇到了小熊，一起去森林散步。"
-        style={{ width: '100%', height: 120, borderRadius: 8, border: '1px solid #ddd', padding: 10 }}
       />
-      <div style={{ marginTop: 12 }}>
-        <button onClick={handleSubmit} className="primary-button">提交</button>
-      </div>
+      <button 
+        onClick={handleSubmit} 
+        className="submit-button"
+        disabled={!input.trim()}
+      >
+        提交
+      </button>
     </div>
   );
 };

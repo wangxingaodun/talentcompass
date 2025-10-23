@@ -133,6 +133,60 @@
   transition: width 400ms ease-in-out;
 }
 
+/* Game Progress Section */
+.game-progress-section {
+  margin-top: 10px;
+}
+
+.game-stages {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding: 0 4px;
+}
+
+.stage-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.stage-icon.pending {
+  background: #f0f2f5;
+  color: #8b9dc3;
+  border: 2px solid #e1e8ed;
+}
+
+.stage-icon.active {
+  background: linear-gradient(135deg, #4a74f9, #7b5df6);
+  color: white;
+  border: 2px solid #4a74f9;
+  box-shadow: 0 0 0 4px rgba(74, 116, 249, 0.2);
+  animation: pulse 2s infinite;
+}
+
+.stage-icon.completed {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  border: 2px solid #22c55e;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 4px rgba(74, 116, 249, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(74, 116, 249, 0.1);
+  }
+}
+
 /* Controls */
 .controls {
   display: flex;

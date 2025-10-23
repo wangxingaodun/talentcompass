@@ -6,7 +6,7 @@ interface WelcomePageProps {
 }
 
 const WelcomePage: React.FC<WelcomePageProps> = ({ onStartTest }) => {
-  const { setChildName, setAgeBand } = useAppContext();
+  const { state, setChildName, setAgeBand } = useAppContext();
   const [localName, setLocalName] = useState('');
   const [localAgeBand, setLocalAgeBand] = useState<'4-6' | '7-8' | '9-10' | ''>('');
   const [error, setError] = useState('');

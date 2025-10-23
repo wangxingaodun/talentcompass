@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAppContext } from './AppContext';
 import type { ImaginationAssessment } from './games/types';
 
 interface ReportPageProps {
@@ -31,6 +32,7 @@ const ReportPage: React.FC<ReportPageProps> = ({
   resources,
   imaginationAssessment
 }) => {
+  const { state } = useAppContext();
   // 生成五维雷达图的路径
   const generateRadarPath = () => {
     const centerX = 150;
