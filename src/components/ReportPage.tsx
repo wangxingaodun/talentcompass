@@ -275,6 +275,10 @@ const ReportPage: React.FC<ReportPageProps> = ({
                   <span className="stat-label">一致性</span>
                   <span className="stat-value">{metrics.imagination.consistencyScore.toFixed(1)}</span>
                 </div>
+                <div className="stat-item">
+                  <span className="stat-label">反应时间</span>
+                  <span className="stat-value">{(metrics.imagination.latencyMs / 1000).toFixed(1)}秒</span>
+                </div>
               </div>
             </div>
           </div>
@@ -285,20 +289,145 @@ const ReportPage: React.FC<ReportPageProps> = ({
           <div className="imagination-assessment-section">
             <h2>🎨 创意绘画分析</h2>
             <div className="assessment-content">
-              <div className="assessment-score">
-                <div className="score-circle">
-                  <div className="score-value">{imaginationAssessment.score}</div>
-                  <div className="score-label">分</div>
+              {/* 绘画作品展示 */}
+              {typeof metrics.creativity === 'object' && 'imageDataUrl' in metrics.creativity && metrics.creativity.imageDataUrl && (
+                <div className="drawing-artwork">
+                  <h3>📋 绘画作品</h3>
+                  <div className="artwork-container">
+                    <div className="artwork-image-wrapper">
+                      <img 
+                        src={metrics.creativity.imageDataUrl} 
+                        alt="儿童绘画作品" 
+                        className="artwork-image"
+                      />
+                    </div>
+                    <div className="artwork-meta-grid">
+                      <div className="artwork-meta">
+                        <span className="meta-label">作品尺寸</span>
+                        <span className="meta-value">画布绘制</span>
+                      </div>
+                      <div className="artwork-meta">
+                        <span className="meta-label">创作时间</span>
+                        <span className="meta-value">
+                          {typeof metrics.creativity === 'object' && 'totalMs' in metrics.creativity 
+                            ? `${Math.round(metrics.creativity.totalMs / 1000)}秒`
+                            : '未知'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="score-level">
-                  <span className={`level-badge level-${imaginationAssessment.level}`}>
-                    {imaginationAssessment.level === 'excellent' ? '优秀' : 
-                     imaginationAssessment.level === 'good' ? '良好' : '待提升'}
-                  </span>
+              )}
+              
+              <div className="assessment-score-section">
+                <div className="assessment-score">
+                  <div className="score-circle">
+                    <div className="score-value">{imaginationAssessment.score}</div>
+                    <div className="score-label">分</div>
+                  </div>
+                  <div className="score-level">
+                    <span className={`level-badge level-${imaginationAssessment.level}`}>
+                      {imaginationAssessment.level === 'excellent' ? '优秀' : 
+                       imaginationAssessment.level === 'good' ? '良好' : '待提升'}
+                    </span>
+                  </div>
+                </div>
+                <div className="confidence-display">
+                  <div className="confidence-label">评估置信度</div>
+                  <div className="confidence-bar">
+                    <div 
+                      className="confidence-fill" 
+                      style={{ width: `${(imaginationAssessment.confidence * 100)}%` }}
+                    ></div>
+                  </div>
+                  <div className="confidence-value">
+                    {(imaginationAssessment.confidence * 100).toFixed(0)}%
+                  </div>
                 </div>
               </div>
               
               <div className="assessment-details">
+                {/* 绘画数据详情 */}
+                <div className="drawing-metrics">
+                  <h3>📊 绘画数据详情</h3>
+                  <div className="metrics-grid">
+                    <div className="metric-item">
+                      <span className="metric-label">绘画时长</span>
+                      <span className="metric-value">
+                        {typeof metrics.creativity === 'object' && 'totalMs' in metrics.creativity 
+                          ? `${Math.round(metrics.creativity.totalMs / 1000)}秒`
+                          : typeof metrics.creativity === 'object' && 'activeMs' in metrics.creativity
+                          ? `${Math.round(metrics.creativity.activeMs / 1000)}秒`
+                          : '未知'}
+                      </span>
+                    </div>
+                    <div className="metric-item">
+                      <span className="metric-label">使用颜色数</span>
+                      <span className="metric-value">
+                        {typeof metrics.creativity === 'object' && 'colorsUsed' in metrics.creativity 
+                          ? `${metrics.creativity.colorsUsed}种`
+                          : '未知'}
+                      </span>
+                    </div>
+                    {typeof metrics.creativity === 'object' && 'strokeCount' in metrics.creativity && (
+                      <div className="metric-item">
+                        <span className="metric-label">笔画数量</span>
+                        <span className="metric-value">{metrics.creativity.strokeCount}笔</span>
+                      </div>
+                    )}
+                    {typeof metrics.creativity === 'object' && 'toolVariety' in metrics.creativity && (
+                      <div className="metric-item">
+                        <span className="metric-label">工具多样性</span>
+                        <span className="metric-value">{metrics.creativity.toolVariety}种</span>
+                      </div>
+                    )}
+                    {typeof metrics.creativity === 'object' && 'shapesUsed' in metrics.creativity && (
+                      <div className="metric-item">
+                        <span className="metric-label">形状种类</span>
+                        <span className="metric-value">{metrics.creativity.shapesUsed}种</span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* 颜色使用详情 */}
+                  {typeof metrics.creativity === 'object' && 'usedColors' in metrics.creativity && metrics.creativity.usedColors.length > 0 && (
+                    <div className="color-details">
+                      <h4>🎨 使用的颜色</h4>
+                      <div className="color-palette">
+                        {metrics.creativity.usedColors.map((color, index) => (
+                          <div 
+                            key={index} 
+                            className="color-swatch" 
+                            style={{ backgroundColor: color }}
+                            title={color}
+                          ></div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* 形状分布 */}
+                  {typeof metrics.creativity === 'object' && 'shapeBreakdown' in metrics.creativity && (
+                    <div className="shape-breakdown">
+                      <h4>📐 形状分布</h4>
+                      <div className="shape-stats">
+                        <div className="shape-stat">
+                          <span className="shape-label">✏️ 自由绘画</span>
+                          <span className="shape-count">{metrics.creativity.shapeBreakdown.pencil}</span>
+                        </div>
+                        <div className="shape-stat">
+                          <span className="shape-label">⭕ 圆形</span>
+                          <span className="shape-count">{metrics.creativity.shapeBreakdown.circle}</span>
+                        </div>
+                        <div className="shape-stat">
+                          <span className="shape-label">⬜ 矩形</span>
+                          <span className="shape-count">{metrics.creativity.shapeBreakdown.rect}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
                 <div className="assessment-reasons">
                   <h3>✨ 亮点表现</h3>
                   <ul>
