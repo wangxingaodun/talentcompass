@@ -5,9 +5,12 @@ import burrowSvg from '../../assets/burrow.svg';
 import backgroundSvg from '../../assets/background.svg';
 
 const GRID_SIZE = 3; // 3x3 地鼠洞
-const VISIBLE_MS = 1200; // 地鼠露头时长 - 增加时间让体验更好
-const SPAWN_MS = 800; // 地鼠刷新频率 - 稍微降低频率
-const GAME_DURATION = 20; // 游戏时长（秒）- 延长游戏时间
+const INITIAL_VISIBLE_MS = 1500; // 初始地鼠露头时长 - 开始慢一些
+const INITIAL_SPAWN_MS = 1200; // 初始地鼠刷新频率 - 开始较慢
+const MIN_VISIBLE_MS = 800; // 最小地鼠露头时长
+const MIN_SPAWN_MS = 500; // 最小地鼠刷新频率
+const DIFFICULTY_THRESHOLD = 3; // 连续命中多少次提升难度
+const GAME_DURATION = 30; // 游戏时长（秒）- 延长游戏时间
 
 const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onComplete }) => {
   const [hits, setHits] = React.useState(0);
@@ -18,6 +21,9 @@ const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
   );
   const [gameStarted, setGameStarted] = React.useState(false);
   const [countdown, setCountdown] = React.useState(3); // 3秒倒计时
+  const [consecutiveHits, setConsecutiveHits] = React.useState(0); // 连续命中次数
+  const [currentVisibleMs, setCurrentVisibleMs] = React.useState(INITIAL_VISIBLE_MS); // 当前地鼠露头时长
+  const [currentSpawnMs, setCurrentSpawnMs] = React.useState(INITIAL_SPAWN_MS); // 当前刷新频率
   const timerRef = React.useRef<number | null>(null);
   const spawnRef = React.useRef<number | null>(null);
   const startRef = React.useRef<number>(Date.now());
@@ -73,6 +79,11 @@ const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
         if (t <= 1) {
           if (timerRef.current) window.clearInterval(timerRef.current);
           if (spawnRef.current) window.clearInterval(spawnRef.current);
+          setGameStarted(false); // 停止游戏，防止继续点击
+          // 清空所有地鼠状态
+          setHoles(prev => prev.map(h => ({ ...h, up: false, hit: false, pending: false })));
+          activeIndexRef.current = null;
+          appearStartRef.current = null;
           handleGameCompleteRef.current();
           return 0;
         }
@@ -117,35 +128,42 @@ const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
           activeIndexRef.current = idx;
           appearStartRef.current = Date.now();
           
-          // 自动下钻
+          // 自动下钻（使用当前难度的露头时长）
           window.setTimeout(() => {
             setHoles(hs => hs.map((h, i) => i === idx ? { ...h, up: false } : h));
             if (activeIndexRef.current === idx) {
               activeIndexRef.current = null;
               appearStartRef.current = null;
             }
-          }, VISIBLE_MS);
+          }, currentVisibleMs);
           
           return next;
         });
       }, 300); // 地面动效持续时间
-    }, SPAWN_MS);
+    }, currentSpawnMs);
     
     return () => {
       if (spawnRef.current) window.clearInterval(spawnRef.current);
     };
-  }, [gameStarted, holes]);
+  }, [gameStarted, holes, currentVisibleMs, currentSpawnMs]);
 
   const clickHole = (index: number) => {
     if (!gameStarted) return; // 游戏未开始时不响应点击
     
     const active = activeIndexRef.current;
     const appearedAt = appearStartRef.current;
+    const hole = holes[index];
+    
+    // 只有当地鼠真正出现(up=true)时，点击才有效
+    if (!hole.up) {
+      return; // 地鼠未出现，点击无效果
+    }
     
     // 检查是否点击的是活跃的地鼠
     if (active !== null && index === active) {
       // 命中地鼠
-      setHits(h => h + 1);
+      const newHits = hits + 1;
+      setHits(newHits);
       setHoles(prev => prev.map((h, i) => 
         i === index ? { ...h, up: false, hit: true, pending: false } : h
       ));
@@ -162,8 +180,21 @@ const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
       activeIndexRef.current = null;
       appearStartRef.current = null;
       
-      // 更新提示语给予鼓励
-      if (hits % 5 === 0) {
+      // 更新连续命中次数
+      const newConsecutiveHits = consecutiveHits + 1;
+      setConsecutiveHits(newConsecutiveHits);
+      
+      // 根据连续命中次数提升难度
+      if (newConsecutiveHits % DIFFICULTY_THRESHOLD === 0) {
+        // 缩短地鼠露头时间和刷新间隔
+        const newVisibleMs = Math.max(MIN_VISIBLE_MS, currentVisibleMs - 100);
+        const newSpawnMs = Math.max(MIN_SPAWN_MS, currentSpawnMs - 100);
+        setCurrentVisibleMs(newVisibleMs);
+        setCurrentSpawnMs(newSpawnMs);
+        
+        setPrompt(`太棒了！连续命中${newConsecutiveHits}次！难度提升！`);
+      } else if (newHits % 5 === 0) {
+        // 每5次命中给予鼓励
         const encouragements = [
           '太棒了！继续保持！',
           '真厉害！你眼疾手快！',
@@ -173,8 +204,11 @@ const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
         setPrompt(randomEncouragement);
       }
     } else {
-      // 失误（点击空洞或错误洞）
+      // 点击到地鼠但不是当前活跃的地鼠（理论上不应该发生）
       setMistakes(m => m + 1);
+      // 重置连续命中次数
+      setConsecutiveHits(0);
+      
       // 空洞抖动效果通过 CSS 动画实现
       setHoles(prev => prev.map((h, i) => 
         i === index ? { ...h, hit: true, pending: false } : h
