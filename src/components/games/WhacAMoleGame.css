@@ -1,0 +1,481 @@
+/* 打地鼠游戏独立样式 - 现代卡通风格 */
+
+/* 游戏主容器 */
+.whack-game {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #F0F8FF 0%, #FFF8F0 100%);
+  border-radius: 24px;
+  border: 3px solid #E8F5E8;
+  position: relative;
+  max-height: calc(100vh - 200px);
+  min-height: 500px;
+  box-shadow: 
+    0 8px 32px rgba(76, 175, 80, 0.3),
+    0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* 游戏图标装饰 */
+.whack-game::before {
+  content: '🐭';
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 1.5rem;
+  opacity: 0.6;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+
+/* 游戏头部信息栏 */
+.whack-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  border-radius: 16px;
+  padding: 12px 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 2px solid #E8F5E8;
+  flex-shrink: 0;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* 游戏信息项 */
+.teacher-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2E7D32;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: rgba(76, 175, 80, 0.1);
+  transition: all 0.2s ease;
+}
+
+.teacher-meta:hover {
+  background: rgba(76, 175, 80, 0.2);
+  transform: scale(1.05);
+}
+
+/* 倒计时覆盖层 */
+.game-countdown {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+  color: white;
+  border-radius: 24px;
+  padding: 32px 48px;
+  text-align: center;
+  z-index: 100;
+  box-shadow: 
+    0 12px 48px rgba(76, 175, 80, 0.5),
+    0 4px 16px rgba(0, 0, 0, 0.2);
+  animation: pulse-countdown 1s infinite;
+  border: 4px solid #81C784;
+}
+
+.countdown-number {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  animation: scaleUp 1s ease, bounce 0.5s ease infinite alternate;
+}
+
+.countdown-text {
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes pulse-countdown {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.05); }
+}
+
+@keyframes scaleUp {
+  0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+  60% { transform: scale(1.15) rotate(5deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes bounce {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-10px); }
+}
+
+/* 游戏网格 */
+.whack-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 24px;
+  background: linear-gradient(135deg, #8BC34A 0%, #689F38 100%);
+  border-radius: 20px;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    0 8px 24px rgba(76, 175, 80, 0.2),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2);
+  border: 4px solid #4CAF50;
+  flex: 1;
+  max-height: 320px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 草地纹理背景 */
+.whack-grid::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20px 20px, rgba(139, 195, 74, 0.4) 2px, transparent 0),
+    radial-gradient(circle at 80px 80px, rgba(139, 195, 74, 0.4) 2px, transparent 0),
+    radial-gradient(circle at 40px 60px, rgba(139, 195, 74, 0.4) 2px, transparent 0);
+  background-size: 100px 100px;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+/* 地洞容器 */
+.whack-hole {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 1;
+  overflow: visible;
+}
+
+/* 地洞基础结构 */
+.whack-hole::before {
+  content: '';
+  position: absolute;
+  bottom: 15%;
+  width: 70%;
+  height: 30%;
+  background: linear-gradient(135deg, #6D4C41 0%, #5D4037 100%);
+  border-radius: 50%;
+  box-shadow: 
+    inset 0 10px 15px rgba(0, 0, 0, 0.5),
+    0 4px 8px rgba(0, 0, 0, 0.3);
+  z-index: 0;
+  transition: all 0.2s ease;
+}
+
+/* 地洞泥土纹理 */
+.whack-hole::after {
+  content: '';
+  position: absolute;
+  bottom: 15%;
+  width: 70%;
+  height: 30%;
+  background-image: 
+    radial-gradient(circle at 30% 50%, rgba(139, 69, 19, 0.3) 20%, transparent 0),
+    radial-gradient(circle at 70% 60%, rgba(139, 69, 19, 0.3) 25%, transparent 0),
+    radial-gradient(circle at 50% 80%, rgba(139, 69, 19, 0.3) 15%, transparent 0);
+  border-radius: 50%;
+  z-index: 1;
+}
+
+/* 地鼠即将出现时的地面动效 */
+.whack-hole.pending::before {
+  animation: ground-move 0.5s ease;
+}
+
+@keyframes ground-move {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* 地洞悬停效果 */
+.whack-hole:hover {
+  transform: scale(1.05);
+}
+
+.whack-hole:active {
+  transform: scale(0.98);
+}
+
+/* 地洞被击中效果 */
+.whack-hole.hit {
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  15% { transform: translateX(-8px) rotate(-5deg); }
+  30% { transform: translateX(8px) rotate(5deg); }
+  45% { transform: translateX(-6px) rotate(-3deg); }
+  60% { transform: translateX(6px) rotate(3deg); }
+  75% { transform: translateX(-3px) rotate(-1deg); }
+  90% { transform: translateX(3px) rotate(1deg); }
+}
+
+/* 地洞图片样式 */
+.hole-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  z-index: 1;
+}
+
+/* 地鼠容器 */
+.whack-mole {
+  position: absolute;
+  bottom: 15%;
+  left: 50%;
+  width: 65%;
+  height: 70%;
+  transform: translateX(-50%) translateY(100%);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: visible;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 地鼠出现效果 */
+.whack-mole.up {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+  animation: bounce-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes bounce-in {
+  0% { 
+    transform: translateX(-50%) translateY(100%) scale(0.8); 
+    opacity: 0.7; 
+  }
+  60% { 
+    transform: translateX(-50%) translateY(-15px) scale(1.1); 
+  }
+  100% { 
+    transform: translateX(-50%) translateY(0) scale(1); 
+    opacity: 1; 
+  }
+}
+
+/* 地鼠被击中效果 */
+.whack-mole.hit {
+  animation: hit-mole 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes hit-mole {
+  0% { 
+    transform: translateX(-50%) translateY(0) scale(1); 
+    opacity: 1;
+  }
+  40% { 
+    transform: translateX(-50%) translateY(-20px) scale(1.2) rotate(10deg); 
+  }
+  70% { 
+    transform: translateX(-50%) translateY(-10px) scale(1.1) rotate(-5deg); 
+  }
+  100% { 
+    transform: translateX(-50%) translateY(100%) scale(0.9); 
+    opacity: 0.7; 
+  }
+}
+
+/* 地鼠图片样式 */
+.mole-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: 
+    drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4)) 
+    drop-shadow(0 0 8px rgba(255, 235, 59, 0.3));
+  transition: all 0.2s ease;
+  animation: wiggle 0.6s ease-in-out infinite alternate, popBounce 0.3s ease-out;
+}
+
+.mole-image:hover {
+  filter: 
+    drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5)) 
+    drop-shadow(0 0 12px rgba(255, 235, 59, 0.5));
+  transform: scale(1.05);
+}
+
+.whack-mole.hit .mole-image {
+  filter: 
+    drop-shadow(0 8px 16px rgba(255, 75, 75, 0.3))
+    drop-shadow(0 0 12px rgba(255, 193, 7, 0.6));
+  animation: moleImageHit 400ms cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+@keyframes wiggle {
+  0% { transform: rotate(-5deg) scale(1); }
+  50% { transform: rotate(0deg) scale(1.05); }
+  100% { transform: rotate(5deg) scale(1); }
+}
+
+@keyframes popBounce {
+  0% { transform: scale(0.3) rotate(-15deg); opacity: 0; }
+  60% { transform: scale(1.15) rotate(5deg); }
+  80% { transform: scale(0.95) rotate(-3deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes moleImageHit {
+  0% { transform: rotate(0deg) scale(1); filter: brightness(1); }
+  20% { transform: rotate(15deg) scale(1.2); filter: brightness(1.3); }
+  40% { transform: rotate(-12deg) scale(1.15); filter: brightness(1.2); }
+  60% { transform: rotate(8deg) scale(1.1); filter: brightness(1.1); }
+  80% { transform: rotate(-5deg) scale(0.9); filter: brightness(0.9); }
+  100% { transform: rotate(0deg) scale(0.5); filter: brightness(0.7); }
+}
+
+/* 游戏说明 */
+.game-instructions {
+  background: linear-gradient(135deg, #FFF8E1 0%, #FFF59D 100%);
+  padding: 16px 20px;
+  border-radius: 16px;
+  border-left: 6px solid #FF9800;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.2);
+  flex-shrink: 0;
+  margin-top: 8px;
+}
+
+.game-instructions p {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #E65100;
+  margin: 0;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .whack-game {
+    padding: 16px;
+    gap: 12px;
+    min-height: 450px;
+  }
+  
+  .whack-header {
+    padding: 10px 16px;
+    gap: 12px;
+  }
+  
+  .teacher-meta {
+    font-size: 1rem;
+  }
+  
+  .whack-grid {
+    gap: 16px;
+    padding: 20px;
+    max-height: 280px;
+  }
+  
+  .countdown-number {
+    font-size: 2.5rem;
+  }
+  
+  .countdown-text {
+    font-size: 1.1rem;
+  }
+  
+  .game-countdown {
+    padding: 24px 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .whack-game {
+    padding: 12px;
+    min-height: 400px;
+  }
+  
+  .whack-grid {
+    gap: 12px;
+    padding: 16px;
+    max-height: 240px;
+  }
+  
+  .teacher-meta {
+    font-size: 0.9rem;
+    padding: 3px 6px;
+  }
+  
+  .countdown-number {
+    font-size: 2rem;
+  }
+  
+  .countdown-text {
+    font-size: 1rem;
+  }
+  
+  .game-instructions p {
+    font-size: 0.9rem;
+  }
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  .whack-game {
+    border: 4px solid #000;
+  }
+  
+  .whack-header {
+    border: 3px solid #000;
+  }
+  
+  .teacher-meta {
+    color: #000;
+    background: #FFF;
+    border: 2px solid #000;
+  }
+  
+  .whack-grid {
+    border: 4px solid #000;
+  }
+}
+
+/* 减少动画模式支持 */
+@media (prefers-reduced-motion: reduce) {
+  .whack-game::before,
+  .countdown-number,
+  .mole-image,
+  .whack-mole,
+  .whack-hole {
+    animation: none;
+  }
+  
+  .whack-mole {
+    transition: opacity 0.2s ease;
+  }
+  
+  .whack-hole {
+    transition: transform 0.1s ease;
+  }
+}
