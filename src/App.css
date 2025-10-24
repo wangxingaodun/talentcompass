@@ -2053,6 +2053,68 @@ body {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
 }
 
+/* Logic Report styles */
+.logic-analysis-section-enhanced {
+  background: white;
+  border-radius: 24px;
+  padding: 40px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 32px;
+}
+
+.logic-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.logic-icon {
+  font-size: 2.5rem;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+}
+
+.logic-header h3 {
+  font-size: 1.8rem;
+  color: #1e293b;
+  font-weight: 700;
+  margin: 0;
+}
+
+.logic-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.summary-item {
+  font-size: 1rem;
+  color: #374151;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .logic-analysis-section-enhanced {
+    padding: 24px;
+  }
+  .logic-summary {
+    gap: 12px;
+    padding: 10px 12px;
+  }
+}
+
 /* 响应式设计 */
 /* 大屏幕全屏显示优化 */
 @media (min-width: 1920px) {
