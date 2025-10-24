@@ -8,20 +8,7 @@ import '../../styles/pattern.css';
 // 正确答案：A. 蓝色圆形
 
 // 使用大模型生成题目所需的配置与调用（参考 imaginationEvaluator.ts 的配置方式）
-interface APIConfig {
-  provider: 'openai' | 'anthropic' | 'local';
-  apiKey?: string;
-  baseUrl?: string;
-}
-
-function getAPIConfig(): APIConfig {
-  // 直接使用与 imaginationEvaluator.ts 一致的配置，不从环境或 localStorage 读取
-  return {
-    provider: 'openai',
-    apiKey: 'sk-vrgalFUAhsHRsYV4j3PdnDWEc0LK7MGaUckl7vKrhGmfnyvW',
-    baseUrl: 'https://api.openxs.top',
-  };
-}
+import { getAPIConfig, callChatJSON } from './llm';
 
 // 期望的题目 JSON 结构
 interface PatternOption {
@@ -44,54 +31,6 @@ interface PatternQuestion {
   options: PatternOption[];
   correct: string; // 正确选项 key，如 'A'
   explanation: string; // 规律说明
-}
-
-async function callOpenAIChatJSON(prompt: string, apiKey: string, baseUrl: string): Promise<PatternQuestion> {
-  const normalizedBaseUrl = baseUrl.replace(/\/+$/, '');
-  const endpoint = normalizedBaseUrl.endsWith('/v1')
-    ? `${normalizedBaseUrl}/chat/completions`
-    : `${normalizedBaseUrl}/v1/chat/completions`;
-
-  console.log('PatternGame1 调用OpenAI接口:', { endpoint, hasApiKey: !!apiKey });
-
-  const body = {
-    model: 'gpt-4o',
-    messages: [
-      {
-        role: 'user',
-        content: [
-          { type: 'text', text: prompt }
-        ]
-      }
-    ],
-    max_tokens: 800,
-    temperature: 0.2,
-    response_format: { type: 'json_object' }
-  };
-
-  const resp = await fetch(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (!resp.ok) {
-    const text = await resp.text();
-    console.error('OpenAI 请求失败:', { status: resp.status, text });
-    throw new Error(`OpenAI API错误 ${resp.status}: ${text}`);
-  }
-
-  const data = await resp.json();
-  const content = data.choices?.[0]?.message?.content ?? '';
-  try {
-    return JSON.parse(content);
-  } catch {
-    const cleaned = content.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
-    return JSON.parse(cleaned);
-  }
 }
 
 function localFallbackQuestion(): PatternQuestion {
@@ -178,7 +117,7 @@ const PatternGame1: React.FC<GameStageProps> = ({ childName, setPrompt, onComple
 - 随机种子（用于增加不可预测性）：${seed}`;
 
         if (config.provider === 'openai' && config.apiKey) {
-          q = await callOpenAIChatJSON(prompt, config.apiKey, config.baseUrl!);
+          q = await callChatJSON(prompt);
         } else {
           q = localFallbackQuestion();
         }
