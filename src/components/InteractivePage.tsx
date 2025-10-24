@@ -28,7 +28,7 @@ interface GameState {
 }
 
 const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName }) => {
-  const { recordMetric, setCurrentGameType, setGameCompleted } = useAppContext();
+  const { state, recordMetric, setCurrentGameType, setGameCompleted } = useAppContext();
   // 游戏状态管理
   const [currentGame, setCurrentGame] = useState<GameState>({
     type: 'storytelling',
@@ -232,7 +232,7 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
           default:
             break;
         }
-      }, 3000); // 给AI小老师3秒时间进行反馈
+      }, 800); // 给AI小老师3秒时间进行反馈
     };
 
     switch (currentGame.type) {
@@ -298,6 +298,13 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
           />
         </div>
       </div>
+      {state.requestLoading && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#fff', padding: '24px 32px', borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.2)', fontSize: 16, color: '#333' }}>
+            ⏳ 正在生成报告，请稍候…
+          </div>
+        </div>
+      )}
     </div>
   );
 };

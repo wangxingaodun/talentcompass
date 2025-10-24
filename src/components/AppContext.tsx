@@ -37,6 +37,7 @@ interface AppState {
   // 游戏进度相关状态
   currentGameType?: 'storytelling' | 'pattern' | 'drawing' | 'animalClick' | 'imagination';
   isCurrentGameCompleted: boolean;
+  requestLoading: boolean;
 }
 let STATE: AppState;
 // 定义Context类型
@@ -148,6 +149,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   // 生成报告数据
   const generateReportData = useCallback(async () => {
+    setState(prev => ({ ...prev, requestLoading: true }));
     const { metrics } = STATE;
     const ageFactor = 1.0; // 移除年龄段区分，使用统一因子
     const clamp10 = (val: number) => Math.max(0, Math.min(10, val));
@@ -252,6 +254,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
     const newScores = { expression, logic, creativity, imagination, reaction };
 
+    setState(prev => ({ ...prev, requestLoading: false }));
     // 找出最高分的维度，确定天赋类型
     let highestScore = Math.max(...Object.values(newScores));
     let talentType = 'inventor';

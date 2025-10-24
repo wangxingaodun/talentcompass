@@ -234,7 +234,7 @@ const StorytellingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCo
     if (toastTimerRef.current) {
       clearTimeout(toastTimerRef.current);
     }
-    toastTimerRef.current = window.setTimeout(() => setShowToast(false), 3000);
+    toastTimerRef.current = window.setTimeout(() => setShowToast(false), 800);
   };
 
   return (
