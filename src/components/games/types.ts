@@ -29,7 +29,7 @@ export interface ImaginationAssessment {
 
 export interface GameStageResult {
   dimension: Dimension;
-  metrics: Record<string, number> | DrawingMetrics;
+  metrics: Record<string, number | string> | DrawingMetrics;
 }
 
 export interface GameStageProps {

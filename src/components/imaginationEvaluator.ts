@@ -213,6 +213,111 @@ async function callAnthropicVisionAPI(
 }
 
 // 大模型API调用函数
+export async function evaluateImaginationTextWithLLM(
+  answerText: string,
+  childAge?: string
+): Promise<ImaginationAssessment> {
+  const prompt = `你是一名儿童想象力评估专家。以下是${childAge || '儿童'}对“奇异组合”题目的回答：\n\n${answerText}\n\n评估维度（每项1-5分）：\n1. 原创联想与新颖度\n2. 逻辑连贯性与可理解性\n3. 细节与形象性\n4. 叙事潜力与可延展性\n5. 情感与动机表达\n\n请严格仅以JSON返回：{ "score": 85, "level": "excellent", "reasons": ["具体评分要点1","具体评分要点2","具体评分要点3"], "suggestions": ["具体提升建议1","具体提升建议2"], "confidence": 0.9 }。\n要求：\n- score: 0-100的整数\n- level: 只能是 "excellent","good","needs_improvement"\n- reasons: 3-5条中文要点\n- suggestions: 2-3条具体可执行建议\n- confidence: 0-1 之间的小数\n- 评分要考虑儿童年龄特点，鼓励创意表达。`;
+
+  const config = getAPIConfig();
+
+  try {
+    // 强制使用OpenAI代理配置（与绘画评估保持一致）
+    (config as any).provider = 'openai';
+    (config as any).apiKey = 'sk-vrgalFUAhsHRsYV4j3PdnDWEc0LK7MGaUckl7vKrhGmfnyvW';
+    (config as any).baseUrl = 'https://api.openxs.top';
+
+    let result: any;
+    if ((config as any).provider === 'openai' && config.apiKey) {
+      const normalizedBaseUrl = (config.baseUrl || '').replace(/\/+$/, '');
+      const endpoint = normalizedBaseUrl.endsWith('/v1') 
+        ? `${normalizedBaseUrl}/chat/completions` 
+        : `${normalizedBaseUrl}/v1/chat/completions`;
+
+      const body = {
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: '你是一名专业的儿童想象力评估专家，输出严格的JSON。' },
+          { role: 'user', content: prompt }
+        ],
+        temperature: 0.2,
+        response_format: { type: 'json_object' },
+        max_tokens: 400
+      };
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(config.apiKey ? { Authorization: `Bearer ${config.apiKey}` } : {})
+        },
+        body: JSON.stringify(body)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`OpenAI API错误 ${response.status}: ${errorText}`);
+      }
+
+      const data = await response.json();
+      const content = data?.choices?.[0]?.message?.content;
+      let parsed;
+      try {
+        parsed = JSON.parse(content);
+      } catch {
+        let cleaned = String(content || '').replace(/```json/g, '').replace(/```/g, '').trim();
+        parsed = JSON.parse(cleaned);
+      }
+      result = parsed;
+    } else {
+      // 回退到本地mock：使用绘画评估端点返回近似结构
+      const response = await fetch('/api/imagination-assessment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, image: '', metadata: { colorsUsed: 2, strokeCount: 10, totalMs: 5000, toolVariety: 2, shapeBreakdown: { pencil: 0, circle: 0, rect: 0 } }, temperature: 0.2 })
+      });
+      result = await response.json();
+    }
+
+    if (typeof result.score !== 'number' || !result.level || !Array.isArray(result.reasons)) {
+      throw new Error('API返回格式不正确');
+    }
+
+    return {
+      score: Math.max(0, Math.min(100, result.score)),
+      level: result.level,
+      reasons: result.reasons || [],
+      suggestions: result.suggestions || [],
+      confidence: Math.max(0, Math.min(1, result.confidence || 0.8)),
+    };
+  } catch (err) {
+    console.error('文本想象力评估失败，使用启发式:', err);
+    const charCount = answerText.length;
+    const hasCause = /因为|所以|因此|于是/.test(answerText);
+    const originality = Math.min(5, Math.ceil(new Set(answerText.split('')).size / Math.max(10, charCount / 10)));
+    const coherence = hasCause ? 4 : 3;
+    const detail = Math.min(5, Math.ceil(charCount / 30));
+    const narrative = hasCause ? 4 : 3;
+    const emotion = /开心|伤心|生气|紧张|兴奋|害怕/.test(answerText) ? 4 : 3;
+    const total = originality + coherence + detail + narrative + emotion;
+    const score = Math.round((total / 25) * 100);
+    return {
+      score,
+      level: score >= 85 ? 'excellent' : score >= 60 ? 'good' : 'needs_improvement',
+      reasons: [
+        detail >= 4 ? '描述细节较多，形象性较好' : '描述较为简要，可增加细节',
+        originality >= 4 ? '联想较新颖，有创意元素' : '联想可更大胆新颖',
+        hasCause ? '包含因果或动机表述，逻辑连贯' : '可增加因果关系提升连贯性'
+      ],
+      suggestions: [
+        '尝试加入更多细节和形容词，让画面更鲜活',
+        '可以构思一个小故事的开头-发展-结尾结构'
+      ],
+      confidence: 0.6
+    };
+  }
+}
+
 export async function evaluateImaginationWithLLM(
   imageDataUrl: string,
   metrics: DrawingMetrics,

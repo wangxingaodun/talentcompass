@@ -35,13 +35,14 @@ async function generateImaginationPrompt(childName?: string): Promise<string> {
       const endpoint = normalized.endsWith('/v1') ? `${normalized}/chat/completions` : `${normalized}/v1/chat/completions`;
 
       const body = {
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: [
           { role: 'system', content: system },
           { role: 'user', content: user }
         ],
         temperature: 0.8,
-        max_tokens: 64
+        max_tokens: 64,
+        response_format: { type: 'json_object' } 
       };
 
       const res = await fetch(endpoint, {
@@ -105,7 +106,7 @@ const ImaginationGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
     const latencyMs = Date.now() - startRef.current;
     const result: GameStageResult = {
       dimension: 'imagination',
-      metrics: { charCount, noveltyScore, consistencyScore, latencyMs }
+      metrics: { charCount, noveltyScore, consistencyScore, latencyMs, answerText: text }
     };
     onComplete(result);
   };
