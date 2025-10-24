@@ -29,6 +29,24 @@ export interface ImaginationAssessment {
   rawContent?: string;
 }
 
+// 故事表达评估结果接口
+export interface StoryAssessment {
+  score: number; // 0-100
+  level: 'excellent' | 'good' | 'needs_improvement';
+  reasons: string[];
+  suggestions: string[];
+  confidence: number; // 0-1
+  subscores?: {
+    vocabulary: number; // 词汇多样性 0-100
+    sentenceLength: number; // 句子长度合理性 0-100
+    creativity: number; // 创意度 0-100
+    clarity: number; // 信息清晰度 0-100
+    completeness: number; // 完整度 0-100
+    coherence: number; // 连贯性 0-100
+  };
+  rawContent?: string;
+}
+
 export interface GameStageResult {
   dimension: Dimension;
   metrics: Record<string, number | string> | DrawingMetrics;

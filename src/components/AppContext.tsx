@@ -1,7 +1,8 @@
 import React, { createContext, useState, useContext, useCallback } from 'react';
 import type { ReactNode } from 'react';
-import type { DrawingMetrics, ImaginationAssessment } from './games/types';
+import type { DrawingMetrics, ImaginationAssessment, StoryAssessment } from './games/types';
 import { evaluateImaginationWithLLM, evaluateImaginationTextWithLLM } from './imaginationEvaluator';
+import { evaluateStoryTextWithLLM } from './storyEvaluator';
 
 // 定义应用状态类型
 interface AppState {
@@ -23,13 +24,15 @@ interface AppState {
     url: string;
   }[];
   metrics: {
-    expression: { charCount: number; uniqueCharCount: number; latencyMs: number };
+    expression: { charCount: number; uniqueCharCount: number; latencyMs: number; text?: string };
     logic: { correct: number; attempts: number; avgLatencyMs: number };
     creativity: DrawingMetrics | { activeMs: number; colorsUsed: number; shapesUsed: number };
     imagination: { charCount: number; noveltyScore: number; consistencyScore: number; latencyMs: number; answerText?: string; prompt?: string };
     reaction: { hits: number; mistakes: number; avgLatencyMs: number; totalMs: number };
   };
   imaginationAssessment?: ImaginationAssessment;
+  storyAssessment?: StoryAssessment;
+  ageBand?: string;
   // 游戏进度相关状态
   currentGameType?: 'storytelling' | 'pattern' | 'drawing' | 'animalClick' | 'imagination';
   isCurrentGameCompleted: boolean;
@@ -74,13 +77,13 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     tips: [],
     resources: [],
     metrics: {
-      expression: { charCount: 0, uniqueCharCount: 0, latencyMs: 0 },
+      expression: { charCount: 0, uniqueCharCount: 0, latencyMs: 0, text: '' },
       logic: { correct: 0, attempts: 0, avgLatencyMs: 0 },
       creativity: { activeMs: 0, colorsUsed: 0, shapesUsed: 0 },
       imagination: { charCount: 0, noveltyScore: 0, consistencyScore: 0, latencyMs: 0, answerText: '' },
       reaction: { hits: 0, mistakes: 0, avgLatencyMs: 0, totalMs: 10000 }
     },
-    // 游戏进度相关状态初始值
+    ageBand: '7-8',
     currentGameType: undefined,
     isCurrentGameCompleted: false
   });
@@ -150,7 +153,21 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const exprCharScore = clamp10((metrics.expression.charCount / 50) * 10 * 0.5 * ageFactor);
     const exprUniqueScore = clamp10((metrics.expression.uniqueCharCount / 20) * 10 * 0.3);
     const exprSpeedScore = clamp10(10 - metrics.expression.latencyMs / 3000 * 2);
-    const expression = clamp10(exprCharScore + exprUniqueScore + exprSpeedScore * 0.2);
+    const expression = clamp10(exprCharScore + exprUniqueScore * 0.2 + exprSpeedScore * 0.3);
+
+    // 故事表达评估（基于表达文本）
+    const expressionText = (metrics.expression as any).text;
+    if (expressionText && String(expressionText).trim()) {
+      try {
+        const assessment = await evaluateStoryTextWithLLM(String(expressionText));
+        setState(prev => ({
+          ...prev,
+          storyAssessment: assessment
+        }));
+      } catch (error) {
+        console.error('故事表达评估失败:', error);
+      }
+    }
 
     // 逻辑：正确率 + 速度
     const logicAcc = metrics.logic.attempts > 0 ? metrics.logic.correct / metrics.logic.attempts : 0;
@@ -192,7 +209,6 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       creativity = clamp10(creatTimeScore + creatDiversityScore);
     }
 
-    // 想象：新颖度 + 一致性 + 速度
     // 想象：优先用文本大模型评估，其次回退到启发式
     let imagination: number;
     const answerText = (metrics.imagination as any).answerText;
@@ -219,19 +235,12 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
 
     // 反应：命中数量 + 反应速度 + 准确率综合评分
-    // 1. 命中数量得分（占50%）- 命中越多分数越高
-    const hitCountScore = clamp10(Math.min(metrics.reaction.hits / 15 * 10, 10)); // 15次命中为满分
-    
-    // 2. 反应速度得分（占30%）- 平均反应时间越短分数越高
+    const hitCountScore = clamp10(Math.min(metrics.reaction.hits / 15 * 10, 10));
     const avgReactionTime = metrics.reaction.avgLatencyMs;
-    const speedScore = clamp10(Math.max(0, 10 - avgReactionTime / 150)); // 150ms以下为满分，每增加150ms减1分
-    
-    // 3. 准确率得分（占20%）- 准确率越高分数越高
+    const speedScore = clamp10(Math.max(0, 10 - avgReactionTime / 150));
     const totalAttempts = metrics.reaction.hits + metrics.reaction.mistakes;
     const accuracy = totalAttempts > 0 ? metrics.reaction.hits / totalAttempts : 0;
     const accuracyScore = clamp10(accuracy * 10);
-    
-    // 综合计算反应力得分
     const reaction = clamp10((hitCountScore * 0.5 + speedScore * 0.3 + accuracyScore * 0.2) * ageFactor);
 
     const newScores = { expression, logic, creativity, imagination, reaction };
