@@ -1,5 +1,8 @@
 export type Dimension = 'expression' | 'logic' | 'creativity' | 'imagination' | 'reaction';
 
+// 绘画工具类型
+export type DrawingTool = 'pencil' | 'eraser' | 'line' | 'circle' | 'rect' | 'triangle' | 'star' | 'brush';
+
 // 扩展的绘画元数据接口
 export interface DrawingMetrics {
   totalMs: number;
@@ -8,8 +11,11 @@ export interface DrawingMetrics {
   strokeCount: number;
   toolVariety: number;
   usedColors: string[];
-  shapeBreakdown: { pencil: number; circle: number; rect: number };
+  shapeBreakdown: { pencil: number; circle: number; rect: number; triangle: number; star: number; line: number; brush: number };
   imageDataUrl: string;
+  undoCount: number;
+  clearCount: number;
+  brushSizeChanges: number;
 }
 
 // 想象力评估结果接口
