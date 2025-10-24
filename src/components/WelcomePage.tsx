@@ -25,8 +25,33 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStartTest }) => {
   return (
     <div className="welcome-page">
       <div className="welcome-content">
-        <h1 className="welcome-title">发现孩子的天赋火花！免费趣味小测试</h1>
-        <p className="welcome-subtitle">15–20分钟，高小吉老师陪孩子玩5个小游戏，生成专属兴趣报告</p>
+        <h1 className="welcome-title">
+          <span className="ai-badge">🤖 AI驱动</span>
+          发现孩子的天赋火花！智能天赋测评
+        </h1>
+        <p className="welcome-subtitle">
+          🚀 AI智能分析 · 多维度评估 · 个性化报告<br/>
+          15–20分钟，AI助教陪孩子玩5个智能小游戏，生成专属天赋洞察报告
+        </p>
+        
+        <div className="ai-features">
+          <div className="feature-item">
+            <span className="feature-icon">🧠</span>
+            <span className="feature-text">AI智能评估</span>
+          </div>
+          <div className="feature-item">
+            <span className="feature-icon">📊</span>
+            <span className="feature-text">数据驱动分析</span>
+          </div>
+          <div className="feature-item">
+            <span className="feature-icon">🎯</span>
+            <span className="feature-text">精准天赋识别</span>
+          </div>
+          <div className="feature-item">
+            <span className="feature-icon">⚡</span>
+            <span className="feature-text">实时智能反馈</span>
+          </div>
+        </div>
         
 
 
@@ -70,7 +95,7 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStartTest }) => {
         </button>
         
         <p className="privacy-note">
-          测试过程安全，数据仅用于本次报告，完成后可删除。
+          🔒 AI技术保障隐私安全，数据仅用于本次智能分析，完成后可删除
         </p>
       </div>
     </div>
