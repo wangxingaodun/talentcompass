@@ -1,5 +1,6 @@
 import React from 'react';
 import type { GameStageProps, GameStageResult } from './types';
+import '../../styles/pattern.css';
 
 // Web Speech API types
 interface SpeechRecognitionEvent extends Event {
@@ -61,6 +62,9 @@ const StorytellingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCo
   const [speechSupported, setSpeechSupported] = React.useState(false);
   const startTimeRef = React.useRef<number>(Date.now());
   const recognitionRef = React.useRef<SpeechRecognition | null>(null);
+  // 提示Toast（非遮挡）
+  const [showToast, setShowToast] = React.useState(false);
+  const toastTimerRef = React.useRef<number | null>(null);
 
   React.useEffect(() => {
     setPrompt(`${childName}，小兔子遇到了谁呢？请用一句话讲一讲！`);
@@ -102,6 +106,15 @@ const StorytellingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCo
     };
   }, [childName, setPrompt]);
 
+  // 清理Toast定时器
+  React.useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) {
+        clearTimeout(toastTimerRef.current);
+      }
+    };
+  }, []);
+
   const toggleListening = () => {
     if (!recognitionRef.current) return;
 
@@ -117,6 +130,15 @@ const StorytellingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCo
   const handleSubmit = () => {
     const text = input.trim();
     if (!text) return;
+
+    // 如果在听，先停止识别
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    }
+
+    // 显示动效Toast
+    setShowToast(true);
     
     const latencyMs = Date.now() - startTimeRef.current;
     const uniqueChars = new Set(text.split('')).size;
@@ -129,10 +151,16 @@ const StorytellingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCo
       }
     };
     onComplete(result);
+
+    // 3秒后淡出Toast
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
+    toastTimerRef.current = window.setTimeout(() => setShowToast(false), 3000);
   };
 
   return (
-    <div className="storytelling-game">
+    <div className="storytelling-game" style={{ position: 'relative' }}>
       <p className="story-prompt">请用一句话讲一讲：小兔子遇到了谁？</p>
       
       <textarea
@@ -167,6 +195,25 @@ const StorytellingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCo
           <span>正在听您说话...</span>
         </div>
       )}
+
+      {/* 已移除遮挡加载，改为底部Toast */}
+        {/* 底部Toast：非遮挡，带动效 */}
+        <div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            bottom: 10,
+            transform: `translateX(-50%) translateY(${showToast ? '0px' : '12px'})`,
+            opacity: showToast ? 1 : 0,
+            transition: 'opacity 280ms ease, transform 280ms ease',
+            pointerEvents: 'none'
+          }}
+        >
+          {/* 复用 PatternGame 的结果提示样式 */}
+          <div className="pattern-feedback correct" style={{ marginTop: 0 }}>
+            <span>👏 讲的太好了，我很喜欢呢</span>
+          </div>
+      </div>
     </div>
   );
 };
