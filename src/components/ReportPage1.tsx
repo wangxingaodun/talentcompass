@@ -233,7 +233,7 @@ const ReportPage1: React.FC<ReportPage1Props> = ({
                   <div 
                     className="score-fill" 
                     style={{ 
-                      width: `${normalizedScores.expression}%`,
+                      width: `${storyAssessment?.score}%`,
                       backgroundColor: normalizedScores.expression >= 80 ? '#4CAF50' : 
                                      normalizedScores.expression >= 60 ? '#FF9800' : '#F44336'
                     }}
@@ -256,22 +256,7 @@ const ReportPage1: React.FC<ReportPage1Props> = ({
                   ></div>
                 </div>
               </div>
-              <div className="score-item">
-                <div className="score-header">
-                  <span className="score-label">🎨 创造力</span>
-                  <span className="score-value">{normalizedScores.creativity}/100</span>
-                </div>
-                <div className="score-bar">
-                  <div 
-                    className="score-fill" 
-                    style={{ 
-                      width: `${normalizedScores.creativity}%`,
-                      backgroundColor: normalizedScores.creativity >= 80 ? '#4CAF50' : 
-                                     normalizedScores.creativity >= 60 ? '#FF9800' : '#F44336'
-                    }}
-                  ></div>
-                </div>
-              </div>
+
               <div className="score-item">
                 <div className="score-header">
                   <span className="score-label">💭 想象力</span>
@@ -304,6 +289,24 @@ const ReportPage1: React.FC<ReportPage1Props> = ({
                   ></div>
                 </div>
               </div>
+
+               <div className="score-item">
+                              <div className="score-header">
+                                <span className="score-label">🎨 创造力</span>
+                                <span className="score-value">{imaginationScore}/100</span>
+                              </div>
+                              <div className="score-bar">
+                                <div
+                                  className="score-fill"
+                                  style={{
+                                    width: `${imaginationScore}%`,
+                                    backgroundColor: normalizedScores.creativity >= 80 ? '#4CAF50' :
+                                                   normalizedScores.creativity >= 60 ? '#FF9800' : '#F44336'
+                                  }}
+                                ></div>
+                              </div>
+                            </div>
+
             </div>
           </div>
         </div>
