@@ -156,7 +156,7 @@ const StoryReportPage: React.FC<StoryReportPageProps> = ({ childName, storyAsses
                  <div className="assessment-reasons-enhanced">
                    <div className="reasons-header">
                      <div className="reasons-icon">✨</div>
-                     <h4>亮点表现</h4>
+                     <h4>表现分析</h4>
                    </div>
                    <ul className="reasons-list-enhanced">
                      {storyAssessment.reasons.map((reason, idx) => (

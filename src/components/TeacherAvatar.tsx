@@ -63,10 +63,7 @@ const TeacherAvatar: React.FC<TeacherAvatarProps> = ({
         </div>
       </div>
       
-      {/* AI标识 */}
-      <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-md">
-        AI小老师
-      </div>
+
       
       {/* 思考动画点点 */}
       {mood === 'thinking' && (

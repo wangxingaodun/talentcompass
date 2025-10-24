@@ -200,11 +200,11 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
       
       // 更新游戏进度
       const progressMap = {
-        'storytelling': 12,
-        'pattern': 36,
-        'drawing': 64,
-        'animalClick': 80,
-        'imagination': 100
+        'storytelling': 20,
+        'pattern': 40,
+        'animalClick': 60,
+        'imagination': 80,
+        'drawing': 100
       };
       setGameProgress(progressMap[currentGame.type]);
       
