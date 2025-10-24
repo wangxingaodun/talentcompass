@@ -37,7 +37,7 @@ const PatternGame4: React.FC<GameStageProps> = ({ childName, setPrompt, onComple
     <div className="pattern-game">
       <h3 className="game-title">题目四：类比推理 - 请观察前两个图形的关系，然后从选项中选择一个图形，使它和第三个图形具有同样的关系。</h3>
       
-      <div className="analogy-display">
+      <div className="analogy-display" style={{ flexDirection: 'row', alignItems: 'center', gap: '24px' }}>
         <div className="analogy-pair">
           <div className="analogy-item">
             <div className="shape triangle"></div>

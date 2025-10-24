@@ -38,7 +38,7 @@ const PatternGame3: React.FC<GameStageProps> = ({ childName, setPrompt, onComple
       
       <p className="game-instruction">观察下面四个物品，找出哪一个与其他三个不属于同一类</p>
       
-      <div className="items-display" style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '32px' }}>
+      <div className="items-display" style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '16px' }}>
         <div className="item-card-square">
           <div className="item-emoji">🍎</div>
           <span className="item-name">苹果</span>
@@ -57,7 +57,7 @@ const PatternGame3: React.FC<GameStageProps> = ({ childName, setPrompt, onComple
         </div>
       </div>
       
-      <div className="pattern-options-new classification-options" style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+      <div className="pattern-options-new classification-options" style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '16px' }}>
         <button 
           className={`shape-option-square ${selected === 'A' ? 'selected' : ''}`} 
           onClick={() => select('A')}
