@@ -68,9 +68,9 @@ const ReportPage1: React.FC<ReportPage1Props> = ({
     const radius = 100;
     const dims = [
       normalizedScores.expression,
-      normalizedScores.logic,
+      logicScorePercent,
       normalizedScores.creativity,
-      normalizedScores.imagination,
+      imaginationScore,
       normalizedScores.reaction,
     ];
     // 五个角度（度）：0, 72, 144, 216, 288
@@ -190,38 +190,92 @@ const ReportPage1: React.FC<ReportPage1Props> = ({
         <div className="radar-chart-container">
           <div className="radar-chart">
             <svg width="400" height="400" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* 定义渐变 */}
+              <defs>
+                <radialGradient id="radarGradient" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="rgba(33, 150, 243, 0.4)" />
+                  <stop offset="100%" stopColor="rgba(33, 150, 243, 0.1)" />
+                </radialGradient>
+                <linearGradient id="strokeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#2196F3" />
+                  <stop offset="50%" stopColor="#1976D2" />
+                  <stop offset="100%" stopColor="#0D47A1" />
+                </linearGradient>
+              </defs>
+              
+              {/* 背景圆圈 */}
+              <circle cx="150" cy="150" r="100" fill="none" stroke="#F5F5F5" strokeWidth="1" opacity="0.5" />
+              <circle cx="150" cy="150" r="75" fill="none" stroke="#F0F0F0" strokeWidth="1" opacity="0.7" />
+              <circle cx="150" cy="150" r="50" fill="none" stroke="#EEEEEE" strokeWidth="1" opacity="0.8" />
+              <circle cx="150" cy="150" r="25" fill="none" stroke="#E8E8E8" strokeWidth="1" opacity="0.9" />
+              
               {/* 网格线 */}
               <g className="radar-grid">
-                <path d="M 250 150 L 181.4 90.5 L 118.6 109.5 L 118.6 190.5 L 181.4 209.5 Z" stroke="#E0E0E0" strokeWidth="2" fill="none" />
-                <path d="M 225 150 L 190.0 116.2 L 150.0 125.0 L 150.0 175.0 L 190.0 183.8 Z" stroke="#E0E0E0" strokeWidth="2" fill="none" />
-                <path d="M 200 150 L 172.1 129.4 L 137.5 137.5 L 137.5 162.5 L 172.1 170.6 Z" stroke="#E0E0E0" strokeWidth="2" fill="none" />
+                <path d="M 250 150 L 181.4 90.5 L 118.6 109.5 L 118.6 190.5 L 181.4 209.5 Z" stroke="#E8E8E8" strokeWidth="1.5" fill="none" opacity="0.6" />
+                <path d="M 225 150 L 190.0 116.2 L 150.0 125.0 L 150.0 175.0 L 190.0 183.8 Z" stroke="#EEEEEE" strokeWidth="1.5" fill="none" opacity="0.7" />
+                <path d="M 200 150 L 172.1 129.4 L 137.5 137.5 L 137.5 162.5 L 172.1 170.6 Z" stroke="#F0F0F0" strokeWidth="1.5" fill="none" opacity="0.8" />
+                
+                {/* 从中心到各个顶点的辅助线 */}
+                <line x1="150" y1="150" x2="250" y2="150" stroke="#F0F0F0" strokeWidth="1" opacity="0.5" />
+                <line x1="150" y1="150" x2="181.4" y2="90.5" stroke="#F0F0F0" strokeWidth="1" opacity="0.5" />
+                <line x1="150" y1="150" x2="118.6" y2="109.5" stroke="#F0F0F0" strokeWidth="1" opacity="0.5" />
+                <line x1="150" y1="150" x2="118.6" y2="190.5" stroke="#F0F0F0" strokeWidth="1" opacity="0.5" />
+                <line x1="150" y1="150" x2="181.4" y2="209.5" stroke="#F0F0F0" strokeWidth="1" opacity="0.5" />
               </g>
               
               {/* 数据区域 */}
-              <path d={generateRadarPath()} fill="rgba(33, 150, 243, 0.3)" stroke="#2196F3" strokeWidth="3" />
+              <path d={generateRadarPath()} fill="url(#radarGradient)" stroke="url(#strokeGradient)" strokeWidth="3" />
               
               {/* 维度标签 */}
-              <text x="270" y="155" textAnchor="middle" fill="#2F4F4F" fontSize="14" fontWeight="bold">表达</text>
-              <text x="215" y="75" textAnchor="middle" fill="#2F4F4F" fontSize="14" fontWeight="bold">逻辑</text>
-              <text x="95" y="75" textAnchor="middle" fill="#2F4F4F" fontSize="14" fontWeight="bold">创造</text>
-              <text x="35" y="155" textAnchor="middle" fill="#2F4F4F" fontSize="14" fontWeight="bold">想象</text>
-              <text x="150" y="265" textAnchor="middle" fill="#2F4F4F" fontSize="14" fontWeight="bold">反应</text>
+              <g className="radar-labels">
+                {/* 表达能力 */}
+                <circle cx="270" cy="150" r="22" fill="white" stroke="#2196F3" strokeWidth="2" opacity="0.95" />
+                <text x="270" y="145" textAnchor="middle" fill="#1976D2" fontSize="10" fontWeight="bold">表达</text>
+                <text x="270" y="157" textAnchor="middle" fill="#1976D2" fontSize="10" fontWeight="bold">能力</text>
+                
+                {/* 逻辑思维 */}
+                <circle cx="215" cy="70" r="22" fill="white" stroke="#2196F3" strokeWidth="2" opacity="0.95" />
+                <text x="215" y="65" textAnchor="middle" fill="#1976D2" fontSize="10" fontWeight="bold">逻辑</text>
+                <text x="215" y="77" textAnchor="middle" fill="#1976D2" fontSize="10" fontWeight="bold">思维</text>
+                
+                {/* 创造力 */}
+                <circle cx="85" cy="70" r="22" fill="white" stroke="#2196F3" strokeWidth="2" opacity="0.95" />
+                <text x="85" y="65" textAnchor="middle" fill="#1976D2" fontSize="10" fontWeight="bold">创造</text>
+                <text x="85" y="77" textAnchor="middle" fill="#1976D2" fontSize="10" fontWeight="bold">能力</text>
+                
+                {/* 想象力 */}
+                <circle cx="30" cy="150" r="22" fill="white" stroke="#2196F3" strokeWidth="2" opacity="0.95" />
+                <text x="30" y="145" textAnchor="middle" fill="#1976D2" fontSize="10" fontWeight="bold">想象</text>
+                <text x="30" y="157" textAnchor="middle" fill="#1976D2" fontSize="10" fontWeight="bold">能力</text>
+                
+                {/* 反应速度 */}
+                <circle cx="150" cy="270" r="22" fill="white" stroke="#2196F3" strokeWidth="2" opacity="0.95" />
+                <text x="150" y="265" textAnchor="middle" fill="#1976D2" fontSize="10" fontWeight="bold">反应</text>
+                <text x="150" y="277" textAnchor="middle" fill="#1976D2" fontSize="10" fontWeight="bold">速度</text>
+              </g>
               
               {/* 分数显示 */}
-              <circle cx="250" cy="150" r="18" fill="#2196F3" opacity="0.9" />
-              <text x="250" y="155" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{normalizedScores.expression}</text>
-              
-              <circle cx="181.4" cy="90.5" r="18" fill="#2196F3" opacity="0.9" />
-              <text x="181.4" y="95.5" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{normalizedScores.logic}</text>
-              
-              <circle cx="118.6" cy="109.5" r="18" fill="#2196F3" opacity="0.9" />
-              <text x="118.6" y="114.5" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{normalizedScores.creativity}</text>
-              
-              <circle cx="118.6" cy="190.5" r="18" fill="#2196F3" opacity="0.9" />
-              <text x="118.6" y="195.5" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{normalizedScores.imagination}</text>
-              
-              <circle cx="181.4" cy="209.5" r="18" fill="#2196F3" opacity="0.9" />
-              <text x="181.4" y="214.5" textAnchor="middle" fill="white" fontSize="11" fontWeight="bold">{normalizedScores.reaction}</text>
+              <g className="radar-scores">
+                {/* 表达能力分数 */}
+                <circle cx="250" cy="150" r="20" fill="url(#strokeGradient)" stroke="white" strokeWidth="2" />
+                <text x="250" y="155" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{normalizedScores.expression}</text>
+                
+                {/* 逻辑思维分数 */}
+                <circle cx="181.4" cy="90.5" r="20" fill="url(#strokeGradient)" stroke="white" strokeWidth="2" />
+                <text x="181.4" y="95.5" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{logicScorePercent}</text>
+                
+                {/* 创造力分数 */}
+                <circle cx="118.6" cy="109.5" r="20" fill="url(#strokeGradient)" stroke="white" strokeWidth="2" />
+                <text x="118.6" y="114.5" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{normalizedScores.creativity}</text>
+                
+                {/* 想象力分数 */}
+                <circle cx="118.6" cy="190.5" r="20" fill="url(#strokeGradient)" stroke="white" strokeWidth="2" />
+                <text x="118.6" y="195.5" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{imaginationScore}</text>
+                
+                {/* 反应速度分数 */}
+                <circle cx="181.4" cy="209.5" r="20" fill="url(#strokeGradient)" stroke="white" strokeWidth="2" />
+                <text x="181.4" y="214.5" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{normalizedScores.reaction}</text>
+              </g>
             </svg>
           </div>
           <div className="chart-legend">

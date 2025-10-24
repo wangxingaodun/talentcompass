@@ -155,6 +155,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const exprSpeedScore = clamp10(10 - metrics.expression.latencyMs / 3000 * 2);
     const expression = clamp10(exprCharScore + exprUniqueScore * 0.2 + exprSpeedScore * 0.3);
 
+    console.log("开始进行故事表达力的LLM评估");
     // 故事表达评估（基于表达文本）
     const expressionText = (metrics.expression as any).text;
     if (expressionText && String(expressionText).trim()) {
@@ -175,6 +176,8 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const logicSpeedScore = clamp10(10 - metrics.logic.avgLatencyMs / 4000 * 4);
     const logicStabilityScore = clamp10(logicAcc * 10 * 0.2);
     const logic = clamp10(logicAccScore + logicSpeedScore * 0.2 + logicStabilityScore);
+
+    console.log("开始进行图像想象力的LLM评估");
 
     // 创造：根据数据类型处理
     let creativity: number;
@@ -209,6 +212,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       creativity = clamp10(creatTimeScore + creatDiversityScore);
     }
 
+    console.log("开始进行文本想象力的LLM评估");
     // 想象：优先用文本大模型评估，其次回退到启发式
     let imagination: number;
     const answerText = (metrics.imagination as any).answerText;

@@ -42,7 +42,7 @@ export async function evaluateStoryTextWithLLM(answerText: string, childAge?: st
         ],
         temperature: 0.2,
         response_format: { type: 'json_object' },
-        max_tokens: 800
+        max_tokens: 2000
       };
 
       const response = await fetch(endpoint, {
@@ -53,6 +53,8 @@ export async function evaluateStoryTextWithLLM(answerText: string, childAge?: st
         },
         body: JSON.stringify(body),
       });
+
+      console.log("故事表达评估专家输出结果:", response.ok)
 
       if (!response.ok) {
         const errorText = await response.text();
