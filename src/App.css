@@ -4467,50 +4467,79 @@ body {
 
 /* 资源网格 */
 .resources-container {
-  margin-top: 24px;
+  margin-top: 32px;
 }
 
 .resources-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 24px;
-  margin-bottom: 32px;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 32px;
+  margin-bottom: 40px;
+  padding: 0 8px;
 }
 
 /* 详细资源卡片 */
 .resource-card-detailed {
-  background: var(--background-white);
-  border-radius: 20px;
-  padding: 24px;
-  border: 3px solid var(--border-light);
-  transition: all 0.3s ease;
+  background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  border-radius: 24px;
+  padding: 28px;
+  border: 2px solid #e2e8f0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.resource-card-detailed::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .resource-card-detailed:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-heavy);
-  border-color: var(--primary-green);
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  border-color: #667eea;
+}
+
+.resource-card-detailed:hover::before {
+  opacity: 1;
 }
 
 .resource-header {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .resource-icon {
-  font-size: 2.5rem;
-  background: var(--background-light);
-  border-radius: 16px;
-  width: 64px;
-  height: 64px;
+  font-size: 2.8rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 20px;
+  width: 72px;
+  height: 72px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+}
+
+.resource-card-detailed:hover .resource-icon {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+  transform: scale(1.05);
 }
 
 .resource-meta {
@@ -4518,92 +4547,175 @@ body {
 }
 
 .resource-title {
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 800;
-  color: var(--text-dark);
-  margin-bottom: 8px;
+  color: #1e293b;
+  margin-bottom: 12px;
   line-height: 1.3;
+  letter-spacing: -0.02em;
 }
 
 .resource-tags {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .difficulty-tag {
   color: white;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 0.8rem;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .age-tag {
-  background: var(--background-light);
-  color: var(--text-gray);
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 0.8rem;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  color: #64748b;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 0.85rem;
   font-weight: 600;
+  border: 1px solid #cbd5e1;
 }
 
 .resource-content {
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .resource-description {
-  font-size: 1rem;
-  color: var(--text-gray);
-  line-height: 1.6;
-  margin-bottom: 16px;
+  font-size: 1.05rem;
+  color: #64748b;
+  line-height: 1.7;
+  margin-bottom: 20px;
+  font-weight: 400;
 }
 
 .target-dimensions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
+  background: #f8fafc;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
 }
 
 .dimensions-label {
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  color: var(--text-dark);
+  color: #374151;
+  margin-right: 4px;
 }
 
 .dimension-tag {
-  background: var(--primary-green);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: white;
-  padding: 4px 10px;
-  border-radius: 10px;
-  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
   font-weight: 600;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+  transition: all 0.2s ease;
+}
+
+.dimension-tag:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 .resource-actions {
-  text-align: right;
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid #f1f5f9;
 }
 
 .resource-link {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  background: var(--primary-blue);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   text-decoration: none;
-  padding: 12px 20px;
-  border-radius: 12px;
+  padding: 16px 32px;
+  border-radius: 30px;
   font-weight: 700;
-  transition: all 0.2s ease;
+  font-size: 1rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+  position: relative;
+  overflow: hidden;
+  min-width: 160px;
+  border: 2px solid transparent;
+}
+
+.resource-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.6s ease;
+}
+
+.resource-link:hover::before {
+  left: 100%;
+}
+
+.link-icon {
+  font-size: 1.2em;
+  transition: all 0.3s ease;
+}
+
+.link-text {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.link-arrow {
+  font-size: 1.1em;
+  transition: all 0.3s ease;
+  margin-left: 4px;
 }
 
 .resource-link:hover {
-  background: var(--primary-blue-dark);
-  transform: translateX(4px);
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+  transform: translateY(-4px) scale(1.02);
   text-decoration: none;
   color: white;
+  box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.resource-link:hover .link-icon {
+  transform: scale(1.2) rotate(10deg);
+}
+
+.resource-link:hover .link-arrow {
+  transform: translateX(4px);
+}
+
+.resource-link:hover .link-text {
+  transform: translateX(2px);
+}
+
+.resource-link:active {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+}
+
+.resource-link:focus {
+  outline: none;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3), 0 0 0 3px rgba(102, 126, 234, 0.2);
 }
 
 /* Agent底部 */
@@ -4642,40 +4754,113 @@ body {
 /* 响应式设计 */
 @media (max-width: 768px) {
   .learning-resource-agent {
-    padding: 24px 20px;
-    margin: 24px 0;
+    padding: 20px 16px;
+    margin: 20px 0;
   }
   
   .resources-grid {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 24px;
+    padding: 0 4px;
   }
   
   .resource-card-detailed {
-    padding: 20px;
+    padding: 24px 20px;
+    border-radius: 20px;
   }
   
   .resource-header {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  
+  .resource-icon {
+    width: 64px;
+    height: 64px;
+    font-size: 2.4rem;
+  }
+  
+  .resource-title {
+    font-size: 1.3rem;
+    text-align: center;
+  }
+  
+  .resource-tags {
+    justify-content: center;
+  }
+  
+  .target-dimensions {
+    justify-content: center;
+    text-align: center;
+    padding: 10px 12px;
+  }
+  
+  .resource-actions {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  .resource-link {
+    padding: 14px 28px;
+    font-size: 0.95rem;
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 480px) {
+  .resources-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 0 2px;
+  }
+  
+  .resource-card-detailed {
+    padding: 20px 16px;
+    margin: 0 4px;
+  }
+  
+  .resource-header {
+    gap: 12px;
   }
   
   .resource-icon {
     width: 56px;
     height: 56px;
-    font-size: 2rem;
+    font-size: 2.2rem;
   }
   
   .resource-title {
     font-size: 1.2rem;
   }
   
-  .target-dimensions {
-    justify-content: center;
+  .resource-description {
+    font-size: 1rem;
   }
   
-  .resource-actions {
-    text-align: center;
+  .target-dimensions {
+    padding: 8px 10px;
+  }
+  
+  .dimension-tag {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+  }
+  
+  .resource-link {
+    padding: 12px 24px;
+    font-size: 0.9rem;
+    min-width: 120px;
+    gap: 6px;
+  }
+  
+  .link-icon {
+    font-size: 1.1em;
+  }
+  
+  .link-arrow {
+    font-size: 1em;
   }
 }

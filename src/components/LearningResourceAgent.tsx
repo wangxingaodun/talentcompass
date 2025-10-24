@@ -554,7 +554,9 @@ const LearningResourceAgent: React.FC<LearningResourceAgentProps> = ({
                     rel="noopener noreferrer"
                     className="resource-link"
                   >
-                    开始学习 →
+                    <span className="link-icon">🚀</span>
+                    <span className="link-text">开始学习</span>
+                    <span className="link-arrow">→</span>
                   </a>
                 </div>
               </div>
