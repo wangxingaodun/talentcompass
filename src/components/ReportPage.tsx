@@ -41,7 +41,7 @@ const ReportPage: React.FC<ReportPageProps> = ({
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = 5;
-  const pageNames = ['天赋概览', '创意分析', '故事分析', '综合结果', '成长指导'];
+  const pageNames = ['天赋概览', '故事分析', '综合结果', '创意分析', '成长指导'];
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -70,31 +70,30 @@ const ReportPage: React.FC<ReportPageProps> = ({
       case 2:
         return (
           <div style={pageStyle}>
-            <ReportPage2
-              childName={childName}
-              imaginationAssessment={imaginationAssessment}
-            />
-          </div>
-        );
-      case 3:
-        return (
-          <div style={pageStyle}>
             <StoryReportPage
               childName={childName}
               storyAssessment={storyAssessment}
             />
           </div>
         );
-    case 4:
-                return (
-                  <div style={pageStyle}>
-                    <ReportPage4
-                      childName={childName}
-                      imaginationAssessment={imaginationAssessment}
-                    />
-                  </div>
-                );
-
+      case 3:
+        return (
+          <div style={pageStyle}>
+            <ReportPage4
+              childName={childName}
+              imaginationAssessment={imaginationAssessment}
+            />
+          </div>
+        );
+      case 4:
+        return (
+          <div style={pageStyle}>
+            <ReportPage2
+              childName={childName}
+              imaginationAssessment={imaginationAssessment}
+            />
+          </div>
+        );
       case 5:
         return (
           <div style={pageStyle}>

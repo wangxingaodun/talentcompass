@@ -22,7 +22,6 @@ const SmartTeacher: React.FC<SmartTeacherProps> = ({
 }) => {
   const [mood, setMood] = useState<TeacherMood>('happy');
   const [isAnimating, setIsAnimating] = useState(false);
-  const [encouragementCount, setEncouragementCount] = useState(0);
   const autoSpeakOnNextPrompt = useRef(false);
   // 上一次鼓励，用于避免重复
   const lastEncouragementRef = useRef<string>('');
@@ -90,7 +89,6 @@ const SmartTeacher: React.FC<SmartTeacherProps> = ({
       );
       lastEncouragementRef.current = perfMsg;
       onPromptChange(perfMsg);
-      setEncouragementCount(prev => prev + 1);
 
       // 重置动画
       setTimeout(() => setIsAnimating(false), 1000);
@@ -211,28 +209,7 @@ const SmartTeacher: React.FC<SmartTeacherProps> = ({
         </div>
       </div>
       
-      {/* 星级奖励（根据表现） */}
-      <div style={{ marginTop: 16, textAlign: 'center' }}>
-        <div className="teacher-meta">
-          <span>⭐</span>
-          <span>
-            奖励星星：{
-              lastPerformance === 'excellent' ? 3 :
-              lastPerformance === 'good' ? 2 : 1
-            } / 3
-          </span>
-        </div>
-      </div>
 
-      {/* 鼓励统计 */}
-      {encouragementCount > 0 && (
-        <div style={{ marginTop: 10, textAlign: 'center' }}>
-          <div className="teacher-meta">
-            <span>💬</span>
-            <span>已鼓励 {encouragementCount} 次</span>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
