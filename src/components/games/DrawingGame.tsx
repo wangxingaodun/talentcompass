@@ -437,7 +437,7 @@ const DrawingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onComplet
           disabled={isSubmitting || isSubmitted}
           title={isSubmitted ? "已提交，等待切换..." : isSubmitting ? "正在提交..." : "完成绘画"}
         >
-          {isSubmitted ? '🎉 提交成功！' : isSubmitting ? '⏳ 提交中...' : '✅ 完成作品'}
+          {isSubmitted ? '🎉 提交成功！' : isSubmitting ? '⏳ 提交中...' : '✅ 提交作品'}
         </button>
       </div>
       
