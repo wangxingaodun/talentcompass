@@ -276,14 +276,14 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
     <div className="page-shell">
       <div className="page-grid">
         {/* 游戏区域 */}
-        <div className="panel padded gradient-border">
+        <div className="panel padded seamless">
           <div className="fade-switch">
             {renderCurrentGame()}
           </div>
         </div>
         
         {/* AI小老师区域 */}
-        <div className="panel padded gradient-border">
+        <div className="panel padded seamless">
           <SmartTeacher
             childName={childName}
             currentDimension={currentGame.type === 'storytelling' ? 'expression' : 

@@ -45,6 +45,11 @@
   height: 100%;
   justify-content: center;
 }
+.panel.seamless {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+}
 .panel.padded { 
   padding: 24px;
 }

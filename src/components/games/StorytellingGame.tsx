@@ -210,7 +210,7 @@ const StorytellingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCo
           }}
         >
           {/* 复用 PatternGame 的结果提示样式 */}
-          <div className="pattern-feedback correct" style={{ marginTop: 0 }}>
+          <div className="pattern-feedback correct" style={{ marginTop: 0, whiteSpace: 'nowrap' }}>
             <span>👏 讲的太好了，我很喜欢呢</span>
           </div>
       </div>
