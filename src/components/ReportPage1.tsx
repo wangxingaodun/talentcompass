@@ -135,11 +135,6 @@ const ReportPage1: React.FC<ReportPage1Props> = ({
       <div className="report-cover">
         <h1 className="report-title">{childName} 的天赋探索报告</h1>
         <p className="report-subtitle">由高小吉老师生成 · {testDate}</p>
-        <div className="cover-decoration">
-          <div className="star star-1">⭐</div>
-          <div className="star star-2">✨</div>
-          <div className="star star-3">🌟</div>
-        </div>
       </div>
       
       {/* 天赋类型 */}
@@ -165,10 +160,10 @@ const ReportPage1: React.FC<ReportPage1Props> = ({
       
       {/* 兴趣能量图 */}
       <div className="energy-section">
-        <h2>⚡ 兴趣能量图</h2>
+        <h2>⚡ 天赋雷达图</h2>
         <div className="radar-chart-container">
           <div className="radar-chart">
-            <svg width="300" height="300" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="400" height="400" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
               {/* 网格线 */}
               <g className="radar-grid">
                 <path d="M 250 150 L 181.4 90.5 L 118.6 109.5 L 118.6 190.5 L 181.4 209.5 Z" stroke="#E0E0E0" strokeWidth="2" fill="none" />
