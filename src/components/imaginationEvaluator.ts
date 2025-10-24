@@ -77,8 +77,7 @@ async function callOpenAIVisionAPI(
       }
     ],
     max_tokens: 1000,
-    temperature: 0.2,
-    response_format: { type: 'json_object' } // 强制返回JSON格式
+    temperature: 0.2
   };
 
   const response = await fetch(`${normalizedBaseUrl}/v1/chat/completions`, {
@@ -113,41 +112,42 @@ async function callOpenAIVisionAPI(
   console.log('API响应成功:', { hasChoices: !!data.choices?.length });
   
   // 尝试解析JSON响应，如果失败则返回原始内容
-  const content = data.choices[0].message.content;
-  console.log('API返回的原始内容:', content);
-  
-  try {
-    const parsedContent = JSON.parse(content);
-    console.log('JSON解析成功:', parsedContent);
-    return parsedContent;
-  } catch (error) {
-    console.warn('响应内容不是有效的JSON，返回原始内容');
-    console.error('JSON解析错误:', error);
-    console.log('尝试清理内容后再解析...');
-    
-    // 尝试清理内容并重新解析
-    try {
-      // 移除可能的markdown代码块标记
-      let cleanedContent = content.replace(/```json\s*/g, '').replace(/```\s*/g, '');
-      // 移除前后空白字符
-      cleanedContent = cleanedContent.trim();
-      
-      const parsedCleanedContent = JSON.parse(cleanedContent);
-      console.log('清理后JSON解析成功:', parsedCleanedContent);
-      return parsedCleanedContent;
-    } catch (cleanError) {
-      console.error('清理后仍无法解析JSON:', cleanError);
-      return { 
-        rawContent: content,
-        error: 'JSON解析失败',
-        // 提供一个默认的评估结果
-        score: 75,
-        level: 'good',
-        reasons: ['API返回格式异常，使用默认评估'],
-        suggestions: ['请检查API配置'],
-        confidence: 0.5
-      };
+  const message = data?.choices?.[0]?.message;
+  let contentRaw: any = message?.content;
+  let normalizedContent = '';
+  if (typeof contentRaw === 'string') {
+  normalizedContent = contentRaw.trim();
+  } else if (Array.isArray(contentRaw)) {
+  normalizedContent = contentRaw
+    .map((part: any) => {
+    if (typeof part === 'string') return part;
+    if (part && typeof part === 'object') {
+    // 优先取文本
+    if ('text' in part && typeof part.text === 'string') return part.text;
+    return JSON.stringify(part);
     }
+    return '';
+    })
+    .join('\n')
+    .trim();
+  } else if (contentRaw && typeof contentRaw === 'object') {
+  normalizedContent = JSON.stringify(contentRaw);
+  }
+  console.log('API返回的原始内容(标准化后):', normalizedContent);
+  try {
+  return tryParseAssessment(normalizedContent);
+  } catch (error) {
+  console.warn('响应内容不是有效的JSON，返回原始内容');
+  console.error('JSON解析错误:', error);
+  return {
+  rawContent: normalizedContent,
+  error: 'JSON解析失败',
+  score: 75,
+  level: 'good',
+  reasons: ['API返回格式异常，使用默认评估'],
+  suggestions: ['请检查API配置'],
+  confidence: 0.5
+  };
   }
 }
 
@@ -215,11 +215,13 @@ async function callAnthropicVisionAPI(
 // 大模型API调用函数
 export async function evaluateImaginationTextWithLLM(
   answerText: string,
+  question?: string,
   childAge?: string
 ): Promise<ImaginationAssessment> {
-  const prompt = `你是一名儿童想象力评估专家。以下是${childAge || '儿童'}对“奇异组合”题目的回答：\n\n${answerText}\n\n评估维度（每项1-5分）：\n1. 原创联想与新颖度\n2. 逻辑连贯性与可理解性\n3. 细节与形象性\n4. 叙事潜力与可延展性\n5. 情感与动机表达\n\n请严格仅以JSON返回：{ "score": 85, "level": "excellent", "reasons": ["具体评分要点1","具体评分要点2","具体评分要点3"], "suggestions": ["具体提升建议1","具体提升建议2"], "confidence": 0.9 }。\n要求：\n- score: 0-100的整数\n- level: 只能是 "excellent","good","needs_improvement"\n- reasons: 3-5条中文要点\n- suggestions: 2-3条具体可执行建议\n- confidence: 0-1 之间的小数\n- 评分要考虑儿童年龄特点，鼓励创意表达。`;
+  const prompt = `你是一名儿童想象力评估专家。这是题目：${question || '题目未提供'}。以下是${childAge || '儿童'}的回答：\n\n${answerText}\n\n请根据以下维度生成评分：\n- 内容（清晰度、细节、可理解性）0-100\n- 想象力（新颖度、创造性、丰富性）0-100\n- 切题程度（与题目相关性）0-100\n并计算总体score（0-100）与等级level（excellent/good/needs_improvement）。\n严格仅输出JSON：\n{\n  "score": 85,\n  "level": "excellent",\n  "subscores": { "content": 80, "imagination": 92, "relevance": 88 },\n  "reasons": ["评分要点1","评分要点2"],\n  "suggestions": ["提升建议1","提升建议2"],\n  "confidence": 0.9\n}\n不得包含额外文字或代码块。`;
 
   const config = getAPIConfig();
+  let rawContentText: string | undefined;
 
   try {
     // 强制使用OpenAI代理配置（与绘画评估保持一致）
@@ -237,12 +239,12 @@ export async function evaluateImaginationTextWithLLM(
       const body = {
         model: 'gpt-4o',
         messages: [
-          { role: 'system', content: '你是一名专业的儿童想象力评估专家，输出严格的JSON。' },
+          { role: 'system', content: '你是一名专业的儿童想象力评估专家。仅输出严格的JSON，禁止额外文字、代码块或解释。' },
           { role: 'user', content: prompt }
         ],
         temperature: 0.2,
         response_format: { type: 'json_object' },
-        max_tokens: 400
+        max_tokens: 800
       };
 
       const response = await fetch(endpoint, {
@@ -261,14 +263,15 @@ export async function evaluateImaginationTextWithLLM(
 
       const data = await response.json();
       const content = data?.choices?.[0]?.message?.content;
-      let parsed;
-      try {
-        parsed = JSON.parse(content);
-      } catch {
-        let cleaned = String(content || '').replace(/```json/g, '').replace(/```/g, '').trim();
-        parsed = JSON.parse(cleaned);
+      rawContentText = typeof content === 'string' ? content : JSON.stringify(content || {});
+      let parsed: any;
+      if (content && typeof content === 'object') {
+        parsed = content;
+      } else {
+        parsed = tryParseAssessment(String(content || ''));
       }
-      result = parsed;
+
+       result = parsed;
     } else {
       // 回退到本地mock：使用绘画评估端点返回近似结构
       const response = await fetch('/api/imagination-assessment', {
@@ -289,6 +292,8 @@ export async function evaluateImaginationTextWithLLM(
       reasons: result.reasons || [],
       suggestions: result.suggestions || [],
       confidence: Math.max(0, Math.min(1, result.confidence || 0.8)),
+      subscores: result.subscores,
+      rawContent: (rawContentText && rawContentText.trim()) ? rawContentText.trim() : undefined,
     };
   } catch (err) {
     console.error('文本想象力评估失败，使用启发式:', err);
@@ -301,19 +306,35 @@ export async function evaluateImaginationTextWithLLM(
     const emotion = /开心|伤心|生气|紧张|兴奋|害怕/.test(answerText) ? 4 : 3;
     const total = originality + coherence + detail + narrative + emotion;
     const score = Math.round((total / 25) * 100);
+    const rawSnippet = (rawContentText || '').replace(/```json|```/gi, '').trim().slice(0, 400);
+
+    // 计算启发式多维度分数
+    const contentSub = Math.max(0, Math.min(100, Math.round(((detail + coherence) / 10) * 100)));
+    const imaginationSub = Math.max(0, Math.min(100, Math.round(((originality + emotion + narrative) / 15) * 100)));
+    const qWords = (question || '')
+      .replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, ' ')
+      .split(/\s+/)
+      .filter(w => w.length > 0);
+    const overlap = qWords.filter(w => answerText.includes(w)).length;
+    const relevanceBase = qWords.length ? Math.round(100 * (overlap / Math.max(3, qWords.length))) : 60;
+    const relevanceSub = Math.max(0, Math.min(100, Math.max(40, relevanceBase)));
+
     return {
       score,
       level: score >= 85 ? 'excellent' : score >= 60 ? 'good' : 'needs_improvement',
       reasons: [
         detail >= 4 ? '描述细节较多，形象性较好' : '描述较为简要，可增加细节',
         originality >= 4 ? '联想较新颖，有创意元素' : '联想可更大胆新颖',
-        hasCause ? '包含因果或动机表述，逻辑连贯' : '可增加因果关系提升连贯性'
+        hasCause ? '包含因果或动机表述，逻辑连贯' : '可增加因果关系提升连贯性',
+        rawSnippet ? `原始模型输出(解析失败)：${rawSnippet}` : '模型输出未提供或解析失败'
       ],
       suggestions: [
         '尝试加入更多细节和形容词，让画面更鲜活',
         '可以构思一个小故事的开头-发展-结尾结构'
       ],
-      confidence: 0.6
+      confidence: 0.6,
+      subscores: { content: contentSub, imagination: imaginationSub, relevance: relevanceSub },
+      rawContent: (rawContentText && rawContentText.trim()) ? rawContentText.trim() : undefined,
     };
   }
 }
@@ -553,4 +574,27 @@ export function convertAssessmentToMetrics(assessment: ImaginationAssessment): {
     consistencyScore: assessment.confidence * 10, // 置信度转换为一致性分数
     latencyMs: 0, // 评估不涉及反应时间
   };
+}
+
+function tryParseAssessment(raw: string): any {
+  if (!raw) throw new Error('空响应');
+  // 直接解析
+  try { return JSON.parse(raw); } catch {}
+  // 清理Markdown代码块与多余引号
+  let cleaned = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+  if ((cleaned.startsWith('"') && cleaned.endsWith('"')) || (cleaned.startsWith('\'') && cleaned.endsWith('\''))) {
+    cleaned = cleaned.slice(1, -1);
+  }
+  try { return JSON.parse(cleaned); } catch {}
+  // 提取首个大括号JSON片段
+  const start = cleaned.indexOf('{');
+  const end = cleaned.lastIndexOf('}');
+  if (start !== -1 && end !== -1 && end > start) {
+    const slice = cleaned.slice(start, end + 1);
+    try { return JSON.parse(slice); } catch {}
+  }
+  // 去掉可能的尾随逗号
+  const noTrailingCommas = cleaned.replace(/,\s*}/g, '}').replace(/,\s*]/g, ']');
+  try { return JSON.parse(noTrailingCommas); } catch {}
+  throw new Error('无法解析为JSON');
 }

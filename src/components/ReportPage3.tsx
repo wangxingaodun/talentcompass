@@ -1,4 +1,6 @@
 import React from 'react';
+import { useAppContext } from './AppContext';
+import type { ImaginationAssessment } from './games/types';
 
 interface ReportPage3Props {
   childName: string;
@@ -8,14 +10,18 @@ interface ReportPage3Props {
     name: string;
     url: string;
   }[];
+  imaginationAssessment?: ImaginationAssessment;
 }
 
 const ReportPage3: React.FC<ReportPage3Props> = ({
   childName,
   talentType,
   tips,
-  resources
+  resources,
+  imaginationAssessment
 }) => {
+  const { state } = useAppContext();
+  const imagMetrics = state.metrics.imagination || ({} as any);
   // 根据天赋类型获取个性化建议
   const getPersonalizedAdvice = () => {
     switch (talentType.toLowerCase()) {
@@ -98,6 +104,102 @@ const ReportPage3: React.FC<ReportPage3Props> = ({
 
   return (
     <div className="report-page-content">
+      {/* 想象力报告（文本） */}
+      <div className="imagination-text-report">
+        <h2>✨ 想象力报告（文本）</h2>
+        {!imaginationAssessment ? (
+          <p>暂无想象力评估数据</p>
+        ) : (
+          <div className="imagination-report-content">
+            {/* 题目与回答 */}
+            <div className="qa-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div className="qa-card">
+                <div className="qa-label">题目</div>
+                <div className="qa-text" style={{ whiteSpace: 'pre-wrap' }}>{imagMetrics.prompt || '（未提供题目）'}</div>
+              </div>
+              <div className="qa-card">
+                <div className="qa-label">孩子回答</div>
+                <div className="qa-text" style={{ whiteSpace: 'pre-wrap' }}>{imagMetrics.answerText || '（未提供回答）'}</div>
+              </div>
+            </div>
+
+            {/* 总分与等级 */}
+            <div className="assessment-score-section" style={{ marginTop: 12 }}>
+              <div className="assessment-score">
+                <div className="score-circle">
+                  <div className="score-value">{imaginationAssessment.score}</div>
+                  <div className="score-label">分</div>
+                </div>
+                <div className="score-level">
+                  <span className={`level-badge level-${imaginationAssessment.level}`}>
+                    {imaginationAssessment.level === 'excellent' ? '🌟 优秀' : 
+                     imaginationAssessment.level === 'good' ? '👍 良好' : '💪 待提升'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* 多维度评分 */}
+            {imaginationAssessment.subscores && (
+              <div className="subscores-section" style={{ marginTop: 12 }}>
+                <h3>🔹 多维度评分</h3>
+                <div className="subscore-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                  <div className="subscore-item">
+                    <div className="subscore-label">内容</div>
+                    <div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}>
+                      <div className="subscore-fill" style={{ width: `${imaginationAssessment.subscores.content}%`, height: 8, background: '#4caf50' }}></div>
+                    </div>
+                    <div className="subscore-value" style={{ marginTop: 4 }}>{imaginationAssessment.subscores.content}</div>
+                  </div>
+                  <div className="subscore-item">
+                    <div className="subscore-label">想象力</div>
+                    <div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}>
+                      <div className="subscore-fill" style={{ width: `${imaginationAssessment.subscores.imagination}%`, height: 8, background: '#ff9800' }}></div>
+                    </div>
+                    <div className="subscore-value" style={{ marginTop: 4 }}>{imaginationAssessment.subscores.imagination}</div>
+                  </div>
+                  <div className="subscore-item">
+                    <div className="subscore-label">切题程度</div>
+                    <div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}>
+                      <div className="subscore-fill" style={{ width: `${imaginationAssessment.subscores.relevance}%`, height: 8, background: '#2196f3' }}></div>
+                    </div>
+                    <div className="subscore-value" style={{ marginTop: 4 }}>{imaginationAssessment.subscores.relevance}</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 亮点与建议 */}
+            <div className="assessment-details" style={{ marginTop: 12 }}>
+              <div className="assessment-highlights">
+                <h3>✨ 亮点表现</h3>
+                <ul className="reasons-list">
+                  {imaginationAssessment.reasons.map((reason, index) => (
+                    <li key={index} className="reason-item">
+                      <span className="reason-icon">🌟</span>
+                      <span className="reason-text">{reason}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              {imaginationAssessment.suggestions && imaginationAssessment.suggestions.length > 0 && (
+                <div className="assessment-suggestions">
+                  <h3>🚀 提升建议</h3>
+                  <ul className="suggestions-list">
+                    {imaginationAssessment.suggestions.map((suggestion, index) => (
+                      <li key={index} className="suggestion-item">
+                        <span className="suggestion-icon">💡</span>
+                        <span className="suggestion-text">{suggestion}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* 个性化成长建议 */}
       <div className="growth-advice-section">
         <h2>{personalizedAdvice.icon} {personalizedAdvice.title}</h2>

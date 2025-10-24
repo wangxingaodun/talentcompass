@@ -106,7 +106,36 @@ const ReportPage2: React.FC<ReportPage2Props> = ({
               </div>
             </div>
           </div>
-          
+
+          {imaginationAssessment.subscores && (
+            <div className="subscores-section" style={{ marginTop: 16 }}>
+              <h3>🔹 多维度评分</h3>
+              <div className="subscore-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                <div className="subscore-item">
+                  <div className="subscore-label">内容</div>
+                  <div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}>
+                    <div className="subscore-fill" style={{ width: `${imaginationAssessment.subscores.content}%`, height: 8, background: '#4caf50' }}></div>
+                  </div>
+                  <div className="subscore-value" style={{ marginTop: 4 }}>{imaginationAssessment.subscores.content}</div>
+                </div>
+                <div className="subscore-item">
+                  <div className="subscore-label">想象力</div>
+                  <div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}>
+                    <div className="subscore-fill" style={{ width: `${imaginationAssessment.subscores.imagination}%`, height: 8, background: '#ff9800' }}></div>
+                  </div>
+                  <div className="subscore-value" style={{ marginTop: 4 }}>{imaginationAssessment.subscores.imagination}</div>
+                </div>
+                <div className="subscore-item">
+                  <div className="subscore-label">切题程度</div>
+                  <div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}>
+                    <div className="subscore-fill" style={{ width: `${imaginationAssessment.subscores.relevance}%`, height: 8, background: '#2196f3' }}></div>
+                  </div>
+                  <div className="subscore-value" style={{ marginTop: 4 }}>{imaginationAssessment.subscores.relevance}</div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="assessment-details">
             {/* 绘画数据详情 */}
             <div className="drawing-metrics">

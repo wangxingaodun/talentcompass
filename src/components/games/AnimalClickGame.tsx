@@ -11,7 +11,7 @@ const INITIAL_SPAWN_MS = 1200; // 初始地鼠刷新频率 - 开始较慢
 const MIN_VISIBLE_MS = 800; // 最小地鼠露头时长
 const MIN_SPAWN_MS = 500; // 最小地鼠刷新频率
 const DIFFICULTY_THRESHOLD = 3; // 连续命中多少次提升难度
-const GAME_DURATION = 1; // 游戏时长（秒）- 延长游戏时间
+const GAME_DURATION = 5; // 游戏时长（秒）
 
 const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onComplete }) => {
   const [hits, setHits] = React.useState(0);
@@ -104,10 +104,12 @@ const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
     if (!gameStarted) return;
 
     spawnRef.current = window.setInterval(() => {
+      // 如果当前已有地鼠露头，跳过本次刷新，避免刚出现就被下一次刷新强制下钻
+      if (activeIndexRef.current !== null) return;
       const idx = Math.floor(Math.random() * (GRID_SIZE * GRID_SIZE));
 
-      // 地面动效 pending
-      setHoles(prev => prev.map((h, i) => i === idx ? { ...h, pending: true, up: false, hit: false } : { ...h, pending: false, up: false }));
+      // 地面动效 pending（仅设置目标洞的 pending，不强制将其它洞的 up 置为 false）
+      setHoles(prev => prev.map((h, i) => i === idx ? { ...h, pending: true, up: false, hit: false } : { ...h, pending: false }));
 
       // 地鼠露头
       window.setTimeout(() => {

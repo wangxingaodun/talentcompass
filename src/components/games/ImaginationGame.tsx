@@ -41,8 +41,7 @@ async function generateImaginationPrompt(childName?: string): Promise<string> {
           { role: 'user', content: user }
         ],
         temperature: 0.8,
-        max_tokens: 64,
-        response_format: { type: 'json_object' } 
+        max_tokens: 800
       };
 
       const res = await fetch(endpoint, {
@@ -106,7 +105,7 @@ const ImaginationGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
     const latencyMs = Date.now() - startRef.current;
     const result: GameStageResult = {
       dimension: 'imagination',
-      metrics: { charCount, noveltyScore, consistencyScore, latencyMs, answerText: text }
+      metrics: { charCount, noveltyScore, consistencyScore, latencyMs, answerText: text, prompt: question }
     };
     onComplete(result);
   };

@@ -27,7 +27,7 @@ interface AppState {
     expression: { charCount: number; uniqueCharCount: number; latencyMs: number };
     logic: { correct: number; attempts: number; avgLatencyMs: number };
     creativity: DrawingMetrics | { activeMs: number; colorsUsed: number; shapesUsed: number };
-    imagination: { charCount: number; noveltyScore: number; consistencyScore: number; latencyMs: number; answerText?: string };
+    imagination: { charCount: number; noveltyScore: number; consistencyScore: number; latencyMs: number; answerText?: string; prompt?: string };
     reaction: { hits: number; mistakes: number; avgLatencyMs: number; totalMs: number };
   };
   imaginationAssessment?: ImaginationAssessment;
@@ -203,7 +203,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     const answerText = (metrics.imagination as any).answerText;
     if (answerText && String(answerText).trim()) {
       try {
-        const assessment = await evaluateImaginationTextWithLLM(String(answerText), state.ageBand);
+        const assessment = await evaluateImaginationTextWithLLM(String(answerText), metrics.imagination.prompt, state.ageBand);
         setState(prev => ({
           ...prev,
           imaginationAssessment: assessment
