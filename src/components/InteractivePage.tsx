@@ -147,6 +147,7 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
   // 渲染当前游戏（组件化）
   const renderCurrentGame = () => {
     const handleStageComplete = (result: GameStageResult) => {
+      console.log('handleStageComplete被调用，游戏类型:', currentGame.type);
       recordMetric(result.dimension as any, result.metrics);
       
       // AI小老师智能评估表现
@@ -217,15 +218,15 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
             setCurrentGame({ type: 'pattern', currentStep: 2, isCompleted: false });
             break;
           case 'pattern':
-            setCurrentGame({ type: 'drawing', currentStep: 3, isCompleted: false });
-            break;
-          case 'drawing':
-            setCurrentGame({ type: 'animalClick', currentStep: 6, isCompleted: false });
+            setCurrentGame({ type: 'animalClick', currentStep: 3, isCompleted: false });
             break;
           case 'animalClick':
-            setCurrentGame({ type: 'imagination', currentStep: 7, isCompleted: false });
+            setCurrentGame({ type: 'imagination', currentStep: 4, isCompleted: false });
             break;
           case 'imagination':
+            setCurrentGame({ type: 'drawing', currentStep: 5, isCompleted: false });
+            break;
+          case 'drawing':
             onComplete();
             break;
           default:

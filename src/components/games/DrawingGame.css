@@ -29,14 +29,63 @@
   font-weight: 600;
 }
 
-.drawing-timer {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.submit-drawing-btn {
+  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
   color: white;
-  padding: 8px 16px;
-  border-radius: 20px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 25px;
   font-weight: 600;
   font-size: 16px;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.submit-drawing-btn:hover {
+  background: linear-gradient(135deg, #229954 0%, #27ae60 100%);
+  box-shadow: 0 6px 16px rgba(39, 174, 96, 0.4);
+  transform: translateY(-2px);
+}
+
+.submit-drawing-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+}
+
+.submit-drawing-btn:disabled,
+.submit-drawing-btn.submitting {
+  background: linear-gradient(135deg, #95a5a6 0%, #bdc3c7 100%);
+  cursor: not-allowed;
+  box-shadow: 0 2px 8px rgba(149, 165, 166, 0.3);
+  transform: none;
+}
+
+.submit-drawing-btn:disabled:hover,
+.submit-drawing-btn.submitting:hover {
+  background: linear-gradient(135deg, #95a5a6 0%, #bdc3c7 100%);
+  transform: none;
+}
+
+.submit-drawing-btn.submitted {
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+  cursor: default;
+  box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+  animation: pulse-success 2s infinite;
+}
+
+.submit-drawing-btn.submitted:hover {
+  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+  transform: none;
+}
+
+@keyframes pulse-success {
+  0% { box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3); }
+  50% { box-shadow: 0 6px 20px rgba(243, 156, 18, 0.5); }
+  100% { box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3); }
 }
 
 /* 工具栏 */

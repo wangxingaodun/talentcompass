@@ -2,12 +2,11 @@ import React from 'react';
 import type { GameStageProps, GameStageResult, DrawingMetrics, DrawingTool } from './types';
 import './DrawingGame.css';
 
-const DRAWING_DURATION = 15; // 绘画游戏时长（秒）- 增加时间以适应更多功能
-
 const DrawingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onComplete }) => {
-  const [timeLeft, setTimeLeft] = React.useState(DRAWING_DURATION);
   const [tool, setTool] = React.useState<DrawingTool>('pencil');
   const [color, setColor] = React.useState<string>('#3498db');
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isSubmitted, setIsSubmitted] = React.useState(false);
   const [brushSize, setBrushSize] = React.useState<number>(4);
   const [backgroundTemplate, setBackgroundTemplate] = React.useState<'none' | 'grid' | 'sky'>('none');
   
@@ -15,7 +14,7 @@ const DrawingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onComplet
   const ctxRef = React.useRef<CanvasRenderingContext2D | null>(null);
   const isDrawingRef = React.useRef(false);
   const lastPosRef = React.useRef<{ x: number; y: number } | null>(null);
-  const intervalRef = React.useRef<number | null>(null);
+
   const usedColorsRef = React.useRef<Set<string>>(new Set());
   const shapesCountRef = React.useRef<{ pencil: number; circle: number; rect: number; triangle: number; star: number; line: number; brush: number }>({ 
     pencil: 0, circle: 0, rect: 0, triangle: 0, star: 0, line: 0, brush: 0 
@@ -179,35 +178,54 @@ const DrawingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onComplet
 
   // 使用useCallback确保onComplete函数引用稳定
   const handleGameComplete = React.useCallback(() => {
-    // 导出画布图像
-    const canvas = canvasRef.current;
-    const imageDataUrl = canvas ? canvas.toDataURL('image/webp', 0.9) : '';
+    // 防止重复提交
+    if (isSubmitting) {
+      console.log('已在提交中，忽略重复点击');
+      return;
+    }
     
-    const totalShapes = Object.values(shapesCountRef.current).reduce((sum, count) => sum + count, 0);
+    console.log('开始提交绘画作品...');
+    setIsSubmitting(true);
     
-    const result: GameStageResult = {
-      dimension: 'creativity',
-      metrics: {
-        totalMs: Date.now() - startTimeRef.current,
-        colorsUsed: usedColorsRef.current.size,
-        shapesUsed: totalShapes,
-        strokeCount: strokeCountRef.current,
-        toolVariety: Object.values(shapesCountRef.current).filter(count => count > 0).length,
-        usedColors: Array.from(usedColorsRef.current),
-        shapeBreakdown: { ...shapesCountRef.current },
-        imageDataUrl,
-        undoCount: undoCountRef.current,
-        clearCount: clearCountRef.current,
-        brushSizeChanges: brushSizeChangesRef.current,
-      } as DrawingMetrics,
-    };
-    onComplete(result);
-  }, [onComplete]);
+    try {
+      // 导出画布图像
+      const canvas = canvasRef.current;
+      const imageDataUrl = canvas ? canvas.toDataURL('image/webp', 0.9) : '';
+      
+      const totalShapes = Object.values(shapesCountRef.current).reduce((sum, count) => sum + count, 0);
+      
+      const result: GameStageResult = {
+        dimension: 'creativity',
+        metrics: {
+          totalMs: Date.now() - startTimeRef.current,
+          colorsUsed: usedColorsRef.current.size,
+          shapesUsed: totalShapes,
+          strokeCount: strokeCountRef.current,
+          toolVariety: Object.values(shapesCountRef.current).filter(count => count > 0).length,
+          usedColors: Array.from(usedColorsRef.current),
+          shapeBreakdown: { ...shapesCountRef.current },
+          imageDataUrl,
+          undoCount: undoCountRef.current,
+          clearCount: clearCountRef.current,
+          brushSizeChanges: brushSizeChangesRef.current,
+        } as DrawingMetrics,
+      };
+      
+      console.log('绘画数据准备完成，调用onComplete:', result);
+      onComplete(result);
+      
+      // 立即显示提交成功状态
+      setIsSubmitting(false);
+      setIsSubmitted(true);
+    } catch (error) {
+      console.error('提交绘画作品时出错:', error);
+      setIsSubmitting(false);
+    }
+  }, [onComplete, isSubmitting]);
 
-  // 计时器（统一由本组件控制）
+  // 初始化游戏状态
   React.useEffect(() => {
     // 重置游戏状态
-    setTimeLeft(DRAWING_DURATION);
     startTimeRef.current = Date.now();
     usedColorsRef.current.clear();
     shapesCountRef.current = { pencil: 0, circle: 0, rect: 0, triangle: 0, star: 0, line: 0, brush: 0 };
@@ -217,39 +235,7 @@ const DrawingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onComplet
     undoCountRef.current = 0;
     clearCountRef.current = 0;
     brushSizeChangesRef.current = 0;
-    
-    // 清理之前的计时器
-    if (intervalRef.current) {
-      window.clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-    
-    // 启动新的计时器
-    intervalRef.current = window.setInterval(() => {
-      setTimeLeft((t) => {
-        if (t <= 1) {
-          // 清理计时器
-          if (intervalRef.current) {
-            window.clearInterval(intervalRef.current);
-            intervalRef.current = null;
-          }
-          
-          // 调用游戏完成处理
-          handleGameComplete();
-          return 0;
-        }
-        return t - 1;
-      });
-    }, 1000);
-    
-    // 清理函数
-    return () => {
-      if (intervalRef.current) {
-        window.clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    };
-  }, []); // 移除依赖，确保只执行一次
+  }, []);
 
   // 绘制工具
   const getPos = (e: MouseEvent | TouchEvent) => {
@@ -445,9 +431,14 @@ const DrawingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onComplet
     <div className="drawing-game">
       <div className="drawing-header">
         <h3>绘画创作</h3>
-        <div className="drawing-timer">
-          剩余时间: {timeLeft}秒
-        </div>
+        <button 
+          className={`submit-drawing-btn ${isSubmitting ? 'submitting' : ''} ${isSubmitted ? 'submitted' : ''}`}
+          onClick={handleGameComplete}
+          disabled={isSubmitting || isSubmitted}
+          title={isSubmitted ? "已提交，等待切换..." : isSubmitting ? "正在提交..." : "完成绘画"}
+        >
+          {isSubmitted ? '🎉 提交成功！' : isSubmitting ? '⏳ 提交中...' : '✅ 完成作品'}
+        </button>
       </div>
       
       <div className="drawing-tools">

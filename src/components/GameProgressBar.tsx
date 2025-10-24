@@ -15,9 +15,9 @@ const GameProgressBar: React.FC<GameProgressBarProps> = ({
   const gameStages = [
     { key: 'storytelling', name: '故事创作', icon: '📖' },
     { key: 'pattern', name: '逻辑推理', icon: '🧩' },
-    { key: 'drawing', name: '创意绘画', icon: '🎨' },
     { key: 'animalClick', name: '反应测试', icon: '🐾' },
-    { key: 'imagination', name: '想象力', icon: '✨' }
+    { key: 'imagination', name: '想象力', icon: '✨' },
+    { key: 'drawing', name: '创意绘画', icon: '🎨' }
   ];
 
   // 计算当前进度
