@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import type { DrawingMetrics, ImaginationAssessment } from './games/types';
-import { evaluateImaginationWithLLM } from './imaginationEvaluator';
+import { evaluateImaginationWithLLM, evaluateImaginationTextWithLLM } from './imaginationEvaluator';
 
 // 定义应用状态类型
 interface AppState {
@@ -26,7 +26,7 @@ interface AppState {
     expression: { charCount: number; uniqueCharCount: number; latencyMs: number };
     logic: { correct: number; attempts: number; avgLatencyMs: number };
     creativity: DrawingMetrics | { activeMs: number; colorsUsed: number; shapesUsed: number };
-    imagination: { charCount: number; noveltyScore: number; consistencyScore: number; latencyMs: number };
+    imagination: { charCount: number; noveltyScore: number; consistencyScore: number; latencyMs: number; answerText?: string; prompt?: string };
     reaction: { hits: number; mistakes: number; avgLatencyMs: number; totalMs: number };
   };
   imaginationAssessment?: ImaginationAssessment;
@@ -77,7 +77,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       expression: { charCount: 0, uniqueCharCount: 0, latencyMs: 0 },
       logic: { correct: 0, attempts: 0, avgLatencyMs: 0 },
       creativity: { activeMs: 0, colorsUsed: 0, shapesUsed: 0 },
-      imagination: { charCount: 0, noveltyScore: 0, consistencyScore: 0, latencyMs: 0 },
+      imagination: { charCount: 0, noveltyScore: 0, consistencyScore: 0, latencyMs: 0, answerText: '' },
       reaction: { hits: 0, mistakes: 0, avgLatencyMs: 0, totalMs: 10000 }
     },
     // 游戏进度相关状态初始值
@@ -193,10 +193,30 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
 
     // 想象：新颖度 + 一致性 + 速度
-    const imagNoveltyScore = clamp10(metrics.imagination.noveltyScore * 0.7);
-    const imagConsistencyScore = clamp10(metrics.imagination.consistencyScore * 0.2);
-    const imagSpeedScore = clamp10(10 - metrics.imagination.latencyMs / 5000 * 0.1);
-    const imagination = clamp10((imagNoveltyScore + imagConsistencyScore + imagSpeedScore) * ageFactor);
+    // 想象：优先用文本大模型评估，其次回退到启发式
+    let imagination: number;
+    const answerText = (metrics.imagination as any).answerText;
+    if (answerText && String(answerText).trim()) {
+      try {
+        const assessment = await evaluateImaginationTextWithLLM(String(answerText), metrics.imagination.prompt, state.ageBand);
+        setState(prev => ({
+          ...prev,
+          imaginationAssessment: assessment
+        }));
+        imagination = clamp10((assessment.score / 100) * 10 * ageFactor);
+      } catch (error) {
+        console.error('文本想象力评估失败:', error);
+        const imagNoveltyScore = clamp10(metrics.imagination.noveltyScore * 0.7);
+        const imagConsistencyScore = clamp10(metrics.imagination.consistencyScore * 0.2);
+        const imagSpeedScore = clamp10(10 - metrics.imagination.latencyMs / 5000 * 0.1);
+        imagination = clamp10((imagNoveltyScore + imagConsistencyScore + imagSpeedScore) * ageFactor);
+      }
+    } else {
+      const imagNoveltyScore = clamp10(metrics.imagination.noveltyScore * 0.7);
+      const imagConsistencyScore = clamp10(metrics.imagination.consistencyScore * 0.2);
+      const imagSpeedScore = clamp10(10 - metrics.imagination.latencyMs / 5000 * 0.1);
+      imagination = clamp10((imagNoveltyScore + imagConsistencyScore + imagSpeedScore) * ageFactor);
+    }
 
     // 反应：命中数量 + 反应速度 + 准确率综合评分
     // 1. 命中数量得分（占50%）- 命中越多分数越高
