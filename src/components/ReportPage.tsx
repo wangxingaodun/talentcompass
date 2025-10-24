@@ -64,6 +64,7 @@ const ReportPage: React.FC<ReportPageProps> = ({
               scores={scores}
               talentType={talentType}
               talentDescription={talentDescription}
+              storyAssessment={storyAssessment}
             />
           </div>
         );

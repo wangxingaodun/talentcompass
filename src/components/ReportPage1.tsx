@@ -1,4 +1,6 @@
 import React from 'react';
+import { useAppContext } from './AppContext';
+import type { StoryAssessment } from './games/types';
 
 interface ReportPage1Props {
   childName: string;
@@ -12,6 +14,7 @@ interface ReportPage1Props {
   };
   talentType: string;
   talentDescription: string;
+  storyAssessment?: StoryAssessment;
 }
 
 const ReportPage1: React.FC<ReportPage1Props> = ({
@@ -19,8 +22,25 @@ const ReportPage1: React.FC<ReportPage1Props> = ({
   testDate,
   scores,
   talentType,
-  talentDescription
+  talentDescription,
+  storyAssessment
 }) => {
+  const { state } = useAppContext();
+  
+  // 计算反应速度游戏的综合评分（与ReportPage4中的计算逻辑一致）
+  const clamp = (value: number, min: number = 0, max: number = 100) => Math.max(min, Math.min(max, value));
+  
+  const reactionMetrics = state.metrics.reaction;
+  const hitCountScore = clamp(Math.min(reactionMetrics.hits / 15 * 100, 100));
+  const avgReactionTime = reactionMetrics.avgLatencyMs;
+  const speedScore = clamp(Math.max(0, 100 - avgReactionTime / 15));
+  const totalAttempts = reactionMetrics.hits + reactionMetrics.mistakes;
+  const accuracy = totalAttempts > 0 ? reactionMetrics.hits / totalAttempts : 0;
+  const accuracyScore = clamp(accuracy * 100);
+  const attentionScore = clamp(hitCountScore * 0.6 + accuracyScore * 0.4);
+  
+  const overallScore = clamp(Math.round(speedScore * 0.4 + accuracyScore * 0.4 + attentionScore * 0.2));
+  
   // 确保评分在0-100范围内
   const normalizeScore = (score: number): number => {
     return Math.max(0, Math.min(100, score));
@@ -34,6 +54,9 @@ const ReportPage1: React.FC<ReportPage1Props> = ({
     imagination: normalizeScore(scores.imagination),
     reaction: normalizeScore(scores.reaction),
   };
+  
+  // 获取想象力评估分数
+  const imaginationScore = state.imaginationAssessment?.score || normalizedScores.imagination;
 
   // 生成五维雷达图的路径
   const generateRadarPath = () => {
@@ -204,7 +227,7 @@ const ReportPage1: React.FC<ReportPage1Props> = ({
               <div className="score-item">
                 <div className="score-header">
                   <span className="score-label">🗣️ 表达能力</span>
-                  <span className="score-value">{normalizedScores.expression}/100</span>
+                  <span className="score-value">{storyAssessment?.score}/100</span>
                 </div>
                 <div className="score-bar">
                   <div 
@@ -252,15 +275,15 @@ const ReportPage1: React.FC<ReportPage1Props> = ({
               <div className="score-item">
                 <div className="score-header">
                   <span className="score-label">💭 想象力</span>
-                  <span className="score-value">{normalizedScores.imagination}/100</span>
+                  <span className="score-value">{imaginationScore}/100</span>
                 </div>
                 <div className="score-bar">
                   <div 
                     className="score-fill" 
                     style={{ 
-                      width: `${normalizedScores.imagination}%`,
-                      backgroundColor: normalizedScores.imagination >= 80 ? '#4CAF50' : 
-                                     normalizedScores.imagination >= 60 ? '#FF9800' : '#F44336'
+                      width: `${imaginationScore}%`,
+                      backgroundColor: imaginationScore >= 80 ? '#4CAF50' : 
+                                     imaginationScore >= 60 ? '#FF9800' : '#F44336'
                     }}
                   ></div>
                 </div>
@@ -268,15 +291,15 @@ const ReportPage1: React.FC<ReportPage1Props> = ({
               <div className="score-item">
                 <div className="score-header">
                   <span className="score-label">⚡ 反应速度</span>
-                  <span className="score-value">{normalizedScores.reaction}/100</span>
+                  <span className="score-value">{overallScore}/100</span>
                 </div>
                 <div className="score-bar">
                   <div 
                     className="score-fill" 
                     style={{ 
-                      width: `${normalizedScores.reaction}%`,
-                      backgroundColor: normalizedScores.reaction >= 80 ? '#4CAF50' : 
-                                     normalizedScores.reaction >= 60 ? '#FF9800' : '#F44336'
+                      width: `${overallScore}%`,
+                      backgroundColor: overallScore >= 80 ? '#4CAF50' : 
+                                     overallScore >= 60 ? '#FF9800' : '#F44336'
                     }}
                   ></div>
                 </div>
