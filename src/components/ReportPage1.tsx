@@ -58,6 +58,8 @@ const ReportPage1: React.FC<ReportPage1Props> = ({
   
   // 获取想象力评估分数
   const imaginationScore = state.imaginationAssessment?.score || normalizedScores.imagination;
+  // 获取想象力评估分数
+  const lastImaginationAssessment = state.lastImaginationAssessment?.score;
   
   // 计算逻辑思维分数（与StoryReportPage中的计算逻辑一致）
   const logicScorePercent = Math.round(Math.max(0, Math.min(100, (state.scores?.logic || 0) * 10)));
@@ -307,15 +309,15 @@ const ReportPage1: React.FC<ReportPage1Props> = ({
               <div className="score-item">
                 <div className="score-header">
                   <span className="score-label">💭 想象力</span>
-                  <span className="score-value">{imaginationScore}/100</span>
+                  <span className="score-value">{lastImaginationAssessment}/100</span>
                 </div>
                 <div className="score-bar">
                   <div 
                     className="score-fill" 
                     style={{ 
-                      width: `${imaginationScore}%`,
-                      backgroundColor: imaginationScore >= 80 ? '#4CAF50' : 
-                                     imaginationScore >= 60 ? '#FF9800' : '#F44336'
+                      width: `${lastImaginationAssessment}%`,
+                      backgroundColor: lastImaginationAssessment >= 80 ? '#4CAF50' :
+                          lastImaginationAssessment >= 60 ? '#FF9800' : '#F44336'
                     }}
                   ></div>
                 </div>
