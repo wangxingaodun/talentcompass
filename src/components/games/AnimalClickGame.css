@@ -6,11 +6,10 @@
   gap: 16px;
   background: linear-gradient(135deg, #F0F8FF 0%, #FFF8F0 100%);
   padding: 20px;
-  border-radius: 20px;
   border: 3px solid var(--border-light);
   position: relative;
+  overflow: visible;
   max-height: none !important;
-  min-height: 500px;
 }
 
 .whack-game::before {
@@ -84,6 +83,7 @@
   background: #8BC34A;
   box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
   min-height: 320px;
+  max-height: none !important;
   overflow: visible !important;
   
   /* 背景图片填充容器：不留边 */
@@ -91,7 +91,6 @@
   background-position: center !important;
   background-size: cover !important;
 }
-
 .whack-hole {
   position: relative;
   width: 100%;
@@ -190,10 +189,6 @@
 .game-instructions {
   background: linear-gradient(135deg, #FFF8E1 0%, #FFF59D 100%);
   padding: 12px 16px;
-  border-radius: 16px;
-  border-left: 6px solid var(--accent-orange);
-  text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
 }
 
@@ -201,5 +196,16 @@
   font-size: 1rem;
   font-weight: 600;
   color: var(--text-dark);
-  margin: 0;
+}
+
+
+.hole-image {
+  position: absolute;
+  bottom: 12%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: auto;
+  z-index: 1;
+  pointer-events: none;
 }

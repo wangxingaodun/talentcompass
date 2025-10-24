@@ -33,10 +33,15 @@ const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
   const latencySumRef = React.useRef<number>(0);
   const countdownRef = React.useRef<number | null>(null);
 
+  // 倒计时与开局
   React.useEffect(() => {
-    setPrompt(`${childName ? childName + '，' : ''}准备好！在限定时间内打更多的地鼠！`);
-    
-    // 开始倒计时
+    // 初始化状态
+    setGameStarted(false);
+    setTimeLeft(GAME_DURATION);
+    setHits(0);
+    setMistakes(0);
+
+    // 启动倒计时
     countdownRef.current = window.setInterval(() => {
       setCountdown((c) => {
         if (c <= 1) {
@@ -48,7 +53,9 @@ const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
         return c - 1;
       });
     }, 1000);
-    
+
+    setPrompt(`${childName}，准备好了？游戏即将开始！`);
+
     return () => {
       if (countdownRef.current) window.clearInterval(countdownRef.current);
     };
@@ -76,80 +83,55 @@ const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
     if (!gameStarted) return;
     
     timerRef.current = window.setInterval(() => {
-      setTimeLeft((t) => {
+      setTimeLeft(t => {
         if (t <= 1) {
           if (timerRef.current) window.clearInterval(timerRef.current);
-          if (spawnRef.current) window.clearInterval(spawnRef.current);
-          setGameStarted(false); // 停止游戏，防止继续点击
-          // 清空所有地鼠状态
-          setHoles(prev => prev.map(h => ({ ...h, up: false, hit: false, pending: false })));
-          activeIndexRef.current = null;
-          appearStartRef.current = null;
           handleGameCompleteRef.current();
+          setGameStarted(false);
           return 0;
         }
         return t - 1;
       });
     }, 1000);
+    
     return () => {
       if (timerRef.current) window.clearInterval(timerRef.current);
     };
   }, [gameStarted]);
 
-  // 地鼠刷新逻辑
+  // 地鼠刷新与出现
   React.useEffect(() => {
     if (!gameStarted) return;
-    
-    if (spawnRef.current) window.clearInterval(spawnRef.current);
+
     spawnRef.current = window.setInterval(() => {
-      // 复制当前状态
-      const currentHoles = [...holes];
-      
-      // 重置所有地洞状态
-      const updatedHoles = currentHoles.map(h => ({ ...h, up: false, pending: false }));
-      
-      // 随机选择一个地洞出现地鼠
-      const availableHoles = updatedHoles.map((_, i) => i).filter(i => i !== activeIndexRef.current);
-      if (availableHoles.length === 0) return;
-      
-      const idx = availableHoles[Math.floor(Math.random() * availableHoles.length)];
-      
-      // 先设置地洞为pending状态，产生地面动效
-      updatedHoles[idx].pending = true;
-      setHoles(updatedHoles);
-      
-      // 延迟一小段时间后，让地鼠出现
+      const idx = Math.floor(Math.random() * (GRID_SIZE * GRID_SIZE));
+
+      // 地面动效 pending
+      setHoles(prev => prev.map((h, i) => i === idx ? { ...h, pending: true, up: false, hit: false } : { ...h, pending: false, up: false }));
+
+      // 地鼠露头
       window.setTimeout(() => {
-        setHoles(prev => {
-          const next = [...prev];
-          next[idx].up = true;
-          next[idx].hit = false;
-          next[idx].pending = false; // 清除pending状态
-          
-          activeIndexRef.current = idx;
-          appearStartRef.current = Date.now();
-          
-          // 自动下钻（使用当前难度的露头时长）
-          window.setTimeout(() => {
-            setHoles(hs => hs.map((h, i) => i === idx ? { ...h, up: false } : h));
-            if (activeIndexRef.current === idx) {
-              // 地鼠自动消失，说明玩家没有打中，记录失误
-              setMistakes(m => m + 1);
-              setConsecutiveHits(0); // 重置连续命中次数
-              activeIndexRef.current = null;
-              appearStartRef.current = null;
-            }
-          }, currentVisibleMs);
-          
-          return next;
-        });
-      }, 300); // 地面动效持续时间
+        setHoles(prev => prev.map((h, i) => i === idx ? { ...h, up: true, hit: false, pending: false } : h));
+        activeIndexRef.current = idx;
+        appearStartRef.current = Date.now();
+
+        // 自动下钻
+        window.setTimeout(() => {
+          setHoles(prev => prev.map((h, i) => i === idx ? { ...h, up: false } : h));
+          if (activeIndexRef.current === idx) {
+            setMistakes(m => m + 1);
+            setConsecutiveHits(0);
+            activeIndexRef.current = null;
+            appearStartRef.current = null;
+          }
+        }, currentVisibleMs);
+      }, 300);
     }, currentSpawnMs);
     
     return () => {
       if (spawnRef.current) window.clearInterval(spawnRef.current);
     };
-  }, [gameStarted, holes, currentVisibleMs, currentSpawnMs]);
+  }, [gameStarted, currentVisibleMs, currentSpawnMs]);
 
   const clickHole = (index: number) => {
     if (!gameStarted) return; // 游戏未开始时不响应点击
