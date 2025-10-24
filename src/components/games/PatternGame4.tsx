@@ -54,7 +54,7 @@ const PatternGame4: React.FC<GameStageProps> = ({ childName, setPrompt, onComple
         
         <div className="analogy-pair">
           <div className="analogy-item">
-            <div className="shape square"></div>
+            <div className="shape square" style={{ borderRadius: '0px' }}></div>
             <span className="shape-label">正方形</span>
           </div>
           <span className="analogy-arrow">→</span>
