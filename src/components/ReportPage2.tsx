@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAppContext } from './AppContext';
 import type { ImaginationAssessment } from './games/types';
+import '../styles/report.css';
 
 interface ReportPage2Props {
   childName: string;
@@ -340,6 +341,59 @@ const ReportPage2: React.FC<ReportPage2Props> = ({
                 </div>
               </div>
             )}
+            {/* 维度评估细化说明（始终显示，无subscores时使用评分作为近似） */}
+            {(() => {
+              const subs = imaginationAssessment.subscores || {
+                content: Math.round(imaginationAssessment.score),
+                imagination: Math.round(imaginationAssessment.score),
+                relevance: Math.round(Math.max(0, Math.min(100, imaginationAssessment.score)))
+              };
+              return (
+                <div className="dimension-breakdown">
+                  <h3>📎 维度评估结果</h3>
+                  <div className="dimension-grid">
+                    <div className="dimension-item">
+                      <div className="dimension-title">内容（{subs.content}）</div>
+                      <div className="dimension-desc">
+                        {state.metrics?.imagination?.charCount
+                          ? `字数约${state.metrics.imagination.charCount}，${/因为|所以|因此|于是/.test(String(state.metrics?.imagination?.answerText || '')) ? '包含因果表述，较为连贯' : '因果表述较少，连贯性一般'}`
+                          : '内容完整度已统计'}
+                      </div>
+                    </div>
+                    <div className="dimension-item">
+                      <div className="dimension-title">想象力（{subs.imagination}）</div>
+                      <div className="dimension-desc">
+                        {(() => {
+                          const text = String(state.metrics?.imagination?.answerText || '');
+                          const unique = new Set(text.split('')).size;
+                          const ratio = text.length ? unique / text.length : 0;
+                          const emotion = /开心|伤心|生气|紧张|兴奋|害怕/.test(text);
+                          return `${ratio > 0.5 ? '原创性较强' : '原创性一般'}，${emotion ? '包含情绪表达' : '情绪表达较少'}`;
+                        })()}
+                      </div>
+                    </div>
+                    <div className="dimension-item">
+                      <div className="dimension-title">切题程度（{subs.relevance}）</div>
+                      <div className="dimension-desc">
+                        {(() => {
+                          const q = String(state.metrics?.imagination?.prompt || '').replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, ' ');
+                          const words = q.split(/\s+/).filter(Boolean);
+                          const answer = String(state.metrics?.imagination?.answerText || '');
+                          const overlap = words.filter(w => answer.includes(w)).length;
+                          return `与题目关键词重合${overlap}处，整体${overlap >= Math.max(1, Math.ceil(words.length / 3)) ? '较为贴合' : '贴合度一般'}`;
+                        })()}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="dimension-summary">
+                    <div className="summary-title">综合说明</div>
+                    <div className="summary-text">
+                      本评语基于 ImaginationGame 的文字回答。综合评定为：{imaginationAssessment.level === 'excellent' ? '【优秀】' : imaginationAssessment.level === 'good' ? '【良好】' : '【有待提升】'}；主要依据：{(imaginationAssessment.reasons || []).join('；') || '综合表现'}；建议：{(imaginationAssessment.suggestions || []).join('；') || '持续保持并多加练习'}。
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
       </div>

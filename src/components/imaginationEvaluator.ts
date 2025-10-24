@@ -332,13 +332,14 @@ export async function evaluateImaginationTextWithLLM(
         rawSnippet ? `原始模型输出(解析失败)：${rawSnippet}` : '模型输出未提供或解析失败'
       ],
       suggestions: [
-        '尝试加入更多细节和形容词，让画面更鲜活',
-        '可以构思一个小故事的开头-发展-结尾结构'
+        '尝试加入更多细节和形容词，让表达更鲜活',
+        '构思完整的故事结构（开头-发展-转折-结尾）',
+        '用因果或动机串联段落，提升连贯性'
       ],
       confidence: 0.6,
       subscores: { content: contentSub, imagination: imaginationSub, relevance: relevanceSub },
       rawContent: (rawContentText && rawContentText.trim()) ? rawContentText.trim() : undefined,
-      report: `从内容（${contentSub}分）、想象力（${imaginationSub}分）与切题程度（${relevanceSub}分）综合看，整体表现${overallLevelText}。回答${detail >= 4 ? '细节较为丰富' : '细节略显不足'}，${originality >= 4 ? '创意亮点明显' : '创意可继续大胆拓展'}，建议加入更多描写并构建小故事结构以提升表达。`,
+      report: `依据孩子在ImaginationGame中的文字回答，从内容（${contentSub}分）、想象力（${imaginationSub}分）与切题程度（${relevanceSub}分）综合评定为${overallLevelText}。${detail >= 4 ? '细节较多、描述具体' : '细节略少、描述偏概括'}；${originality >= 4 ? '创意较新颖，有想象拓展' : '创意较保守，可增加新颖设想'}；${hasCause ? '因果与动机表达较清晰' : '因果关系较少，逻辑可加强'}。建议通过增加细节、构思故事线、使用连接词来提升表达质量。`,
     };
   }
 }
