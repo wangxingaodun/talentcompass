@@ -11,7 +11,7 @@ const INITIAL_SPAWN_MS = 1200; // 初始地鼠刷新频率 - 开始较慢
 const MIN_VISIBLE_MS = 800; // 最小地鼠露头时长
 const MIN_SPAWN_MS = 500; // 最小地鼠刷新频率
 const DIFFICULTY_THRESHOLD = 3; // 连续命中多少次提升难度
-const GAME_DURATION = 1; // 游戏时长（秒）- 延长游戏时间
+const GAME_DURATION = 30; // 游戏时长（秒）- 延长游戏时间
 
 const AnimalClickGame: React.FC<GameStageProps> = ({ childName, setPrompt, onComplete }) => {
   const [hits, setHits] = React.useState(0);
