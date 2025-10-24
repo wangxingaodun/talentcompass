@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAppContext } from './AppContext';
 import type { ImaginationAssessment } from './games/types';
+import '../styles/report.css';
 
 interface ReportPage2Props {
   childName: string;
@@ -306,9 +307,8 @@ const ReportPage2: React.FC<ReportPage2Props> = ({
           <div className="note-icon">📝</div>
           <div className="note-content">
             <p>
-              <strong>评估说明：</strong>
-              这个分析基于{childName}的绘画作品，从原创性、多样性、叙事性、构图、色彩和投入度等维度进行专业评估。
-              每个孩子都有独特的创意表达方式，这个评估旨在帮助发现和培养孩子的艺术潜能。
+              <strong>绘画评估说明：</strong>
+              以下说明仅针对{childName}的绘画作品评估，依据原创性、多样性、叙事性、构图、色彩和投入度等维度进行分析。该说明与文字想象力报告相互独立，用于呈现绘画表现特点与参考建议。
             </p>
           </div>
         </div>

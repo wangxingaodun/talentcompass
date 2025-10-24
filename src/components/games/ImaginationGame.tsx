@@ -76,6 +76,9 @@ const ImaginationGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
   const [question, setQuestion] = React.useState<string>('');
   const [loading, setLoading] = React.useState<boolean>(false);
   const startRef = React.useRef<number>(Date.now());
+  const [isListening, setIsListening] = React.useState(false);
+  const [speechSupported, setSpeechSupported] = React.useState(false);
+  const recognitionRef = React.useRef<any>(null);
 
   // 初次进入自动生成题目
   React.useEffect(() => {
@@ -95,6 +98,43 @@ const ImaginationGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // 初始化语音识别（与 StorytellingGame 一致）
+  React.useEffect(() => {
+    const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (SpeechRecognitionAPI) {
+      setSpeechSupported(true);
+      const recognition = new SpeechRecognitionAPI();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'zh-CN';
+  
+      recognition.onresult = (event: any) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        setInput(transcript);
+      };
+  
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+      };
+  
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+  
+      recognitionRef.current = recognition;
+    }
+  
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
   const submit = () => {
     const text = input.trim();
     if (!text) return;
@@ -110,21 +150,52 @@ const ImaginationGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCom
     onComplete(result);
   };
 
+  // 切换语音输入
+  const toggleListening = () => {
+    if (!recognitionRef.current) return;
+    if (isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    } else {
+      recognitionRef.current.start();
+      setIsListening(true);
+    }
+  };
+
   return (
     <div className="storytelling-game">
       <p className="story-prompt" style={{ minHeight: 24 }}>
         {question || (loading ? '题目生成中…' : '题目生成失败，请检查API配置')}
       </p>
-      <input
-        type="text"
+      
+      <textarea
         className="story-input"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder="试着描述一个有趣的答案…"
+        placeholder="在此输入文字，或点击下方麦克风按钮使用语音输入..."
       />
-      <button className="submit-button" onClick={submit} disabled={!input.trim()}>
-        提交
-      </button>
+  
+      <div className="input-controls">
+        {speechSupported && (
+          <button 
+            onClick={toggleListening} 
+            className={`voice-button ${isListening ? 'listening' : ''}`}
+            type="button"
+          >
+            {isListening ? '🛑 停止' : '🎤 语音输入'}
+          </button>
+        )}
+        <button className="submit-button" onClick={submit} disabled={!input.trim()}>
+          提交
+        </button>
+      </div>
+  
+      {isListening && (
+        <div className="listening-indicator">
+          <span className="pulse"></span>
+          <span>正在听您说话...</span>
+        </div>
+      )}
     </div>
   );
 };
