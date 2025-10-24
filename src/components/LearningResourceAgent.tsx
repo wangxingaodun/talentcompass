@@ -404,7 +404,28 @@ const LearningResourceAgent: React.FC<LearningResourceAgentProps> = ({
     try {
       // 验证scores参数
       if (!scores || typeof scores !== 'object') {
-        throw new Error('评分数据无效，无法生成推荐');
+        throw new Error('评分数据无效：scores参数为空或类型错误');
+      }
+
+      // 验证scores的必需字段
+      const requiredFields = ['expression', 'logic', 'creativity', 'imagination', 'reaction'];
+      const missingFields = requiredFields.filter(field => 
+        !(field in scores) || typeof scores[field as keyof Scores] !== 'number'
+      );
+      
+      if (missingFields.length > 0) {
+        throw new Error(`评分数据无效：缺少或类型错误的字段 - ${missingFields.join(', ')}`);
+      }
+
+      // 验证分数范围（假设分数应该在0-100之间）
+      const invalidScores = requiredFields.filter(field => {
+        const score = scores[field as keyof Scores];
+        return score < 0 || score > 100 || isNaN(score);
+      });
+      
+      if (invalidScores.length > 0) {
+        console.warn(`分数超出有效范围的字段: ${invalidScores.join(', ')}`);
+        // 不抛出错误，而是继续处理，但记录警告
       }
 
       const { strengths, weaknesses } = analyzeStrengthsAndWeaknesses(scores);

@@ -53,101 +53,195 @@ const ReportPage4: React.FC<ReportPage4Props> = ({ childName, imaginationAssessm
   const imag = imaginationAssessment || state.imaginationAssessment;
 
   return (
-    <div className="report-page-content">
+    <div className="report-page-content report-page4-enhanced">
       {/* 综合结果：打地鼠+想象力 */}
-      <div className="comprehensive-result">
-        <h2>🎯 综合结果报告（打地鼠 + 想象力）</h2>
-        <div className="assessment-content">
+      <div className="comprehensive-analysis-section-enhanced">
+        <div className="section-intro">
+          <div className="intro-icon">🎯</div>
+          <div className="intro-content">
+            <h2>综合结果报告</h2>
+            <p>深度分析{childName}的反应力与想象力表现，提供全面的能力评估</p>
+          </div>
+        </div>
+        
+        <div className="analysis-content">
           {/* 反应力报告 */}
-          <div className="reaction-report" style={{ border: '1px solid #eee', borderRadius: 12, padding: 16, marginBottom: 16 }}>
-            <h3>🐹 打地鼠反应力报告</h3>
-            <div className="assessment-score-section">
-              <div className="assessment-score">
-                <div className="score-circle">
-                  <div className="score-value">{overallScore}</div>
-                  <div className="score-label">分</div>
-                </div>
-                <div className="score-level">
-                  <span className={`level-badge level-${levelText === '优秀' ? 'excellent' : levelText === '良好' ? 'good' : 'needs_improvement'}`}>
-                    {levelText === '优秀' ? '🌟 优秀' : levelText === '良好' ? '👍 良好' : '💪 待提升'}
-                  </span>
+          <div className="reaction-report-enhanced">
+            <div className="report-header">
+              <div className="report-icon">🐹</div>
+              <h3>打地鼠反应力报告</h3>
+            </div>
+            <div className="assessment-score-section-enhanced">
+              <div className="score-header">
+                <div className="score-icon">📊</div>
+                <h4>评估结果</h4>
+              </div>
+              <div className="assessment-score-enhanced">
+                <div className="main-score-card">
+                  <div className="score-circle-enhanced">
+                    <div className="score-value">{overallScore}</div>
+                  </div>
+                  <div className="score-details">
+                    <div className={`level-badge-enhanced level-${levelText === '优秀' ? 'excellent' : levelText === '良好' ? 'good' : 'needs_improvement'}`}>
+                      {levelText === '优秀' ? '🌟 优秀' : levelText === '良好' ? '👍 良好' : '💪 待提升'}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* 维度评分 */}
-            <div className="subscores-section" style={{ marginTop: 12 }}>
-              <h4>🔹 维度评分</h4>
-              <div className="subscore-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-                <div className="subscore-item">
-                  <div className="subscore-label">反应速度</div>
-                  <div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}>
-                    <div className="subscore-fill" style={{ width: `${speedScore}%`, height: 8, background: '#2196f3' }}></div>
+            <div className="subscores-enhanced">
+              <div className="subscores-header">
+                <div className="subscores-icon">📈</div>
+                <h4>详细评分</h4>
+              </div>
+              <div className="subscore-grid-enhanced">
+                <div className="subscore-card">
+                  <div className="subscore-icon">⚡</div>
+                  <div className="subscore-content">
+                    <span className="subscore-label">反应速度</span>
+                    <div className="subscore-progress">
+                      <div className="subscore-bar">
+                        <div className="subscore-fill speed" style={{ width: `${speedScore}%` }}></div>
+                      </div>
+                      <span className="subscore-value">{speedScore}分</span>
+                    </div>
                   </div>
-                  <div className="subscore-value" style={{ marginTop: 4 }}>{speedScore}</div>
                 </div>
-                <div className="subscore-item">
-                  <div className="subscore-label">正确率</div>
-                  <div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}>
-                    <div className="subscore-fill" style={{ width: `${accuracyScore}%`, height: 8, background: '#4caf50' }}></div>
+                <div className="subscore-card">
+                  <div className="subscore-icon">🎯</div>
+                  <div className="subscore-content">
+                    <span className="subscore-label">正确率</span>
+                    <div className="subscore-progress">
+                      <div className="subscore-bar">
+                        <div className="subscore-fill accuracy" style={{ width: `${accuracyScore}%` }}></div>
+                      </div>
+                      <span className="subscore-value">{accuracyScore}分</span>
+                    </div>
                   </div>
-                  <div className="subscore-value" style={{ marginTop: 4 }}>{accuracyScore}</div>
                 </div>
-                <div className="subscore-item">
-                  <div className="subscore-label">专注度</div>
-                  <div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}>
-                    <div className="subscore-fill" style={{ width: `${attentionScore}%`, height: 8, background: '#ff9800' }}></div>
+                <div className="subscore-card">
+                  <div className="subscore-icon">🧠</div>
+                  <div className="subscore-content">
+                    <span className="subscore-label">专注度</span>
+                    <div className="subscore-progress">
+                      <div className="subscore-bar">
+                        <div className="subscore-fill attention" style={{ width: `${attentionScore}%` }}></div>
+                      </div>
+                      <span className="subscore-value">{attentionScore}分</span>
+                    </div>
                   </div>
-                  <div className="subscore-value" style={{ marginTop: 4 }}>{attentionScore}</div>
                 </div>
               </div>
             </div>
 
             {/* 数据概览 */}
-            <div className="reaction-metrics" style={{ marginTop: 12 }}>
-              <h4>📊 数据概览</h4>
-              <div className="metrics-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-                <div className="metric-item"><div className="metric-label">命中数</div><div className="metric-value">{hits}</div></div>
-                <div className="metric-item"><div className="metric-label">误击数</div><div className="metric-value">{mistakes}</div></div>
-                <div className="metric-item"><div className="metric-label">命中率</div><div className="metric-value">{hitRatePct}%</div></div>
-                <div className="metric-item"><div className="metric-label">平均反应时</div><div className="metric-value">{avgLatencyMs} ms</div></div>
-                <div className="metric-item"><div className="metric-label">总时长</div><div className="metric-value">{Math.round(totalMs / 1000)} s</div></div>
-                <div className="metric-item"><div className="metric-label">每分钟命中</div><div className="metric-value">{hitsPerMinute}</div></div>
+            <div className="reaction-metrics-enhanced">
+              <div className="metrics-header">
+                <div className="metrics-icon">📊</div>
+                <h4>数据概览</h4>
+              </div>
+              <div className="metrics-grid-enhanced">
+                <div className="metric-card">
+                  <div className="metric-icon">✅</div>
+                  <div className="metric-content">
+                    <div className="metric-label">命中数</div>
+                    <div className="metric-value">{hits}</div>
+                  </div>
+                </div>
+                <div className="metric-card">
+                  <div className="metric-icon">❌</div>
+                  <div className="metric-content">
+                    <div className="metric-label">误击数</div>
+                    <div className="metric-value">{mistakes}</div>
+                  </div>
+                </div>
+                <div className="metric-card">
+                  <div className="metric-icon">🎯</div>
+                  <div className="metric-content">
+                    <div className="metric-label">命中率</div>
+                    <div className="metric-value">{hitRatePct}%</div>
+                  </div>
+                </div>
+                <div className="metric-card">
+                  <div className="metric-icon">⏱️</div>
+                  <div className="metric-content">
+                    <div className="metric-label">平均反应时</div>
+                    <div className="metric-value">{avgLatencyMs} ms</div>
+                  </div>
+                </div>
+                <div className="metric-card">
+                  <div className="metric-icon">⏰</div>
+                  <div className="metric-content">
+                    <div className="metric-label">总时长</div>
+                    <div className="metric-value">{Math.round(totalMs / 1000)} s</div>
+                  </div>
+                </div>
+                <div className="metric-card">
+                  <div className="metric-icon">🚀</div>
+                  <div className="metric-content">
+                    <div className="metric-label">每分钟命中</div>
+                    <div className="metric-value">{hitsPerMinute}</div>
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* 亮点与建议 */}
-            <div className="assessment-details" style={{ marginTop: 12 }}>
+            <div className="assessment-details-enhanced">
               {highlights.length > 0 && (
-                <div className="assessment-reasons">
-                  <h4>✅ 亮点</h4>
-                  <ul className="reasons-list">
-                    {highlights.map((r, idx) => (<li key={idx}>{r}</li>))}
+                <div className="assessment-reasons-enhanced">
+                  <div className="reasons-header">
+                    <div className="reasons-icon">✨</div>
+                    <h4>亮点表现</h4>
+                  </div>
+                  <ul className="reasons-list-enhanced">
+                    {highlights.map((r, idx) => (
+                      <li key={idx} className="reason-item-enhanced">
+                        <span className="reason-icon">🌟</span>
+                        <span className="reason-text">{r}</span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
               )}
-              <div className="assessment-suggestions">
-                <h4>🛠 建议</h4>
-                <ul className="suggestions-list">
-                  {suggestions.map((s, idx) => (<li key={idx}>{s}</li>))}
+              <div className="assessment-suggestions-enhanced">
+                <div className="suggestions-header">
+                  <div className="suggestions-icon">🚀</div>
+                  <h4>提升建议</h4>
+                </div>
+                <ul className="suggestions-list-enhanced">
+                  {suggestions.map((s, idx) => (
+                    <li key={idx} className="suggestion-item-enhanced">
+                      <span className="suggestion-icon">✅</span>
+                      <span className="suggestion-text">{s}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
-              <div className="assessment-note" style={{ marginTop: 8 }}>
-                <h4>📝 综合说明</h4>
-                <p>
+              <div className="assessment-note-enhanced">
+                <div className="note-header">
+                  <div className="note-icon">📝</div>
+                  <h4>综合说明</h4>
+                </div>
+                <div className="note-content">
                   综合评定为：{levelText}；主要依据：{[
                     accuracyPct >= 80 ? '正确率较高' : '正确率有提升空间',
                     speedScore >= 70 ? '反应速度较快' : '反应速度偏慢',
                     attentionScore >= 65 ? '专注表现较稳定' : '专注度需加强'
                   ].join('；')}。建议根据短板进行针对性训练。
-                </p>
+                </div>
               </div>
             </div>
           </div>
 
           {/* 想象力报告摘要 */}
-          <div className="imagination-summary" style={{ border: '1px solid #eee', borderRadius: 12, padding: 16 }}>
-            <h3>🧠 想象力报告摘要</h3>
+          <div className="imagination-summary-enhanced">
+            <div className="summary-header">
+              <div className="summary-icon">🎨</div>
+              <h3>想象力报告摘要</h3>
+            </div>
             {state.metrics?.imagination?.prompt && (
               <div className="report-prompt" style={{ marginBottom: 8 }}>
                 <div className="prompt-label">题目</div>
