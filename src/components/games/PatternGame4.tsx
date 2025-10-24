@@ -6,8 +6,8 @@ import { callChatJSON } from './llm';
 // 题目四：类比推理（由大模型生成题干与选项，并保留本地兜底）
 
 interface StemItem {
-  shape: 'triangle' | 'circle' | 'square' | 'rectangle' | 'heart' | 'star';
-  label: string; // 如 "三角形"
+  emoji: string; // 如 "🐣"
+  label: string; // 如 "小鸡"
 }
 
 interface AnalogyStem {
@@ -17,8 +17,8 @@ interface AnalogyStem {
 
 interface AnalogyOption {
   key: 'A' | 'B' | 'C';
-  shape: 'triangle' | 'circle' | 'square' | 'rectangle' | 'heart' | 'star';
-  text: string; // 如 "A. 长方形"
+  emoji: string; // 如 "🐔"
+  text: string; // 如 "A. 公鸡"
 }
 
 interface AnalogyQuestion {
@@ -31,18 +31,18 @@ interface AnalogyQuestion {
 
 function localFallbackQuestion(): AnalogyQuestion {
   return {
-    title: '题目四：类比推理 - 请观察前两个图形的关系，然后从选项中选择一个图形，使它和第三个图形具有同样的关系。',
+    title: '题目四：类比推理 - 请观察前两个事物的关系，然后从选项中选择一个，使它与第三个事物具有同样的关系。',
     stem: {
-      pair1: { left: { shape: 'triangle', label: '三角形' }, right: { shape: 'circle', label: '圆形' } },
-      pair2: { left: { shape: 'square', label: '正方形' } }
+      pair1: { left: { emoji: '🌱', label: '幼苗' }, right: { emoji: '🌳', label: '大树' } },
+      pair2: { left: { emoji: '🐣', label: '小鸡' } }
     },
     options: [
-      { key: 'A', shape: 'rectangle', text: 'A. 长方形' },
-      { key: 'B', shape: 'heart', text: 'B. 爱心' },
-      { key: 'C', shape: 'star', text: 'C. 星形' },
+      { key: 'A', emoji: '🐔', text: 'A. 公鸡' },
+      { key: 'B', emoji: '🦋', text: 'B. 蝴蝶' },
+      { key: 'C', emoji: '🐟', text: 'C. 小鱼' },
     ],
-    correct: 'B',
-    explanation: '三角形→圆形表现为尖角对应圆润；同理正方形对应爱心（圆润）。'
+    correct: 'A',
+    explanation: '幼苗→大树表示从幼体到成体；同理小鸡→公鸡（成体）。'
   };
 }
 
@@ -59,24 +59,24 @@ const PatternGame4: React.FC<GameStageProps> = ({ childName, setPrompt, onComple
     const fetchQuestion = async () => {
       setLoading(true);
       setError(null);
-      setPrompt(`${childName}，请观察前两个图形（或事物）的关系，然后选择一个选项，使它与第三个图形（或事物）具有同样的关系。`);
+      setPrompt(`${childName}，请观察前两个事物的关系，然后选择一个选项，使它与第三个事物具有同样的关系（使用表情符号展示）。`);
       startTimeRef.current = Date.now();
       try {
         const seed = Math.floor(Math.random() * 100000).toString();
         const prompt = `请为“类比推理”题生成题干（两个类比项与待推理项）以及选项与答案，严格返回 JSON：\n{
   "title": string,
   "stem": {
-    "pair1": { "left": { "shape": "triangle"|"circle"|"square"|"rectangle"|"heart"|"star", "label": string }, "right": { "shape": "triangle"|"circle"|"square"|"rectangle"|"heart"|"star", "label": string } },
-    "pair2": { "left": { "shape": "triangle"|"circle"|"square"|"rectangle"|"heart"|"star", "label": string } }
+    "pair1": { "left": { "emoji": string, "label": string }, "right": { "emoji": string, "label": string } },
+    "pair2": { "left": { "emoji": string, "label": string } }
   },
   "options": [
-    { "key": "A"|"B"|"C", "shape": "triangle"|"circle"|"square"|"rectangle"|"heart"|"star", "text": string },
-    { "key": "A"|"B"|"C", "shape": "triangle"|"circle"|"square"|"rectangle"|"heart"|"star", "text": string },
-    { "key": "A"|"B"|"C", "shape": "triangle"|"circle"|"square"|"rectangle"|"heart"|"star", "text": string }
+    { "key": "A"|"B"|"C", "emoji": string, "text": string },
+    { "key": "A"|"B"|"C", "emoji": string, "text": string },
+    { "key": "A"|"B"|"C", "emoji": string, "text": string }
   ],
   "correct": "A"|"B"|"C",
   "explanation": string
-}\n要求：\n- 题干与选项仅使用以下形状：triangle/circle/square/rectangle/heart/star，中文 label 友好适龄；\n- 只有一个正确答案；\n- 选项顺序可随机；\n- 标题与解释为中文且适龄友好；\n- 仅输出 JSON；\n- 随机种子：${seed}`;
+}\n要求：\n- 题干与选项使用常见且适龄友好的 emoji 表达，不使用几何图形；\n- 只有一个正确答案；\n- 选项顺序可随机；\n- 标题与解释为中文且适龄友好；\n- 仅输出 JSON；\n- 随机种子：${seed}`;
         const q = await callChatJSON(prompt);
         if (!q || !q.options?.length || !q.correct || !q.stem?.pair1?.left || !q.stem?.pair1?.right || !q.stem?.pair2?.left) {
           setQuestion(localFallbackQuestion());
@@ -97,7 +97,7 @@ const PatternGame4: React.FC<GameStageProps> = ({ childName, setPrompt, onComple
   const select = (option: string) => {
     if (result) return;
     setSelected(option);
-    const isCorrect = option === (question?.correct || 'B');
+    const isCorrect = option === (question?.correct || 'A');
     setResult(isCorrect ? 'correct' : 'incorrect');
 
     const latencyMs = Date.now() - startTimeRef.current;
@@ -109,13 +109,13 @@ const PatternGame4: React.FC<GameStageProps> = ({ childName, setPrompt, onComple
     setTimeout(() => onComplete(stageResult), isCorrect ? 1000 : 1500);
   };
 
-  const renderShape = (shape?: StemItem | AnalogyOption) => {
-    if (!shape) return null;
-    const shapeName = 'shape' in shape ? shape.shape : undefined;
-    const label = 'label' in shape ? shape.label : ('text' in shape ? shape.text.replace(/^([ABC]\.)\s*/, '') : '');
+  const renderEmoji = (item?: StemItem | AnalogyOption) => {
+    if (!item) return null;
+    const emoji = 'emoji' in item ? (item as StemItem | AnalogyOption).emoji : '';
+    const label = 'label' in item ? (item as StemItem).label : ('text' in item ? (item as AnalogyOption).text.replace(/^([ABC]\.)\s*/, '') : '');
     return (
       <div className="analogy-item">
-        <div className={`shape ${shapeName}`}></div>
+        <div className="item-emoji">{emoji}</div>
         <span className="shape-label">{label}</span>
       </div>
     );
@@ -130,15 +130,15 @@ const PatternGame4: React.FC<GameStageProps> = ({ childName, setPrompt, onComple
       {question && (
         <div className="analogy-display" style={{ flexDirection: 'row', alignItems: 'center', gap: '24px' }}>
           <div className="analogy-pair">
-            {renderShape(question.stem.pair1.left)}
+            {renderEmoji(question.stem.pair1.left)}
             <span className="analogy-arrow">→</span>
-            {renderShape(question.stem.pair1.right)}
+            {renderEmoji(question.stem.pair1.right)}
           </div>
           
           <div className="analogy-separator">同样的关系：</div>
           
           <div className="analogy-pair">
-            {renderShape(question.stem.pair2.left)}
+            {renderEmoji(question.stem.pair2.left)}
             <span className="analogy-arrow">→</span>
             <div className="analogy-item question">
               <span className="question-mark">?</span>
@@ -152,18 +152,18 @@ const PatternGame4: React.FC<GameStageProps> = ({ childName, setPrompt, onComple
           {question.options.map((opt) => (
             <button 
               key={opt.key}
-              className={`shape-option ${selected === opt.key ? 'selected' : ''}`} 
+              className={`shape-option-square ${selected === opt.key ? 'selected' : ''}`} 
               onClick={() => select(opt.key)}
               disabled={result !== null}
             >
-              <div className={`shape ${opt.shape}`}></div>
+              <div className="item-emoji-small">{opt.emoji}</div>
               <span className="option-label">{opt.text}</span>
             </button>
           ))}
         </div>
       )}
       
-      {result === 'correct' && <p className="pattern-feedback correct">太棒了！{question?.explanation || '你找到了规律：有尖角的形状对应圆润的形状！'}</p>}
+      {result === 'correct' && <p className="pattern-feedback correct">太棒了！{question?.explanation || '你找到了规律：从幼体到成体的关系！'}</p>}
       {result === 'incorrect' && <p className="pattern-feedback incorrect">没关系，让我们继续探索吧！</p>}
     </div>
   );

@@ -68,23 +68,23 @@ const PatternGame2: React.FC<GameStageProps> = ({ childName, setPrompt, onComple
         const prompt = `请生成颜色序列模式识别题目，严格返回 JSON：\n{
   "title": string,
   "sequence": [
-    { "color": "red"|"blue"|"green", "label": string },
-    { "color": "red"|"blue"|"green", "label": string },
-    { "color": "red"|"blue"|"green", "label": string },
-    { "color": "red"|"blue"|"green", "label": string },
-    { "color": "red"|"blue"|"green", "label": string },
-    { "color": "red"|"blue"|"green", "label": string },
-    { "color": "red"|"blue"|"green", "label": string },
+    { "color": "red"|"blue"|"green"|"yellow"|"purple", "label": string },
+    { "color": "red"|"blue"|"green"|"yellow"|"purple", "label": string },
+    { "color": "red"|"blue"|"green"|"yellow"|"purple", "label": string },
+    { "color": "red"|"blue"|"green"|"yellow"|"purple", "label": string },
+    { "color": "red"|"blue"|"green"|"yellow"|"purple", "label": string },
+    { "color": "red"|"blue"|"green"|"yellow"|"purple", "label": string },
+    { "color": "red"|"blue"|"green"|"yellow"|"purple", "label": string },
     { "label": "8. ?", "question": true }
   ],
   "options": [
-    { "key": "A"|"B"|"C", "color": "red"|"blue"|"green", "text": string },
-    { "key": "A"|"B"|"C", "color": "red"|"blue"|"green", "text": string },
-    { "key": "A"|"B"|"C", "color": "red"|"blue"|"green", "text": string }
+    { "key": "A"|"B"|"C", "color": "red"|"blue"|"green"|"yellow"|"purple", "text": string },
+    { "key": "A"|"B"|"C", "color": "red"|"blue"|"green"|"yellow"|"purple", "text": string },
+    { "key": "A"|"B"|"C", "color": "red"|"blue"|"green"|"yellow"|"purple", "text": string }
   ],
   "correct": "A"|"B"|"C",
   "explanation": string
-}\n要求：\n- 元素仅为颜色 red/blue/green；\n- 采用可辨识的序列规律并确保唯一正确答案（推荐“红红蓝蓝”重复或“红蓝交替”）；\n- 选项不可重复，且包含正确颜色；\n- 标题与解释中文且适龄友好；\n- 仅输出 JSON；\n- 随机种子：${seed}`;
+}\n要求：\n- 候选颜色集合为 red/blue/green/yellow/purple，本题实际仅使用从中随机抽取的2到3种不同颜色；\n- 采用可辨识且唯一可解的序列规律；允许每种颜色在一个周期内重复1~3次（重复次数随机，如“红红蓝”“绿绿绿蓝蓝”等），并确保第8项唯一确定；\n- 选项不可重复，且包含正确颜色；\n- 标题与解释中文且适龄友好；\n- 仅输出 JSON；\n- 随机种子：${seed}`;
         const q = await callChatJSON(prompt);
         if (!q || !q.options?.length || !q.sequence?.length || !q.correct) {
           setQuestion(localFallbackQuestion());
