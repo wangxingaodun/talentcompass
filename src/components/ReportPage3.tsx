@@ -1,5 +1,6 @@
 import React from 'react';
 import LearningResourceAgent from './LearningResourceAgent';
+import type { ImaginationAssessment } from './games/types';
 
 interface ReportPage3Props {
   childName: string;
@@ -10,9 +11,23 @@ interface ReportPage3Props {
     imagination: number;
     reaction: number;
   };
+  imaginationAssessment?: ImaginationAssessment;
+  talentType: string;
+  tips: string[];
+  resources: {
+    name: string;
+    url: string;
+  }[];
 }
 
-const ReportPage3: React.FC<ReportPage3Props> = ({ childName, scores }) => {
+const ReportPage3: React.FC<ReportPage3Props> = ({ 
+  childName, 
+  scores, 
+  imaginationAssessment, 
+  talentType, 
+  tips, 
+  resources 
+}) => {
   return (
     <div className="report-page-content report-page3-enhanced">
       {/* AI推荐区域 */}

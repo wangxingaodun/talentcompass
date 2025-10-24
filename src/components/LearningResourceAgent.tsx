@@ -126,6 +126,12 @@ const LearningResourceAgent: React.FC<LearningResourceAgentProps> = ({
 
   // 分析用户强项和弱项
   const analyzeStrengthsAndWeaknesses = (scores: Scores) => {
+    // 添加空值检查
+    if (!scores || typeof scores !== 'object') {
+      console.error('Scores参数无效:', scores);
+      return { strengths: [], weaknesses: [] };
+    }
+    
     const dimensions = Object.entries(scores);
     const sorted = dimensions.sort((a, b) => b[1] - a[1]);
     
@@ -396,6 +402,11 @@ const LearningResourceAgent: React.FC<LearningResourceAgentProps> = ({
     setError(null);
 
     try {
+      // 验证scores参数
+      if (!scores || typeof scores !== 'object') {
+        throw new Error('评分数据无效，无法生成推荐');
+      }
+
       const { strengths, weaknesses } = analyzeStrengthsAndWeaknesses(scores);
       const config = getAPIConfig();
       

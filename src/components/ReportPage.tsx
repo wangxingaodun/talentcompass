@@ -77,6 +77,7 @@ const ReportPage: React.FC<ReportPageProps> = ({
           <div style={pageStyle}>
             <ReportPage3
               childName={childName}
+              scores={scores}
               imaginationAssessment={imaginationAssessment}
               talentType={talentType}
               tips={tips}
