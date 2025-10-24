@@ -301,7 +301,7 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
       {state.requestLoading && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: '#fff', padding: '24px 32px', borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,0.2)', fontSize: 16, color: '#333' }}>
-            ⏳ 正在生成报告，请稍候…
+            ⏳ 正在生成AI专属天赋报告，请稍候…
           </div>
         </div>
       )}
