@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAppContext } from './AppContext';
 import type { StoryAssessment } from './games/types';
+import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Legend } from 'recharts';
 
 interface ReportPage1Props {
   childName: string;
@@ -61,27 +62,36 @@ const ReportPage1: React.FC<ReportPage1Props> = ({
   // 计算逻辑思维分数（与StoryReportPage中的计算逻辑一致）
   const logicScorePercent = Math.round(Math.max(0, Math.min(100, (state.scores?.logic || 0) * 10)));
 
-  // 生成五维雷达图的路径
-  const generateRadarPath = () => {
-    const centerX = 150;
-    const centerY = 150;
-    const radius = 100;
-    const dims = [
-      normalizedScores.expression,
-      logicScorePercent,
-      normalizedScores.creativity,
-      imaginationScore,
-      normalizedScores.reaction,
-    ];
-    // 五个角度（度）：0, 72, 144, 216, 288
-    const angles = [0, 72, 144, 216, 288].map(a => (a * Math.PI) / 180);
-    const points = angles.map((angle, i) => ({
-      x: centerX + radius * Math.cos(angle) * (dims[i] / 100), // 改为百分制
-      y: centerY - radius * Math.sin(angle) * (dims[i] / 100), // 改为百分制
-    }));
-    const path = `M ${points[0].x},${points[0].y} ` + points.slice(1).map(p => `L ${p.x},${p.y}`).join(' ') + ' Z';
-    return path;
-  };
+  // 雷达图数据
+  const radarData = [
+    {
+      subject: '表达能力',
+      A: storyAssessment?.score || normalizedScores.expression,
+      fullMark: 100
+    },
+    {
+      subject: '逻辑思维',
+      A: logicScorePercent,
+      fullMark: 100
+    },
+    {
+      subject: '创造力',
+      A: normalizedScores.creativity,
+      fullMark: 100
+    },
+    {
+      subject: '想象力',
+      A: imaginationScore,
+      fullMark: 100
+    },
+    {
+      subject: '反应速度',
+      A: overallScore,
+      fullMark: 100
+    }
+  ];
+
+
 
   // 获取天赋类型对应的卡通形象
   const getTalentImage = () => {
@@ -188,95 +198,75 @@ const ReportPage1: React.FC<ReportPage1Props> = ({
       <div className="energy-section">
         <h2>⚡ 天赋雷达图</h2>
         <div className="radar-chart-container">
-          <div className="radar-chart">
-            <svg width="400" height="400" viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
-              {/* 定义渐变 */}
-              <defs>
-                <radialGradient id="radarGradient" cx="50%" cy="50%" r="50%">
-                  <stop offset="0%" stopColor="rgba(33, 150, 243, 0.4)" />
-                  <stop offset="100%" stopColor="rgba(33, 150, 243, 0.1)" />
-                </radialGradient>
-                <linearGradient id="strokeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#2196F3" />
-                  <stop offset="50%" stopColor="#1976D2" />
-                  <stop offset="100%" stopColor="#0D47A1" />
-                </linearGradient>
-              </defs>
-              
-              {/* 背景圆圈 */}
-              <circle cx="150" cy="150" r="100" fill="none" stroke="#F5F5F5" strokeWidth="1" opacity="0.5" />
-              <circle cx="150" cy="150" r="75" fill="none" stroke="#F0F0F0" strokeWidth="1" opacity="0.7" />
-              <circle cx="150" cy="150" r="50" fill="none" stroke="#EEEEEE" strokeWidth="1" opacity="0.8" />
-              <circle cx="150" cy="150" r="25" fill="none" stroke="#E8E8E8" strokeWidth="1" opacity="0.9" />
-              
-              {/* 网格线 */}
-              <g className="radar-grid">
-                <path d="M 250 150 L 181.4 90.5 L 118.6 109.5 L 118.6 190.5 L 181.4 209.5 Z" stroke="#E8E8E8" strokeWidth="1.5" fill="none" opacity="0.6" />
-                <path d="M 225 150 L 190.0 116.2 L 150.0 125.0 L 150.0 175.0 L 190.0 183.8 Z" stroke="#EEEEEE" strokeWidth="1.5" fill="none" opacity="0.7" />
-                <path d="M 200 150 L 172.1 129.4 L 137.5 137.5 L 137.5 162.5 L 172.1 170.6 Z" stroke="#F0F0F0" strokeWidth="1.5" fill="none" opacity="0.8" />
-                
-                {/* 从中心到各个顶点的辅助线 */}
-                <line x1="150" y1="150" x2="250" y2="150" stroke="#F0F0F0" strokeWidth="1" opacity="0.5" />
-                <line x1="150" y1="150" x2="181.4" y2="90.5" stroke="#F0F0F0" strokeWidth="1" opacity="0.5" />
-                <line x1="150" y1="150" x2="118.6" y2="109.5" stroke="#F0F0F0" strokeWidth="1" opacity="0.5" />
-                <line x1="150" y1="150" x2="118.6" y2="190.5" stroke="#F0F0F0" strokeWidth="1" opacity="0.5" />
-                <line x1="150" y1="150" x2="181.4" y2="209.5" stroke="#F0F0F0" strokeWidth="1" opacity="0.5" />
-              </g>
-              
-              {/* 数据区域 */}
-              <path d={generateRadarPath()} fill="url(#radarGradient)" stroke="url(#strokeGradient)" strokeWidth="3" />
-              
-              {/* 维度标签 */}
-              <g className="radar-labels">
-                {/* 表达能力 */}
-                <circle cx="270" cy="150" r="22" fill="white" stroke="#2196F3" strokeWidth="2" opacity="0.95" />
-                <text x="270" y="145" textAnchor="middle" fill="#1976D2" fontSize="10" fontWeight="bold">表达</text>
-                <text x="270" y="157" textAnchor="middle" fill="#1976D2" fontSize="10" fontWeight="bold">能力</text>
-                
-                {/* 逻辑思维 */}
-                <circle cx="215" cy="70" r="22" fill="white" stroke="#2196F3" strokeWidth="2" opacity="0.95" />
-                <text x="215" y="65" textAnchor="middle" fill="#1976D2" fontSize="10" fontWeight="bold">逻辑</text>
-                <text x="215" y="77" textAnchor="middle" fill="#1976D2" fontSize="10" fontWeight="bold">思维</text>
-                
-                {/* 创造力 */}
-                <circle cx="85" cy="70" r="22" fill="white" stroke="#2196F3" strokeWidth="2" opacity="0.95" />
-                <text x="85" y="65" textAnchor="middle" fill="#1976D2" fontSize="10" fontWeight="bold">创造</text>
-                <text x="85" y="77" textAnchor="middle" fill="#1976D2" fontSize="10" fontWeight="bold">能力</text>
-                
-                {/* 想象力 */}
-                <circle cx="30" cy="150" r="22" fill="white" stroke="#2196F3" strokeWidth="2" opacity="0.95" />
-                <text x="30" y="145" textAnchor="middle" fill="#1976D2" fontSize="10" fontWeight="bold">想象</text>
-                <text x="30" y="157" textAnchor="middle" fill="#1976D2" fontSize="10" fontWeight="bold">能力</text>
-                
-                {/* 反应速度 */}
-                <circle cx="150" cy="270" r="22" fill="white" stroke="#2196F3" strokeWidth="2" opacity="0.95" />
-                <text x="150" y="265" textAnchor="middle" fill="#1976D2" fontSize="10" fontWeight="bold">反应</text>
-                <text x="150" y="277" textAnchor="middle" fill="#1976D2" fontSize="10" fontWeight="bold">速度</text>
-              </g>
-              
-              {/* 分数显示 */}
-              <g className="radar-scores">
-                {/* 表达能力分数 */}
-                <circle cx="250" cy="150" r="20" fill="url(#strokeGradient)" stroke="white" strokeWidth="2" />
-                <text x="250" y="155" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{normalizedScores.expression}</text>
-                
-                {/* 逻辑思维分数 */}
-                <circle cx="181.4" cy="90.5" r="20" fill="url(#strokeGradient)" stroke="white" strokeWidth="2" />
-                <text x="181.4" y="95.5" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{logicScorePercent}</text>
-                
-                {/* 创造力分数 */}
-                <circle cx="118.6" cy="109.5" r="20" fill="url(#strokeGradient)" stroke="white" strokeWidth="2" />
-                <text x="118.6" y="114.5" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{normalizedScores.creativity}</text>
-                
-                {/* 想象力分数 */}
-                <circle cx="118.6" cy="190.5" r="20" fill="url(#strokeGradient)" stroke="white" strokeWidth="2" />
-                <text x="118.6" y="195.5" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{imaginationScore}</text>
-                
-                {/* 反应速度分数 */}
-                <circle cx="181.4" cy="209.5" r="20" fill="url(#strokeGradient)" stroke="white" strokeWidth="2" />
-                <text x="181.4" y="214.5" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">{normalizedScores.reaction}</text>
-              </g>
-            </svg>
+          <div className="radar-chart" style={{ width: '100%', height: '500px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart data={radarData} margin={{ top: 20, right: 60, bottom: 20, left: 60 }}>
+                <defs>
+                  <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#667eea" stopOpacity={0.8}/>
+                    <stop offset="50%" stopColor="#764ba2" stopOpacity={0.6}/>
+                    <stop offset="100%" stopColor="#f093fb" stopOpacity={0.4}/>
+                  </linearGradient>
+                  <radialGradient id="radarFill" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="#667eea" stopOpacity={0.6}/>
+                    <stop offset="100%" stopColor="#f093fb" stopOpacity={0.1}/>
+                  </radialGradient>
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                    <feMerge> 
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+                <PolarGrid 
+                  stroke="#e2e8f0" 
+                  strokeWidth={1.5}
+                  radialLines={true}
+                  gridType="polygon"
+                />
+                <PolarAngleAxis 
+                  dataKey="subject" 
+                  tick={{ 
+                    fontSize: 14, 
+                    fontWeight: '600',
+                    fill: '#475569',
+                    textAnchor: 'middle'
+                  }}
+                  tickFormatter={(value) => value}
+                  radius={120}
+                />
+                <PolarRadiusAxis 
+                  angle={90} 
+                  domain={[0, 100]} 
+                  tick={{ 
+                    fontSize: 12, 
+                    fill: '#94a3b8',
+                    fontWeight: '500'
+                  }}
+                  tickCount={5}
+                  axisLine={false}
+                />
+                <Radar
+                  name="能力值"
+                  dataKey="A"
+                  stroke="#667eea"
+                  fill="url(#radarFill)"
+                  strokeWidth={5}
+                  dot={{ 
+                    fill: '#667eea', 
+                    strokeWidth: 4, 
+                    stroke: '#ffffff',
+                    r: 10,
+                    filter: 'url(#glow)'
+                  }}
+                  fillOpacity={0.5}
+                  animationBegin={0}
+                  animationDuration={1500}
+                  isAnimationActive={true}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
           </div>
           <div className="chart-legend">
             <p className="chart-note">每个维度满分100分，数值越高，兴趣倾向越强。</p>
@@ -357,8 +347,8 @@ const ReportPage1: React.FC<ReportPage1Props> = ({
                                   className="score-fill"
                                   style={{
                                     width: `${imaginationScore}%`,
-                                    backgroundColor: normalizedScores.creativity >= 80 ? '#4CAF50' :
-                                                   normalizedScores.creativity >= 60 ? '#FF9800' : '#F44336'
+                                    backgroundColor: imaginationScore >= 80 ? '#4CAF50' :
+                                                   imaginationScore >= 60 ? '#FF9800' : '#F44336'
                                   }}
                                 ></div>
                               </div>
