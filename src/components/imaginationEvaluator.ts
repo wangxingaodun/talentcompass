@@ -339,7 +339,7 @@ export async function evaluateImaginationTextWithLLM(
       confidence: 0.6,
       subscores: { content: contentSub, imagination: imaginationSub, relevance: relevanceSub },
       rawContent: (rawContentText && rawContentText.trim()) ? rawContentText.trim() : undefined,
-      report: `依据孩子在ImaginationGame中的文字回答，从内容（${contentSub}分）、想象力（${imaginationSub}分）与切题程度（${relevanceSub}分）综合评定为${overallLevelText}。${detail >= 4 ? '细节较多、描述具体' : '细节略少、描述偏概括'}；${originality >= 4 ? '创意较新颖，有想象拓展' : '创意较保守，可增加新颖设想'}；${hasCause ? '因果与动机表达较清晰' : '因果关系较少，逻辑可加强'}。建议通过增加细节、构思故事线、使用连接词来提升表达质量。`,
+      report: `从内容（${contentSub}分）、想象力（${imaginationSub}分）与切题程度（${relevanceSub}分）综合评定为${overallLevelText}。${detail >= 4 ? '细节较多、描述具体' : '细节略少、描述偏概括'}；${originality >= 4 ? '创意较新颖，有想象拓展' : '创意较保守，可增加新颖设想'}；${hasCause ? '因果与动机表达较清晰' : '因果关系较少，逻辑可加强'}。建议通过增加细节、构思故事线、使用连接词来提升表达质量。`,
     };
   }
 }

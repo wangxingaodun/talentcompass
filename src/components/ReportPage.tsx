@@ -3,6 +3,7 @@ import ReportPagination from './ReportPagination';
 import ReportPage1 from './ReportPage1';
 import ReportPage2 from './ReportPage2';
 import ReportPage3 from './ReportPage3';
+import ReportPage4 from './ReportPage4';
 import type { ImaginationAssessment } from './games/types';
 
 interface ReportPageProps {
@@ -36,8 +37,8 @@ const ReportPage: React.FC<ReportPageProps> = ({
   imaginationAssessment
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 3;
-  const pageNames = ['天赋概览', '创意分析', '成长指导'];
+  const totalPages = 4;
+  const pageNames = ['天赋概览', '创意分析', '综合结果', '成长指导'];
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -75,12 +76,18 @@ const ReportPage: React.FC<ReportPageProps> = ({
       case 3:
         return (
           <div style={pageStyle}>
-            <ReportPage3
+            <ReportPage4
               childName={childName}
               imaginationAssessment={imaginationAssessment}
-              talentType={talentType}
-              tips={tips}
-              resources={resources}
+            />
+          </div>
+        );
+      case 4:
+        return (
+          <div style={pageStyle}>
+            <ReportPage3
+              childName={childName}
+              scores={scores}
             />
           </div>
         );
