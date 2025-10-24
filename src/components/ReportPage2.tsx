@@ -26,111 +26,152 @@ const ReportPage2: React.FC<ReportPage2Props> = ({
   }
 
   return (
-    <div className="report-page-content">
-      {/* 想象力评估详情 */}
-      <div className="imagination-assessment-section">
-        <h2>🎨 创意绘画分析</h2>
-        <div className="assessment-content">
+    <div className="report-page-content report-page2-enhanced">
+      {/* 创意绘画分析区域 */}
+      <div className="creativity-analysis-section-enhanced">
+        <div className="section-intro">
+          <div className="intro-icon">🎨</div>
+          <div className="intro-content">
+            <h2>创意绘画分析</h2>
+            <p>深度解析{childName}的艺术创作能力，发现独特的创意表达方式</p>
+          </div>
+        </div>
+        
+        <div className="analysis-content">
           {/* 绘画作品展示 */}
           {typeof metrics.creativity === 'object' && 'imageDataUrl' in metrics.creativity && metrics.creativity.imageDataUrl && (
-            <div className="drawing-artwork">
-              <h3>📋 绘画作品</h3>
-              <div className="artwork-container">
+            <div className="artwork-display-enhanced">
+              <div className="artwork-header">
+                <div className="artwork-icon">🖼️</div>
+                <h3>作品展示</h3>
+              </div>
+              <div className="artwork-container-enhanced">
                 <div className="artwork-image-wrapper">
                   <img 
                     src={metrics.creativity.imageDataUrl} 
-                    alt="儿童绘画作品" 
-                    className="artwork-image"
+                    alt={`${childName}的绘画作品`}
+                    className="artwork-image-enhanced"
                   />
-                  <div className="artwork-overlay">
-                    <div className="artwork-title">{childName}的创意作品</div>
+                  <div className="image-overlay">
+                    <div className="overlay-content">
+                      <span className="view-icon">👁️</span>
+                      <span>查看详情</span>
+                    </div>
                   </div>
                 </div>
-                <div className="artwork-meta-grid">
-                  <div className="artwork-meta">
-                    <span className="meta-label">🎯 作品类型</span>
-                    <span className="meta-value">自由创作</span>
-                  </div>
-                  <div className="artwork-meta">
-                    <span className="meta-label">⏱️ 创作时间</span>
-                    <span className="meta-value">
-                      {typeof metrics.creativity === 'object' && 'totalMs' in metrics.creativity 
-                        ? `${Math.round(metrics.creativity.totalMs / 1000)}秒`
-                        : '未知'}
-                    </span>
-                  </div>
-                  <div className="artwork-meta">
-                    <span className="meta-label">🎨 使用颜色</span>
-                    <span className="meta-value">
-                      {typeof metrics.creativity === 'object' && 'colorsUsed' in metrics.creativity 
-                        ? `${metrics.creativity.colorsUsed}种`
-                        : '未知'}
-                    </span>
-                  </div>
-                  <div className="artwork-meta">
-                    <span className="meta-label">🖌️ 绘画工具</span>
-                    <span className="meta-value">
-                      {typeof metrics.creativity === 'object' && 'toolVariety' in metrics.creativity 
-                        ? `${metrics.creativity.toolVariety}种`
-                        : '未知'}
-                    </span>
-                  </div>
+                <div className="artwork-metadata-enhanced">
+                  <div className="metadata-item">
+                     <span className="metadata-icon">🎨</span>
+                     <div className="metadata-content">
+                       <span className="metadata-label">作品类型</span>
+                       <span className="metadata-value">自由创作</span>
+                     </div>
+                   </div>
+                   <div className="metadata-item">
+                     <span className="metadata-icon">⏰</span>
+                     <div className="metadata-content">
+                       <span className="metadata-label">创作时长</span>
+                       <span className="metadata-value">{Math.round(metrics.creativity.totalMs / 1000)}秒</span>
+                     </div>
+                   </div>
+                   <div className="metadata-item">
+                     <span className="metadata-icon">🌈</span>
+                     <div className="metadata-content">
+                       <span className="metadata-label">使用颜色</span>
+                       <span className="metadata-value">{metrics.creativity.colorsUsed}种</span>
+                     </div>
+                   </div>
                 </div>
               </div>
             </div>
           )}
           
-          <div className="assessment-score-section">
-            <div className="assessment-score">
-              <div className="score-circle">
-                <div className="score-value">{imaginationAssessment.score}</div>
-                <div className="score-label">分</div>
-              </div>
-              <div className="score-level">
-                <span className={`level-badge level-${imaginationAssessment.level}`}>
-                  {imaginationAssessment.level === 'excellent' ? '🌟 优秀' : 
-                   imaginationAssessment.level === 'good' ? '👍 良好' : '💪 待提升'}
-                </span>
-              </div>
+          <div className="assessment-score-section-enhanced">
+            <div className="score-header">
+              <div className="score-icon">📊</div>
+              <h3>评估结果</h3>
             </div>
-            <div className="confidence-display">
-              <div className="confidence-label">评估置信度</div>
-              <div className="confidence-bar">
-                <div 
-                  className="confidence-fill" 
-                  style={{ width: `${(imaginationAssessment.confidence * 100)}%` }}
-                ></div>
-              </div>
-              <div className="confidence-value">
-                {(imaginationAssessment.confidence * 100).toFixed(0)}%
+            <div className="assessment-score-enhanced">
+              <div className="main-score-card">
+                <div className="score-circle-enhanced">
+                  <div className="score-value">{imaginationAssessment.score}</div>
+                </div>
+                <div className="score-details">
+                  <div className={`level-badge-enhanced level-${imaginationAssessment.level}`}>
+                    {imaginationAssessment.level === 'excellent' ? '🌟 优秀' : 
+                     imaginationAssessment.level === 'good' ? '👍 良好' : '💪 待提升'}
+                  </div>
+                  <div className="confidence-display-enhanced">
+                    <span className="confidence-icon">🎯</span>
+                    <div className="confidence-content">
+                      <div className="confidence-label">评估置信度</div>
+                      <div className="confidence-bar">
+                        <div 
+                          className="confidence-fill" 
+                          style={{ width: `${(imaginationAssessment.confidence * 100)}%` }}
+                        ></div>
+                      </div>
+                      <div className="confidence-value">
+                        {(imaginationAssessment.confidence * 100).toFixed(0)}%
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
           {imaginationAssessment.subscores && (
-            <div className="subscores-section" style={{ marginTop: 16 }}>
-              <h3>🔹 多维度评分</h3>
-              <div className="subscore-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-                <div className="subscore-item">
-                  <div className="subscore-label">内容</div>
-                  <div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}>
-                    <div className="subscore-fill" style={{ width: `${imaginationAssessment.subscores.content}%`, height: 8, background: '#4caf50' }}></div>
+            <div className="subscores-enhanced">
+              <div className="subscores-header">
+                <div className="subscores-icon">📈</div>
+                <h3>详细评分</h3>
+              </div>
+              <div className="subscore-grid-enhanced">
+                <div className="subscore-card">
+                  <div className="subscore-icon">📝</div>
+                  <div className="subscore-content">
+                    <span className="subscore-label">内容丰富度</span>
+                    <div className="subscore-progress">
+                      <div className="subscore-bar">
+                        <div 
+                          className="subscore-fill content" 
+                          style={{ width: `${imaginationAssessment.subscores.content}%` }}
+                        ></div>
+                      </div>
+                      <span className="subscore-value">{imaginationAssessment.subscores.content}分</span>
+                    </div>
                   </div>
-                  <div className="subscore-value" style={{ marginTop: 4 }}>{imaginationAssessment.subscores.content}</div>
                 </div>
-                <div className="subscore-item">
-                  <div className="subscore-label">想象力</div>
-                  <div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}>
-                    <div className="subscore-fill" style={{ width: `${imaginationAssessment.subscores.imagination}%`, height: 8, background: '#ff9800' }}></div>
+                <div className="subscore-card">
+                  <div className="subscore-icon">🌟</div>
+                  <div className="subscore-content">
+                    <span className="subscore-label">想象力表现</span>
+                    <div className="subscore-progress">
+                      <div className="subscore-bar">
+                        <div 
+                          className="subscore-fill imagination" 
+                          style={{ width: `${imaginationAssessment.subscores.imagination}%` }}
+                        ></div>
+                      </div>
+                      <span className="subscore-value">{imaginationAssessment.subscores.imagination}分</span>
+                    </div>
                   </div>
-                  <div className="subscore-value" style={{ marginTop: 4 }}>{imaginationAssessment.subscores.imagination}</div>
                 </div>
-                <div className="subscore-item">
-                  <div className="subscore-label">切题程度</div>
-                  <div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}>
-                    <div className="subscore-fill" style={{ width: `${imaginationAssessment.subscores.relevance}%`, height: 8, background: '#2196f3' }}></div>
+                <div className="subscore-card">
+                  <div className="subscore-icon">🎯</div>
+                  <div className="subscore-content">
+                    <span className="subscore-label">主题相关性</span>
+                    <div className="subscore-progress">
+                      <div className="subscore-bar">
+                        <div 
+                          className="subscore-fill relevance" 
+                          style={{ width: `${imaginationAssessment.subscores.relevance}%` }}
+                        ></div>
+                      </div>
+                      <span className="subscore-value">{imaginationAssessment.subscores.relevance}分</span>
+                    </div>
                   </div>
-                  <div className="subscore-value" style={{ marginTop: 4 }}>{imaginationAssessment.subscores.relevance}</div>
                 </div>
               </div>
             </div>
@@ -269,6 +310,17 @@ const ReportPage2: React.FC<ReportPage2Props> = ({
               这个分析基于{childName}的绘画作品，从原创性、多样性、叙事性、构图、色彩和投入度等维度进行专业评估。
               每个孩子都有独特的创意表达方式，这个评估旨在帮助发现和培养孩子的艺术潜能。
             </p>
+          </div>
+        </div>
+      </div>
+      
+      {/* 页面底部提示 */}
+      <div className="page-footer-enhanced">
+        <div className="footer-card">
+          <div className="footer-icon">🎨</div>
+          <div className="footer-content">
+            <h4>创意发现之旅</h4>
+            <p>每一幅画都是{childName}内心世界的独特表达，让我们一起发现更多可能性！</p>
           </div>
         </div>
       </div>
