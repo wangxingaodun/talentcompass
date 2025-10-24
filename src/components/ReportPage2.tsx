@@ -272,34 +272,74 @@ const ReportPage2: React.FC<ReportPage2Props> = ({
           </div>
         </div>
 
-        {/* 想象力报告（文本回答） */}
-        <div className="imagination-text-report" style={{ marginTop: 24 }}>
-          <h3>🧠 想象力报告</h3>
-          <div className="prompt-answer" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
-            {metrics.imagination && (metrics.imagination as any).prompt && (
-              <div className="prompt-line" style={{ display: 'flex', gap: 8 }}>
-                <span className="label" style={{ fontWeight: 600 }}>题目：</span>
-                <span className="value">{(metrics.imagination as any).prompt}</span>
+               <div className="imagination-text-report">
+          <h2>🧠 想象力报告</h2>
+          <div className="text-report-content">
+            {state.metrics?.imagination?.prompt && (
+              <div className="report-prompt">
+                <div className="prompt-label">题目</div>
+                <div className="prompt-value">{String(state.metrics.imagination.prompt)}</div>
               </div>
             )}
-            {metrics.imagination && (metrics.imagination as any).answerText && (
-              <div className="answer-line" style={{ display: 'flex', gap: 8 }}>
-                <span className="label" style={{ fontWeight: 600 }}>回答：</span>
-                <span className="value">{(metrics.imagination as any).answerText}</span>
+            {state.metrics?.imagination?.answerText && (
+              <div className="report-answer">
+                <div className="answer-label">孩子的回答</div>
+                <div className="answer-value">{String(state.metrics.imagination.answerText)}</div>
               </div>
             )}
-          </div>
 
-          {imaginationAssessment.subscores && (
-            <div className="subscore-summary" style={{ marginTop: 8, color: '#555' }}>
-              <span>内容 {imaginationAssessment.subscores.content} · 想象力 {imaginationAssessment.subscores.imagination} · 切题 {imaginationAssessment.subscores.relevance}</span>
+            {/* 综合评分与评定 */}
+            <div className="text-overall" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 8 }}>
+              <div className="overall-score">
+                <div className="overall-label">综合评分</div>
+                <div className="overall-value" style={{ fontSize: 24, fontWeight: 600 }}>{imaginationAssessment.score} 分</div>
+                <div className="confidence-bar" style={{ marginTop: 6 }}>
+                  <div className="confidence-fill" style={{ width: `${imaginationAssessment.score}%` }}></div>
+                </div>
+              </div>
+              <div className="overall-level">
+                <div className="overall-label">综合评定</div>
+                <span className={`level-badge level-${imaginationAssessment.level}`}>
+                  {imaginationAssessment.level === 'excellent' ? '🌟 优秀' : imaginationAssessment.level === 'good' ? '👍 良好' : '💪 待提升'}
+                </span>
+                <div className="overall-confidence" style={{ marginTop: 8 }}>
+                  <div className="confidence-label">评估置信度</div>
+                  <div className="confidence-bar">
+                    <div className="confidence-fill" style={{ width: `${(imaginationAssessment.confidence * 100)}%` }}></div>
+                  </div>
+                  <div className="confidence-value">{(imaginationAssessment.confidence * 100).toFixed(0)}%</div>
+                </div>
+              </div>
             </div>
-          )}
 
-          <div className="report-body" style={{ marginTop: 12 }}>
-            <p style={{ lineHeight: 1.6 }}>
-              {imaginationAssessment.report || '暂无报告文本'}
-            </p>
+            {imaginationAssessment.subscores && (
+              <div className="report-subscores" style={{ marginTop: 12 }}>
+                <h3>🔹 三个维度评分</h3>
+                <div className="subscore-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+                  <div className="subscore-item">
+                    <div className="subscore-label">内容</div>
+                    <div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}>
+                      <div className="subscore-fill" style={{ width: `${imaginationAssessment.subscores.content}%`, height: 8, background: '#4caf50' }}></div>
+                    </div>
+                    <div className="subscore-value" style={{ marginTop: 4 }}>{imaginationAssessment.subscores.content}</div>
+                  </div>
+                  <div className="subscore-item">
+                    <div className="subscore-label">想象力</div>
+                    <div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}>
+                      <div className="subscore-fill" style={{ width: `${imaginationAssessment.subscores.imagination}%`, height: 8, background: '#ff9800' }}></div>
+                    </div>
+                    <div className="subscore-value" style={{ marginTop: 4 }}>{imaginationAssessment.subscores.imagination}</div>
+                  </div>
+                  <div className="subscore-item">
+                    <div className="subscore-label">切题程度</div>
+                    <div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}>
+                      <div className="subscore-fill" style={{ width: `${imaginationAssessment.subscores.relevance}%`, height: 8, background: '#2196f3' }}></div>
+                    </div>
+                    <div className="subscore-value" style={{ marginTop: 4 }}>{imaginationAssessment.subscores.relevance}</div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
