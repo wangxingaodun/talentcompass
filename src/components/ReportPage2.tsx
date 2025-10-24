@@ -1,17 +1,15 @@
 import React from 'react';
 import { useAppContext } from './AppContext';
-import type { ImaginationAssessment, StoryAssessment } from './games/types';
+import type { ImaginationAssessment } from './games/types';
 
 interface ReportPage2Props {
   childName: string;
   imaginationAssessment?: ImaginationAssessment;
-  storyAssessment?: StoryAssessment;
 }
 
 const ReportPage2: React.FC<ReportPage2Props> = ({
   childName,
-  imaginationAssessment,
-  storyAssessment
+  imaginationAssessment
 }) => {
   const { state } = useAppContext();
   const metrics = state.metrics;
@@ -78,48 +76,6 @@ const ReportPage2: React.FC<ReportPage2Props> = ({
               </div>
               <div className="assessment-reasons"><h3>✨ 亮点表现</h3><ul className="reasons-list">{imaginationAssessment.reasons.map((reason, index) => (<li key={index} className="reason-item"><span className="reason-icon">🌟</span><span className="reason-text">{reason}</span></li>))}</ul></div>
               {imaginationAssessment.suggestions && imaginationAssessment.suggestions.length > 0 && (<div className="assessment-suggestions"><h3>🚀 提升建议</h3><ul className="suggestions-list">{imaginationAssessment.suggestions.map((sug, index) => (<li key={index} className="suggestion-item"><span className="suggestion-icon">✅</span><span className="suggestion-text">{sug}</span></li>))}</ul></div>)}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* 统一分割线 */}
-      <div className="section-divider" />
-
-      {/* 故事表达评估 */}
-      <div className="story-assessment-section" style={{ marginTop: 24 }}>
-        <h2>故事表达分析</h2>
-        {!storyAssessment ? (
-          <div className="no-assessment"><p>暂无故事文本数据</p></div>
-        ) : (
-          <div className="assessment-content">
-            <div className="assessment-score-section">
-              <div className="assessment-score">
-                <div className="score-circle"><div className="score-value">{storyAssessment.score}</div><div className="score-label">分</div></div>
-                <div className="score-level"><span className={`level-badge level-${storyAssessment.level}`}>{storyAssessment.level === 'excellent' ? '🌟 优秀' : storyAssessment.level === 'good' ? '👍 良好' : '💪 待提升'}</span></div>
-              </div>
-              <div className="confidence-display"><div className="confidence-label">评估置信度</div><div className="confidence-bar"><div className="confidence-fill" style={{ width: `${(storyAssessment.confidence * 100)}%` }}></div></div><div className="confidence-value">{(storyAssessment.confidence * 100).toFixed(0)}%</div></div>
-            </div>
-
-            {storyAssessment.subscores && (
-              <div className="subscores-section" style={{ marginTop: 16 }}>
-                <h3>🔹 多维度评分</h3>
-                <div className="subscore-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
-                  <div className="subscore-item"><div className="subscore-label">词汇多样性</div><div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}><div className="subscore-fill" style={{ width: `${storyAssessment.subscores.vocabulary}%`, height: 8, background: '#4caf50' }}></div></div><div className="subscore-value" style={{ marginTop: 4 }}>{storyAssessment.subscores.vocabulary}</div></div>
-                  <div className="subscore-item"><div className="subscore-label">句子长度</div><div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}><div className="subscore-fill" style={{ width: `${storyAssessment.subscores.sentenceLength}%`, height: 8, background: '#8bc34a' }}></div></div><div className="subscore-value" style={{ marginTop: 4 }}>{storyAssessment.subscores.sentenceLength}</div></div>
-                  <div className="subscore-item"><div className="subscore-label">创意度</div><div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}><div className="subscore-fill" style={{ width: `${storyAssessment.subscores.creativity}%`, height: 8, background: '#ff9800' }}></div></div><div className="subscore-value" style={{ marginTop: 4 }}>{storyAssessment.subscores.creativity}</div></div>
-                  <div className="subscore-item"><div className="subscore-label">清晰度</div><div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}><div className="subscore-fill" style={{ width: `${storyAssessment.subscores.clarity}%`, height: 8, background: '#03a9f4' }}></div></div><div className="subscore-value" style={{ marginTop: 4 }}>{storyAssessment.subscores.clarity}</div></div>
-                  <div className="subscore-item"><div className="subscore-label">完整度</div><div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}><div className="subscore-fill" style={{ width: `${storyAssessment.subscores.completeness}%`, height: 8, background: '#9c27b0' }}></div></div><div className="subscore-value" style={{ marginTop: 4 }}>{storyAssessment.subscores.completeness}</div></div>
-                  <div className="subscore-item"><div className="subscore-label">连贯性</div><div className="subscore-bar" style={{ background: '#eee', borderRadius: 8, overflow: 'hidden' }}><div className="subscore-fill" style={{ width: `${storyAssessment.subscores.coherence}%`, height: 8, background: '#795548' }}></div></div><div className="subscore-value" style={{ marginTop: 4 }}>{storyAssessment.subscores.coherence}</div></div>
-                </div>
-              </div>
-            )}
-
-            <div className="assessment-details">
-              <div className="assessment-reasons"><h3>✨ 亮点表现</h3><ul className="reasons-list">{storyAssessment.reasons.map((reason, index) => (<li key={index} className="reason-item"><span className="reason-icon">🌟</span><span className="reason-text">{reason}</span></li>))}</ul></div>
-              {storyAssessment.suggestions && storyAssessment.suggestions.length > 0 && (
-                <div className="assessment-suggestions"><h3>🚀 提升建议</h3><ul className="suggestions-list">{storyAssessment.suggestions.map((sug, index) => (<li key={index} className="suggestion-item"><span className="suggestion-icon">✅</span><span className="suggestion-text">{sug}</span></li>))}</ul></div>
-              )}
             </div>
           </div>
         )}

@@ -1538,6 +1538,73 @@ body {
   font-size: 1.5em;
 }
 
+/* 你的故事预览卡片样式 */
+.text-preview-card {
+  background: var(--background-white);
+  border: 3px solid var(--border-light);
+  border-radius: 16px;
+  box-shadow: var(--shadow-light);
+  padding: 16px 20px;
+}
+
+.text-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.text-preview-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.text-preview-title::before {
+  content: '📝';
+  font-size: 1.3em;
+}
+
+.text-preview-toggle {
+  background: var(--secondary-blue);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-light);
+}
+.text-preview-toggle:hover {
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+}
+.text-preview-toggle:active {
+  transform: translateY(2px);
+}
+
+.text-preview-content {
+  margin-top: 12px;
+  background: #fafafa;
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: var(--text-dark);
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+/* 评分子项通用网格与条样式统一（StoryReportPage） */
+.subscores-section { margin-top: 16px; }
+.subscore-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.subscore-bar { background: #eee; border-radius: 8px; overflow: hidden; }
+.subscore-fill { height: 8px; background: #4caf50; }
+.subscore-value { margin-top: 4px; }
+
 /* 通用分割线 */
 .section-divider {
   height: 0;

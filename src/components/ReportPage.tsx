@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import ReportPagination from './ReportPagination';
 import ReportPage1 from './ReportPage1';
 import ReportPage2 from './ReportPage2';
+import StoryReportPage from './StoryReportPage';
 import ReportPage3 from './ReportPage3';
 import type { ImaginationAssessment, StoryAssessment } from './games/types';
 
@@ -38,8 +39,8 @@ const ReportPage: React.FC<ReportPageProps> = ({
   storyAssessment
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 3;
-  const pageNames = ['天赋概览', '创意分析', '成长指导'];
+  const totalPages = 4;
+  const pageNames = ['天赋概览', '创意分析', '故事分析', '成长指导'];
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -50,7 +51,7 @@ const ReportPage: React.FC<ReportPageProps> = ({
       opacity: 1,
       transform: 'translateX(0)',
       transition: 'opacity 0.4s ease, transform 0.4s ease'
-    };
+    } as React.CSSProperties;
 
     switch (currentPage) {
       case 1:
@@ -71,11 +72,19 @@ const ReportPage: React.FC<ReportPageProps> = ({
             <ReportPage2
               childName={childName}
               imaginationAssessment={imaginationAssessment}
-              storyAssessment={storyAssessment}
             />
           </div>
         );
       case 3:
+        return (
+          <div style={pageStyle}>
+            <StoryReportPage
+              childName={childName}
+              storyAssessment={storyAssessment}
+            />
+          </div>
+        );
+      case 4:
         return (
           <div style={pageStyle}>
             <ReportPage3
