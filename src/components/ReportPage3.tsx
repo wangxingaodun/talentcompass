@@ -29,7 +29,6 @@ const ReportPage3: React.FC<ReportPage3Props> = ({ childName, scores }) => {
           <LearningResourceAgent 
             childName={childName}
             scores={scores}
-            ageBand="7-8"
             onResourcesGenerated={(resources) => {
               console.log('AI推荐的学习资源:', resources);
             }}

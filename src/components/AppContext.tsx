@@ -8,7 +8,6 @@ interface AppState {
   currentPage: 'welcome' | 'interactive' | 'report';
   childName: string;
   testDate: string;
-  ageBand: '4-6' | '7-8' | '9-10';
   scores: {
     expression: number;
     logic: number;
@@ -41,7 +40,6 @@ interface AppContextType {
   state: AppState;
   setCurrentPage: (page: 'welcome' | 'interactive' | 'report') => void;
   setChildName: (name: string) => void;
-  setAgeBand: (age: '4-6' | '7-8' | '9-10') => void;
   recordMetric: (key: keyof AppState['metrics'], data: any) => void;
   generateReportData: () => Promise<void>;
   // 游戏进度管理方法
@@ -64,7 +62,6 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     currentPage: 'welcome',
     childName: '小朋友',
     testDate: new Date().toLocaleDateString('zh-CN'),
-    ageBand: '7-8',
     scores: {
       expression: 0,
       logic: 0,
@@ -98,9 +95,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setState(prev => ({ ...prev, childName: name }));
   }, []);
 
-  const setAgeBand = useCallback((age: '4-6' | '7-8' | '9-10') => {
-    setState(prev => ({ ...prev, ageBand: age }));
-  }, []);
+
 
   const recordMetric: AppContextType['recordMetric'] = useCallback((key, data) => {
     setState(prev => {
@@ -148,7 +143,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // 生成报告数据
   const generateReportData = useCallback(async () => {
     const { metrics } = state;
-    const ageFactor = state.ageBand === '4-6' ? 1.2 : state.ageBand === '7-8' ? 1.0 : 0.9;
+    const ageFactor = 1.0; // 移除年龄段区分，使用统一因子
     const clamp10 = (val: number) => Math.max(0, Math.min(10, val));
 
     // 表达：字符数 + 独特性 + 速度
@@ -172,7 +167,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         const assessment = await evaluateImaginationWithLLM(
           metrics.creativity.imageDataUrl,
           metrics.creativity,
-          state.ageBand
+          '7-8' // 使用默认年龄段
         );
         
         // 保存评估结果
@@ -300,7 +295,6 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     state,
     setCurrentPage,
     setChildName,
-    setAgeBand,
     recordMetric,
     generateReportData,
     setCurrentGameType,

@@ -21,7 +21,6 @@ interface LearningResource {
 interface LearningResourceAgentProps {
   scores: Scores;
   childName: string;
-  ageBand: '4-6' | '7-8' | '9-10';
   onResourcesGenerated: (resources: { name: string; url: string }[]) => void;
 }
 
@@ -119,7 +118,6 @@ async function callOpenAIAPI(
 const LearningResourceAgent: React.FC<LearningResourceAgentProps> = ({
   scores,
   childName,
-  ageBand,
   onResourcesGenerated
 }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -147,7 +145,7 @@ const LearningResourceAgent: React.FC<LearningResourceAgentProps> = ({
       reaction: '反应能力'
     };
 
-    return `请为${ageBand}岁的儿童${childName}推荐学习资源。
+    return `请为7-8岁的儿童${childName}推荐学习资源。
 
 能力评估结果（满分10分）：
 - 语言表达: ${scores.expression.toFixed(1)}分
@@ -174,7 +172,7 @@ const LearningResourceAgent: React.FC<LearningResourceAgentProps> = ({
       "url": "https://example.com",
       "type": "course|game|book|activity|tool|video",
       "targetDimensions": ["expression", "logic"],
-      "description": "详细描述这个资源如何帮助孩子发展相关能力",
+      "description": "详细描述这个资源如何可以帮助孩子发展相关能力",
       "ageGroup": "4-6岁|7-8岁|9-10岁",
       "difficulty": "beginner|intermediate|advanced"
     }
@@ -184,7 +182,7 @@ const LearningResourceAgent: React.FC<LearningResourceAgentProps> = ({
 
 要求：
 - 所有URL必须是真实可访问的教育资源网站
-- 资源要适合${ageBand}岁儿童的认知水平
+- 资源要适合7-8岁儿童的认知水平
 - 优先推荐免费或低成本的优质资源
 - 包含中文和英文资源
 - 考虑家长陪伴和独立学习的平衡`;
@@ -200,7 +198,7 @@ const LearningResourceAgent: React.FC<LearningResourceAgentProps> = ({
         type: "video",
         targetDimensions: ["expression"],
         description: "通过观看和复述故事提升语言表达能力",
-        ageGroup: ageBand,
+        ageGroup: "7-8岁",
         difficulty: "beginner"
       },
       {
@@ -209,7 +207,7 @@ const LearningResourceAgent: React.FC<LearningResourceAgentProps> = ({
         type: "course",
         targetDimensions: ["expression"],
         description: "系统性的口语表达训练课程",
-        ageGroup: ageBand,
+        ageGroup: "7-8岁",
         difficulty: "intermediate"
       },
       // 逻辑思维类
@@ -219,7 +217,7 @@ const LearningResourceAgent: React.FC<LearningResourceAgentProps> = ({
         type: "game",
         targetDimensions: ["logic"],
         description: "通过拼图游戏锻炼空间逻辑思维",
-        ageGroup: ageBand,
+        ageGroup: "7-8岁",
         difficulty: "beginner"
       },
       {
@@ -228,7 +226,7 @@ const LearningResourceAgent: React.FC<LearningResourceAgentProps> = ({
         type: "course",
         targetDimensions: ["logic", "creativity"],
         description: "图形化编程培养逻辑思维和创造力",
-        ageGroup: ageBand,
+        ageGroup: "7-8岁",
         difficulty: "intermediate"
       },
       // 创造力类
@@ -238,7 +236,7 @@ const LearningResourceAgent: React.FC<LearningResourceAgentProps> = ({
         type: "tool",
         targetDimensions: ["creativity", "imagination"],
         description: "数字绘画工具激发创意表达",
-        ageGroup: ageBand,
+        ageGroup: "7-8岁",
         difficulty: "beginner"
       },
       {
@@ -247,7 +245,7 @@ const LearningResourceAgent: React.FC<LearningResourceAgentProps> = ({
         type: "activity",
         targetDimensions: ["creativity", "logic"],
         description: "动手搭建培养创造力和空间思维",
-        ageGroup: ageBand,
+        ageGroup: "7-8岁",
         difficulty: "intermediate"
       },
       // 想象力类
@@ -257,7 +255,7 @@ const LearningResourceAgent: React.FC<LearningResourceAgentProps> = ({
         type: "book",
         targetDimensions: ["imagination", "logic"],
         description: "科学绘本激发想象力和求知欲",
-        ageGroup: ageBand,
+        ageGroup: "7-8岁",
         difficulty: "beginner"
       },
       {
@@ -266,7 +264,79 @@ const LearningResourceAgent: React.FC<LearningResourceAgentProps> = ({
         type: "course",
         targetDimensions: ["imagination", "expression"],
         description: "引导孩子进行创意写作和故事创作",
-        ageGroup: ageBand,
+        ageGroup: "7-8岁",
+        difficulty: "intermediate"
+      },
+      {
+        name: "七巧板智力拼图",
+        url: "https://www.4399.com/flash/146_146.htm",
+        type: "game",
+        targetDimensions: ["logic"],
+        description: "经典的逻辑思维训练游戏",
+        ageGroup: "7-8岁",
+        difficulty: "beginner"
+      },
+      {
+        name: "数学思维训练营",
+        url: "https://www.xueersi.com/",
+        type: "course",
+        targetDimensions: ["logic"],
+        description: "系统性的数学逻辑思维培养",
+        ageGroup: "7-8岁",
+        difficulty: "intermediate"
+      },
+      {
+        name: "创意绘画工坊",
+        url: "https://www.artforkidshub.com/",
+        type: "activity",
+        targetDimensions: ["creativity"],
+        description: "自由创作和艺术表达训练",
+        ageGroup: "7-8岁",
+        difficulty: "beginner"
+      },
+      {
+        name: "乐高创意搭建",
+        url: "https://www.lego.com/zh-cn/kids",
+        type: "activity",
+        targetDimensions: ["creativity", "logic"],
+        description: "通过搭建培养创造力和空间思维",
+        ageGroup: "7-8岁",
+        difficulty: "intermediate"
+      },
+      {
+        name: "想象力故事创作",
+        url: "https://www.storylineonline.net/",
+        type: "activity",
+        targetDimensions: ["imagination", "expression"],
+        description: "引导孩子创作属于自己的故事",
+        ageGroup: "7-8岁",
+        difficulty: "intermediate"
+      },
+      {
+        name: "科学小实验",
+        url: "https://www.stevespanglerscience.com/",
+        type: "activity",
+        targetDimensions: ["imagination", "logic"],
+        description: "通过实验激发想象力和探索精神",
+        ageGroup: "7-8岁",
+        difficulty: "beginner"
+      },
+      {
+        name: "反应力训练游戏",
+        url: "https://www.lumosity.com/",
+        type: "game",
+        targetDimensions: ["reaction"],
+        description: "专业的反应速度和注意力训练",
+        ageGroup: "7-8岁",
+        difficulty: "intermediate"
+      },
+      {
+        name: "体感运动游戏",
+        url: "https://www.nintendo.com/",
+        type: "game",
+        targetDimensions: ["reaction"],
+        description: "通过体感游戏提升反应能力和协调性",
+        ageGroup: "7-8岁",
         difficulty: "intermediate"
       },
       // 反应能力类
@@ -276,7 +346,7 @@ const LearningResourceAgent: React.FC<LearningResourceAgentProps> = ({
         type: "game",
         targetDimensions: ["reaction"],
         description: "通过小游戏提升反应速度和注意力",
-        ageGroup: ageBand,
+        ageGroup: "7-8岁",
         difficulty: "beginner"
       },
       {
@@ -285,7 +355,7 @@ const LearningResourceAgent: React.FC<LearningResourceAgentProps> = ({
         type: "course",
         targetDimensions: ["reaction", "logic"],
         description: "系统训练注意力和反应能力",
-        ageGroup: ageBand,
+        ageGroup: "7-8岁",
         difficulty: "intermediate"
       }
     ];
@@ -385,7 +455,7 @@ const LearningResourceAgent: React.FC<LearningResourceAgentProps> = ({
   // 组件挂载时自动生成推荐
   useEffect(() => {
     generateRecommendations();
-  }, [scores, childName, ageBand]);
+  }, [scores, childName]);
 
   const getDimensionName = (dimension: string) => {
     const names = {

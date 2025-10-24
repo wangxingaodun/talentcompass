@@ -34,6 +34,8 @@ html {
   -ms-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 /* 全局样式重置和基础设置 - 参考多邻国设计 */
@@ -78,6 +80,8 @@ body {
   -webkit-overflow-scrolling: touch; /* iOS平滑滚动 */
   overflow-x: hidden; /* 防止水平滚动 */
   position: relative;
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .app-container {
@@ -89,27 +93,38 @@ body {
   justify-content: flex-start;
   align-items: center;
   padding: 0;
+  margin: 0;
   position: relative;
   overflow: hidden;
 }
 
-/* 欢迎页样式 - AI科技风格 */
+/* 欢迎页样式 - AI科技风格 - 真正全屏显示 */
 .welcome-page {
-  width: 100%;
+  width: 100vw;
   height: 100vh;
   max-width: none;
+  max-height: none;
   background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 75%, #533483 100%);
   border-radius: 0;
   box-shadow: none;
-  padding: 20px;
+  margin: 0;
+  padding: 0;
   text-align: center;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
+  /* 确保完全覆盖 */
+  min-width: 100vw;
+  min-height: 100vh;
 }
 
 .welcome-page::before {
@@ -153,6 +168,10 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 32px;
+  padding: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .welcome-title {
@@ -164,6 +183,10 @@ body {
   text-shadow: 0 0 20px rgba(120, 219, 255, 0.5);
   position: relative;
   z-index: 10;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .welcome-subtitle {
@@ -4137,21 +4160,135 @@ body {
   }
 }
 
+/* 响应式设计 - AI功能按钮 */
+@media (max-width: 768px) {
+  .ai-features {
+    gap: 12px;
+    max-width: 100%;
+  }
+  
+  .feature-item {
+    padding: 12px 8px;
+    gap: 6px;
+    min-height: 50px;
+  }
+  
+  .feature-text {
+    font-size: 0.8rem;
+  }
+  
+  .feature-icon {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ai-features {
+    gap: 8px;
+  }
+  
+  .feature-item {
+    padding: 10px 6px;
+    gap: 4px;
+  }
+  
+  .feature-text {
+    font-size: 0.75rem;
+  }
+  
+  .feature-icon {
+    font-size: 1rem;
+  }
+}
+
 /* AI徽章和特性展示样式 */
 .ai-badge {
-  display: inline-block;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%);
   color: white;
-  padding: 8px 16px;
-  border-radius: 20px;
+  padding: 12px 20px;
+  border-radius: 25px;
   font-size: 1rem;
   font-weight: 700;
-  margin-right: 12px;
-  margin-bottom: 8px;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-  animation: ai-pulse 2s ease-in-out infinite;
+  margin: 0;
+  box-shadow: 
+    0 8px 32px rgba(79, 70, 229, 0.3),
+    0 4px 16px rgba(124, 58, 237, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   position: relative;
   z-index: 10;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: ai-glow 3s ease-in-out infinite;
+}
+
+.ai-icon {
+  display: inline-block;
+  font-size: 1.1em;
+  animation: ai-sparkle 2s ease-in-out infinite;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8));
+}
+
+@keyframes ai-sparkle {
+  0%, 100% {
+    transform: rotate(0deg) scale(1);
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8));
+  }
+  25% {
+    transform: rotate(-5deg) scale(1.1);
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 1));
+  }
+  50% {
+    transform: rotate(0deg) scale(1.05);
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 1.2));
+  }
+  75% {
+    transform: rotate(5deg) scale(1.1);
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 1));
+  }
+}
+
+.ai-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s ease;
+}
+
+.ai-badge:hover::before {
+  left: 100%;
+}
+
+.ai-badge:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 
+    0 12px 40px rgba(79, 70, 229, 0.4),
+    0 6px 20px rgba(124, 58, 237, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+@keyframes ai-glow {
+  0%, 100% {
+    box-shadow: 
+      0 8px 32px rgba(79, 70, 229, 0.3),
+      0 4px 16px rgba(124, 58, 237, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+  50% {
+    box-shadow: 
+      0 12px 40px rgba(79, 70, 229, 0.5),
+      0 6px 24px rgba(124, 58, 237, 0.4),
+      0 2px 8px rgba(236, 72, 153, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
 }
 
 @keyframes ai-pulse {
@@ -4167,10 +4304,10 @@ body {
 
 .ai-features {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
   margin: 32px 0;
-  max-width: 800px;
+  max-width: 1000px;
   position: relative;
   z-index: 10;
 }
@@ -4178,15 +4315,17 @@ body {
 .feature-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 8px;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 16px;
-  padding: 16px 20px;
+  padding: 14px 16px;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  min-height: 60px;
 }
 
 .feature-item::before {
@@ -4218,8 +4357,9 @@ body {
 .feature-text {
   color: rgba(255, 255, 255, 0.95);
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.9rem;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
 }
 
 /* AI学习资源推荐组件样式 */
