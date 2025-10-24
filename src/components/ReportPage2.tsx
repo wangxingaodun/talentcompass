@@ -276,7 +276,7 @@ const ReportPage2: React.FC<ReportPage2Props> = ({
             </div>
             
             <div className="assessment-reasons">
-              <h3>✨ 亮点表现</h3>
+              <h3>✨ 表现分析</h3>
               <ul className="reasons-list">
                 {imaginationAssessment.reasons.map((reason, index) => (
                   <li key={index} className="reason-item">
