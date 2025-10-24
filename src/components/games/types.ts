@@ -25,11 +25,13 @@ export interface ImaginationAssessment {
   reasons: string[];
   suggestions: string[];
   confidence: number; // 0-1
+  subscores?: { content: number; imagination: number; relevance: number };
+  rawContent?: string;
 }
 
 export interface GameStageResult {
   dimension: Dimension;
-  metrics: Record<string, number> | DrawingMetrics;
+  metrics: Record<string, number | string> | DrawingMetrics;
 }
 
 export interface GameStageProps {

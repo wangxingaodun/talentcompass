@@ -6,19 +6,17 @@ interface WelcomePageProps {
 }
 
 const WelcomePage: React.FC<WelcomePageProps> = ({ onStartTest }) => {
-  const { setChildName, setAgeBand } = useAppContext();
+  const { setChildName } = useAppContext();
   const [localName, setLocalName] = useState('');
-  const [localAgeBand, setLocalAgeBand] = useState<'4-6' | '7-8' | '9-10' | ''>('');
   const [error, setError] = useState('');
 
   const handleSubmit = () => {
-    if (!localName.trim() || !localAgeBand) {
-      setError('请填写昵称并选择年龄段');
+    if (!localName.trim()) {
+      setError('请填写昵称');
       return;
     }
     setError('');
     setChildName(localName.trim());
-    setAgeBand(localAgeBand);
     onStartTest();
   };
 
@@ -26,7 +24,10 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStartTest }) => {
     <div className="welcome-page">
       <div className="welcome-content">
         <h1 className="welcome-title">
-          <span className="ai-badge">🤖 AI驱动</span>
+          <span className="ai-badge">
+            <span className="ai-icon">✨</span>
+            AI驱动
+          </span>
           发现孩子的天赋火花！智能天赋测评
         </h1>
         <p className="welcome-subtitle">
@@ -56,36 +57,18 @@ const WelcomePage: React.FC<WelcomePageProps> = ({ onStartTest }) => {
 
 
         <div className="welcome-form">
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">
-                <span className="label-icon">👶</span>
-                昵称
-              </label>
-              <input
-                type="text"
-                placeholder="给孩子起个昵称"
-                value={localName}
-                onChange={(e) => setLocalName(e.target.value)}
-                className="form-input"
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">
-                <span className="label-icon">🎂</span>
-                年龄段
-              </label>
-              <select
-                value={localAgeBand}
-                onChange={(e) => setLocalAgeBand(e.target.value as '4-6' | '7-8' | '9-10' | '')}
-                className="form-select"
-              >
-                <option value="">请选择</option>
-                <option value="4-6">4–6岁</option>
-                <option value="7-8">7–8岁</option>
-                <option value="9-10">9–10岁</option>
-              </select>
-            </div>
+          <div className="form-group">
+            <label className="form-label">
+              <span className="label-icon">👶</span>
+              昵称
+            </label>
+            <input
+              type="text"
+              placeholder="给孩子起个昵称"
+              value={localName}
+              onChange={(e) => setLocalName(e.target.value)}
+              className="form-input"
+            />
           </div>
           {error && <div className="form-error">{error}</div>}
         </div>
