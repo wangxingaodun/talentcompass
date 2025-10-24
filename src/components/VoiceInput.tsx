@@ -10,13 +10,6 @@ interface VoiceInputProps {
   className?: string;
 }
 
-// 声明浏览器语音识别API类型
-declare global {
-  interface Window {
-    webkitSpeechRecognition: any;
-    SpeechRecognition: any;
-  }
-}
 
 const VoiceInput: React.FC<VoiceInputProps> = ({
   onResult,
