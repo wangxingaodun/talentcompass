@@ -1114,6 +1114,7 @@ body {
 .drawing-canvas {
   border: 1px solid #f0f0f0;
   border-radius: 5px;
+  width: 100%;
 }
 
 .drawing-timer {

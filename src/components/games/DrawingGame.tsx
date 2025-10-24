@@ -591,7 +591,6 @@ const DrawingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onComplet
         <canvas
           ref={canvasRef}
           className="drawing-canvas"
-          width={800}
           height={600}
         />
       </div>
