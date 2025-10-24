@@ -28,7 +28,7 @@
 }
 @media (min-width: 1024px) {
   .page-grid { 
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 7fr 3fr;
     min-height: calc(100vh - 140px);
   }
 }
@@ -102,6 +102,8 @@
   padding: 16px;
   color: var(--text-primary);
   box-shadow: 0 6px 14px rgba(27, 35, 73, 0.08);
+  white-space: normal;
+  word-wrap: break-word;
 }
 .prompt-bubble::after {
   content: '';
@@ -114,9 +116,8 @@
   border-right: 10px solid #fff;
 }
 .typing {
-  overflow: hidden;
-  white-space: nowrap;
-  animation: typing 0.8s steps(40, end);
+  white-space: normal;
+  word-wrap: break-word;
 }
 @keyframes typing { from { width: 0 } to { width: 100% } }
 

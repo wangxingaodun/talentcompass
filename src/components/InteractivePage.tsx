@@ -198,9 +198,9 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
       
       // 更新游戏进度
       const progressMap = {
-        'storytelling': 20,
-        'pattern': 40,
-        'drawing': 60,
+        'storytelling': 12,
+        'pattern': 36,
+        'drawing': 64,
         'animalClick': 80,
         'imagination': 100
       };
@@ -219,10 +219,10 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
             setCurrentGame({ type: 'drawing', currentStep: 3, isCompleted: false });
             break;
           case 'drawing':
-            setCurrentGame({ type: 'animalClick', currentStep: 4, isCompleted: false });
+            setCurrentGame({ type: 'animalClick', currentStep: 6, isCompleted: false });
             break;
           case 'animalClick':
-            setCurrentGame({ type: 'imagination', currentStep: 5, isCompleted: false });
+            setCurrentGame({ type: 'imagination', currentStep: 7, isCompleted: false });
             break;
           case 'imagination':
             onComplete();
