@@ -181,7 +181,7 @@ const LearningResourceAgent: React.FC<LearningResourceAgentProps> = ({
 }
 
 要求：
-- 所有URL必须是真实可访问的教育资源网站
+- 所有URL必须是真实可访问的中国大陆地区的教育资源网站
 - 资源要适合7-8岁儿童的认知水平
 - 优先推荐免费或低成本的优质资源
 - 包含中文和英文资源
