@@ -28,7 +28,7 @@ interface GameState {
 }
 
 const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName }) => {
-  const { state, recordMetric, setCurrentGameType, setGameCompleted } = useAppContext();
+  const { recordMetric, setCurrentGameType, setGameCompleted } = useAppContext();
   // 游戏状态管理
   const [currentGame, setCurrentGame] = useState<GameState>({
     type: 'storytelling',
@@ -101,17 +101,18 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
       
       newRecognition.onend = () => {
         _setRecognitionActive(false);
-        // 自动提交如果有内容
-        if (storyInput.trim()) {
-          setTimeout(() => {
+        // 自动提交如果有内容 - 使用ref来避免依赖问题
+        setTimeout(() => {
+          const currentInput = document.querySelector('input[type="text"]') as HTMLInputElement;
+          if (currentInput && currentInput.value.trim()) {
             handleStorySubmit();
-          }, 1000);
-        }
+          }
+        }, 1000);
       };
       
       _setRecognition(newRecognition);
     }
-  }, [storyInput]);
+  }, []); // 移除storyInput依赖，只在组件挂载时初始化一次
   
   // 进入不同关卡时记录起始时间
   React.useEffect(() => {

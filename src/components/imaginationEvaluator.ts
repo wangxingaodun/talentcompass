@@ -272,7 +272,7 @@ export async function evaluateImaginationWithLLM(
       console.log('使用OpenAI GPT-4 Vision API进行评估...');
       result = await callOpenAIVisionAPI(imageDataUrl, prompt, config.apiKey, config.baseUrl!);
       console.log('result =', result)
-    } else if (config.provider === 'anthropic' && config.apiKey) {
+    } else if ((config as APIConfig).provider === 'anthropic' && config.apiKey) {
       console.log('使用Anthropic Claude 3 Vision API进行评估...');
       result = await callAnthropicVisionAPI(imageDataUrl, prompt, config.apiKey, config.baseUrl!);
     } else {

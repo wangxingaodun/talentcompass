@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import type { DrawingMetrics, ImaginationAssessment } from './games/types';
 import { evaluateImaginationWithLLM } from './imaginationEvaluator';
@@ -89,20 +89,20 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   });
 
   // 设置当前页面
-  const setCurrentPage = (page: 'welcome' | 'interactive' | 'report') => {
+  const setCurrentPage = useCallback((page: 'welcome' | 'interactive' | 'report') => {
     setState(prev => ({ ...prev, currentPage: page }));
-  };
+  }, []);
 
   // 设置孩子名字
-  const setChildName = (name: string) => {
+  const setChildName = useCallback((name: string) => {
     setState(prev => ({ ...prev, childName: name }));
-  };
+  }, []);
 
-  const setAgeBand = (age: '4-6' | '7-8' | '9-10') => {
+  const setAgeBand = useCallback((age: '4-6' | '7-8' | '9-10') => {
     setState(prev => ({ ...prev, ageBand: age }));
-  };
+  }, []);
 
-  const recordMetric: AppContextType['recordMetric'] = (key, data) => {
+  const recordMetric: AppContextType['recordMetric'] = useCallback((key, data) => {
     setState(prev => {
       // 对于逻辑维度，需要累加correct和attempts，而不是覆盖
       if (key === 'logic') {
@@ -133,20 +133,20 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         }
       };
     });
-  };
+  }, []);
 
   // 设置当前游戏类型
-  const setCurrentGameType = (gameType: 'storytelling' | 'pattern' | 'drawing' | 'animalClick' | 'imagination' | undefined) => {
+  const setCurrentGameType = useCallback((gameType: 'storytelling' | 'pattern' | 'drawing' | 'animalClick' | 'imagination' | undefined) => {
     setState(prev => ({ ...prev, currentGameType: gameType }));
-  };
+  }, []);
 
   // 设置游戏完成状态
-  const setGameCompleted = (completed: boolean) => {
+  const setGameCompleted = useCallback((completed: boolean) => {
     setState(prev => ({ ...prev, isCurrentGameCompleted: completed }));
-  };
+  }, []);
 
   // 生成报告数据
-  const generateReportData = async () => {
+  const generateReportData = useCallback(async () => {
     const { metrics } = state;
     const ageFactor = state.ageBand === '4-6' ? 1.2 : state.ageBand === '7-8' ? 1.0 : 0.9;
     const clamp10 = (val: number) => Math.max(0, Math.min(10, val));
@@ -293,7 +293,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       tips,
       resources
     }));
-  };
+  }, [state]);
 
   // 提供Context值
   const contextValue: AppContextType = {

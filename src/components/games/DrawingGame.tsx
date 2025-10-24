@@ -115,11 +115,32 @@ const DrawingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onComplet
     // 清空画布
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // 应用背景模板
-    applyBackgroundTemplate();
+    // 重新应用背景模板
+    if (backgroundTemplate === 'grid') {
+      ctx.strokeStyle = '#e0e0e0';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < canvas.width; i += 20) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, canvas.height);
+        ctx.stroke();
+      }
+      for (let i = 0; i < canvas.height; i += 20) {
+        ctx.beginPath();
+        ctx.moveTo(0, i);
+        ctx.lineTo(canvas.width, i);
+        ctx.stroke();
+      }
+    } else if (backgroundTemplate === 'sky') {
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      gradient.addColorStop(0, '#87CEEB');
+      gradient.addColorStop(1, '#E0F6FF');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
     
     clearCountRef.current += 1;
-  }, []);
+  }, [backgroundTemplate]);
 
   // 应用背景模板
   React.useEffect(() => {
