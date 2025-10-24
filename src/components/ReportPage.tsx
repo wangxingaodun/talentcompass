@@ -5,7 +5,7 @@ import ReportPage2 from './ReportPage2';
 import StoryReportPage from './StoryReportPage';
 import ReportPage3 from './ReportPage3';
 import ReportPage4 from './ReportPage4';
-import type { ImaginationAssessment } from './games/types';
+import type { ImaginationAssessment, StoryAssessment } from './games/types';
 
 interface ReportPageProps {
   childName: string;
