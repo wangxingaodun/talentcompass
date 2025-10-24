@@ -3163,8 +3163,8 @@ body {
   position: absolute;
   bottom: 15%;
   left: 50%;
-  width: 60%;
-  height: 70%;
+  width: 39.6%;
+  height: 48.6%;
   transform: translateX(-50%) translateY(100%);
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   z-index: 2; /* 确保地鼠显示在地洞洞口和草地之间 */
@@ -3176,14 +3176,14 @@ body {
 
 /* 地鼠出现效果 - 增强动画效果 */
 .whack-mole.up {
-  transform: translateX(-50%) translateY(0);
+  transform: translateX(-50%) translateY(25px);
   animation: bounce-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes bounce-in {
   0% { transform: translateX(-50%) translateY(100%) scale(0.8); opacity: 0.7; }
   60% { transform: translateX(-50%) translateY(-15px) scale(1.1); }
-  100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+  100% { transform: translateX(-50%) translateY(25px) scale(1); opacity: 1; }
 }
 
 /* 地鼠被击中效果 - 增强动感 */
