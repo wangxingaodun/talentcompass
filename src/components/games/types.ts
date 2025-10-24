@@ -27,6 +27,7 @@ export interface ImaginationAssessment {
   confidence: number; // 0-1
   subscores?: { content: number; imagination: number; relevance: number };
   rawContent?: string;
+  report?: string;
 }
 
 export interface GameStageResult {

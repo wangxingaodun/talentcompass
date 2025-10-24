@@ -218,7 +218,7 @@ export async function evaluateImaginationTextWithLLM(
   question?: string,
   childAge?: string
 ): Promise<ImaginationAssessment> {
-  const prompt = `你是一名儿童想象力评估专家。这是题目：${question || '题目未提供'}。以下是${childAge || '儿童'}的回答：\n\n${answerText}\n\n请根据以下维度生成评分：\n- 内容（清晰度、细节、可理解性）0-100\n- 想象力（新颖度、创造性、丰富性）0-100\n- 切题程度（与题目相关性）0-100\n并计算总体score（0-100）与等级level（excellent/good/needs_improvement）。\n严格仅输出JSON：\n{\n  "score": 85,\n  "level": "excellent",\n  "subscores": { "content": 80, "imagination": 92, "relevance": 88 },\n  "reasons": ["评分要点1","评分要点2"],\n  "suggestions": ["提升建议1","提升建议2"],\n  "confidence": 0.9\n}\n不得包含额外文字或代码块。`;
+  const prompt = `你是一名儿童想象力评估专家。这是题目：${question || '题目未提供'}。以下是${childAge || '儿童'}的回答：\n\n${answerText}\n\n请根据以下维度生成评分：\n- 内容（清晰度、细节、可理解性）0-100\n- 想象力（新颖度、创造性、丰富性）0-100\n- 切题程度（与题目相关性）0-100\n并计算总体score（0-100）与等级level（excellent/good/needs_improvement），并输出一段120-200字的中文综合评语report。\n严格仅输出JSON：\n{\n  "score": 85,\n  "level": "excellent",\n  "subscores": { "content": 80, "imagination": 92, "relevance": 88 },\n  "reasons": ["评分要点1","评分要点2"],\n  "suggestions": ["提升建议1","提升建议2"],\n  "confidence": 0.9,\n  "report": "综合评语..."\n}\n不得包含额外文字或代码块。`;
 
   const config = getAPIConfig();
   let rawContentText: string | undefined;
@@ -294,6 +294,7 @@ export async function evaluateImaginationTextWithLLM(
       confidence: Math.max(0, Math.min(1, result.confidence || 0.8)),
       subscores: result.subscores,
       rawContent: (rawContentText && rawContentText.trim()) ? rawContentText.trim() : undefined,
+      report: typeof result.report === 'string' ? result.report : undefined,
     };
   } catch (err) {
     console.error('文本想象力评估失败，使用启发式:', err);
@@ -319,6 +320,8 @@ export async function evaluateImaginationTextWithLLM(
     const relevanceBase = qWords.length ? Math.round(100 * (overlap / Math.max(3, qWords.length))) : 60;
     const relevanceSub = Math.max(0, Math.min(100, Math.max(40, relevanceBase)));
 
+    const overallLevelText = score >= 85 ? '优秀' : score >= 60 ? '良好' : '有待提升';
+
     return {
       score,
       level: score >= 85 ? 'excellent' : score >= 60 ? 'good' : 'needs_improvement',
@@ -335,6 +338,7 @@ export async function evaluateImaginationTextWithLLM(
       confidence: 0.6,
       subscores: { content: contentSub, imagination: imaginationSub, relevance: relevanceSub },
       rawContent: (rawContentText && rawContentText.trim()) ? rawContentText.trim() : undefined,
+      report: `从内容（${contentSub}分）、想象力（${imaginationSub}分）与切题程度（${relevanceSub}分）综合看，整体表现${overallLevelText}。回答${detail >= 4 ? '细节较为丰富' : '细节略显不足'}，${originality >= 4 ? '创意亮点明显' : '创意可继续大胆拓展'}，建议加入更多描写并构建小故事结构以提升表达。`,
     };
   }
 }

@@ -271,6 +271,37 @@ const ReportPage2: React.FC<ReportPage2Props> = ({
             </p>
           </div>
         </div>
+
+        {/* 想象力报告（文本回答） */}
+        <div className="imagination-text-report" style={{ marginTop: 24 }}>
+          <h3>🧠 想象力报告</h3>
+          <div className="prompt-answer" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
+            {metrics.imagination && (metrics.imagination as any).prompt && (
+              <div className="prompt-line" style={{ display: 'flex', gap: 8 }}>
+                <span className="label" style={{ fontWeight: 600 }}>题目：</span>
+                <span className="value">{(metrics.imagination as any).prompt}</span>
+              </div>
+            )}
+            {metrics.imagination && (metrics.imagination as any).answerText && (
+              <div className="answer-line" style={{ display: 'flex', gap: 8 }}>
+                <span className="label" style={{ fontWeight: 600 }}>回答：</span>
+                <span className="value">{(metrics.imagination as any).answerText}</span>
+              </div>
+            )}
+          </div>
+
+          {imaginationAssessment.subscores && (
+            <div className="subscore-summary" style={{ marginTop: 8, color: '#555' }}>
+              <span>内容 {imaginationAssessment.subscores.content} · 想象力 {imaginationAssessment.subscores.imagination} · 切题 {imaginationAssessment.subscores.relevance}</span>
+            </div>
+          )}
+
+          <div className="report-body" style={{ marginTop: 12 }}>
+            <p style={{ lineHeight: 1.6 }}>
+              {imaginationAssessment.report || '暂无报告文本'}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
