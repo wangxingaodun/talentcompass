@@ -42,6 +42,7 @@ const AppContent: React.FC = () => {
           tips={state.tips} 
           resources={state.resources}
           imaginationAssessment={state.imaginationAssessment}
+          lastImaginationAssessment={state.lastImaginationAssessment}
           storyAssessment={state.storyAssessment}
         />
       )}

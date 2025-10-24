@@ -25,6 +25,7 @@ interface ReportPageProps {
     url: string;
   }[];
   imaginationAssessment?: ImaginationAssessment;
+  lastImaginationAssessment?: ImaginationAssessment;
   storyAssessment?: StoryAssessment;
 }
 
@@ -37,6 +38,7 @@ const ReportPage: React.FC<ReportPageProps> = ({
   tips,
   resources,
   imaginationAssessment,
+  lastImaginationAssessment,
   storyAssessment
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -82,7 +84,7 @@ const ReportPage: React.FC<ReportPageProps> = ({
           <div style={pageStyle}>
             <ReportPage4
               childName={childName}
-              imaginationAssessment={imaginationAssessment}
+              imaginationAssessment={lastImaginationAssessment}
             />
           </div>
         );

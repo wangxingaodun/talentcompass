@@ -50,7 +50,7 @@ const ReportPage4: React.FC<ReportPage4Props> = ({ childName, imaginationAssessm
   if (highlights.length >= 2) suggestions.push('保持优势并提升挑战：提高难度或缩短出现间隔');
 
   // 想象力评估（来自上下文或作为props传入）
-  const imag = imaginationAssessment || state.imaginationAssessment;
+  const imag = imaginationAssessment || state.lastImaginationAssessment;
 
   return (
     <div className="report-page-content report-page4-enhanced">

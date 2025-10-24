@@ -31,13 +31,14 @@ interface AppState {
     reaction: { hits: number; mistakes: number; avgLatencyMs: number; totalMs: number };
   };
   imaginationAssessment?: ImaginationAssessment;
+  lastImaginationAssessment?: ImaginationAssessment;
   storyAssessment?: StoryAssessment;
   ageBand?: string;
   // 游戏进度相关状态
   currentGameType?: 'storytelling' | 'pattern' | 'drawing' | 'animalClick' | 'imagination';
   isCurrentGameCompleted: boolean;
 }
-
+let STATE: AppState;
 // 定义Context类型
 interface AppContextType {
   state: AppState;
@@ -109,7 +110,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
           correct: currentLogic.correct + (data.correct || 0),
           attempts: currentLogic.attempts + (data.attempts || 0),
           // avgLatencyMs使用加权平均
-          avgLatencyMs: currentLogic.attempts > 0 
+          avgLatencyMs: currentLogic.attempts > 0
             ? (currentLogic.avgLatencyMs * currentLogic.attempts + (data.avgLatencyMs || 0) * (data.attempts || 0)) / (currentLogic.attempts + (data.attempts || 0))
             : (data.avgLatencyMs || 0)
         };
@@ -121,15 +122,17 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
           }
         };
       }
-      
+
       // 其他维度使用原有的覆盖逻辑
-      return {
+      let state= {
         ...prev,
         metrics: {
           ...prev.metrics,
           [key]: { ...prev.metrics[key], ...(data as any) }
         }
       };
+      STATE = state;
+      return state
     });
   }, []);
 
@@ -145,7 +148,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   // 生成报告数据
   const generateReportData = useCallback(async () => {
-    const { metrics } = state;
+    const { metrics } = STATE;
     const ageFactor = 1.0; // 移除年龄段区分，使用统一因子
     const clamp10 = (val: number) => Math.max(0, Math.min(10, val));
 
@@ -189,13 +192,13 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
           metrics.creativity,
           '7-8' // 使用默认年龄段
         );
-        
+
         // 保存评估结果
         setState(prev => ({
           ...prev,
           imaginationAssessment: assessment
         }));
-        
+
         // 将评估分数转换为创造力分数
         creativity = clamp10((assessment.score / 100) * 10 * ageFactor);
       } catch (error) {
@@ -221,7 +224,7 @@ const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         const assessment = await evaluateImaginationTextWithLLM(String(answerText), metrics.imagination.prompt, state.ageBand);
         setState(prev => ({
           ...prev,
-          imaginationAssessment: assessment
+            lastImaginationAssessment: assessment
         }));
         imagination = clamp10((assessment.score / 100) * 10 * ageFactor);
       } catch (error) {
