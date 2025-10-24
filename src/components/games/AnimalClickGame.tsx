@@ -3,6 +3,7 @@ import type { GameStageProps, GameStageResult } from './types';
 import moleSvg from '../../assets/mole.svg';
 import burrowSvg from '../../assets/burrow.svg';
 import backgroundSvg from '../../assets/background.svg';
+import './AnimalClickGame.css';
 
 const GRID_SIZE = 3; // 3x3 地鼠洞
 const INITIAL_VISIBLE_MS = 1500; // 初始地鼠露头时长 - 开始慢一些
