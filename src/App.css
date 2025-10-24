@@ -1510,6 +1510,41 @@ body {
   font-size: 1.5em;
 }
 
+/* 故事表达评估样式（与想象力评估统一） */
+.story-assessment-section {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin: 40px 0;
+  background: white;
+  border-radius: 20px;
+  padding: 32px;
+  border: 3px solid var(--border-light);
+  box-shadow: var(--shadow-light);
+}
+
+.story-assessment-section h2 {
+  font-size: 1.8rem;
+  color: var(--text-dark);
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.story-assessment-section h2::before {
+  content: '📖';
+  font-size: 1.5em;
+}
+
+/* 通用分割线 */
+.section-divider {
+  height: 0;
+  border-top: 2px solid var(--border-light);
+  margin: 16px 0;
+}
+
 .assessment-content {
   display: flex;
   flex-direction: column;

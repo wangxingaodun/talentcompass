@@ -133,7 +133,7 @@ const InteractivePage: React.FC<InteractivePageProps> = ({ onComplete, childName
       const charCount = text.length;
       const uniqueCharCount = new Set(text.split('')).size;
       const latencyMs = Date.now() - storyStartTime;
-      recordMetric('expression', { charCount, uniqueCharCount, latencyMs });
+      recordMetric('expression', { charCount, uniqueCharCount, latencyMs, text });
 
       setCurrentGame(prev => ({ ...prev, isCompleted: true }));
       // 延迟跳转到下一个游戏

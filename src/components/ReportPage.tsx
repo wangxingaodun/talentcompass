@@ -3,7 +3,7 @@ import ReportPagination from './ReportPagination';
 import ReportPage1 from './ReportPage1';
 import ReportPage2 from './ReportPage2';
 import ReportPage3 from './ReportPage3';
-import type { ImaginationAssessment } from './games/types';
+import type { ImaginationAssessment, StoryAssessment } from './games/types';
 
 interface ReportPageProps {
   childName: string;
@@ -23,6 +23,7 @@ interface ReportPageProps {
     url: string;
   }[];
   imaginationAssessment?: ImaginationAssessment;
+  storyAssessment?: StoryAssessment;
 }
 
 const ReportPage: React.FC<ReportPageProps> = ({
@@ -33,7 +34,8 @@ const ReportPage: React.FC<ReportPageProps> = ({
   talentDescription,
   tips,
   resources,
-  imaginationAssessment
+  imaginationAssessment,
+  storyAssessment
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = 3;
@@ -69,6 +71,7 @@ const ReportPage: React.FC<ReportPageProps> = ({
             <ReportPage2
               childName={childName}
               imaginationAssessment={imaginationAssessment}
+              storyAssessment={storyAssessment}
             />
           </div>
         );
@@ -77,10 +80,7 @@ const ReportPage: React.FC<ReportPageProps> = ({
           <div style={pageStyle}>
             <ReportPage3
               childName={childName}
-              imaginationAssessment={imaginationAssessment}
-              talentType={talentType}
-              tips={tips}
-              resources={resources}
+              scores={scores}
             />
           </div>
         );

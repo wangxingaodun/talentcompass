@@ -126,7 +126,7 @@ const StorytellingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCo
         // 长句拆分：超过24个未遇标点的字符，智能插入逗号
         const insertCommaInLongRun = (s: string) => {
           const parts = s.split(/([。！？；])/);
-          const candidate = /[的了过着就也都还又再而把被与和及或并]/g;
+          const candidate = /[的了过着就也都还再而把被与和及或并]/g;
           for (let i = 0; i < parts.length; i += 2) {
             const seg = parts[i];
             if (seg && seg.length >= 24) {
@@ -224,7 +224,8 @@ const StorytellingGame: React.FC<GameStageProps> = ({ childName, setPrompt, onCo
       metrics: {
         charCount: text.length,
         uniqueCharCount: uniqueChars,
-        latencyMs
+        latencyMs,
+        text
       }
     };
     onComplete(result);
