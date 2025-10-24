@@ -263,6 +263,7 @@ export async function evaluateImaginationTextWithLLM(
 
       const data = await response.json();
       const content = data?.choices?.[0]?.message?.content;
+      console.log("API返回的内容：", content)
       rawContentText = typeof content === 'string' ? content : JSON.stringify(content || {});
       let parsed: any;
       if (content && typeof content === 'object') {
